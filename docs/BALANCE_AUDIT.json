@@ -1,0 +1,585 @@
+{
+  "generatedAt": "2026-10-17T11:55:50.429Z",
+  "scope": "10 starting occupations, fixed seed per occupation, 30 game days, no player intervention",
+  "report": [
+    {
+      "job": "学生",
+      "seed": 100,
+      "gameDays": 30,
+      "elapsedMs": 46,
+      "hourlyActivitySamples": {
+        "read": 123,
+        "work": 90,
+        "create": 60,
+        "rest": 6,
+        "garden": 16,
+        "walk": 11,
+        "eat": 51,
+        "sleep": 212,
+        "wash": 19,
+        "socialize": 73,
+        "shop": 10,
+        "study": 19,
+        "play": 21,
+        "coffee": 9
+      },
+      "finalMoney": 1098,
+      "minimum": {
+        "energy": 49.940000000000445,
+        "mood": 78.84977140475456,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 28.29999999999938,
+        "mood": 99.93,
+        "stress": 0,
+        "social": 99.58000000000148,
+        "fun": 69.3999999999988,
+        "health": 99.77000000000011
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 3,
+      "chains": [
+        {
+          "id": "book",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "learning",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 0
+    },
+    {
+      "job": "办公室职员",
+      "seed": 101,
+      "gameDays": 30,
+      "elapsedMs": 38,
+      "hourlyActivitySamples": {
+        "create": 57,
+        "read": 118,
+        "work": 99,
+        "study": 26,
+        "play": 26,
+        "socialize": 77,
+        "garden": 22,
+        "rest": 4,
+        "sleep": 215,
+        "eat": 36,
+        "shop": 11,
+        "wash": 16,
+        "coffee": 10,
+        "walk": 3
+      },
+      "finalMoney": 5560,
+      "minimum": {
+        "energy": 46.980000000000274,
+        "mood": 78.84977140475456,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 85.24999999999976,
+        "mood": 94.63664488609295,
+        "stress": 0,
+        "social": 96.34000000000161,
+        "fun": 48.09999999999836,
+        "health": 99.80000000000004
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "letter",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "程序员",
+      "seed": 102,
+      "gameDays": 30,
+      "elapsedMs": 36,
+      "hourlyActivitySamples": {
+        "create": 59,
+        "work": 95,
+        "garden": 24,
+        "read": 119,
+        "eat": 49,
+        "sleep": 211,
+        "wash": 19,
+        "study": 16,
+        "socialize": 76,
+        "coffee": 10,
+        "shop": 11,
+        "play": 24,
+        "walk": 5,
+        "rest": 2
+      },
+      "finalMoney": 5470,
+      "minimum": {
+        "energy": 47.720000000000276,
+        "mood": 81.7691493888812,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 95.68000000000009,
+        "hunger": 39.29999999999923,
+        "mood": 95.40777866134884,
+        "stress": 0,
+        "social": 100,
+        "fun": 72.19999999999808,
+        "health": 99.6400000000002
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "coffee",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "咖啡师",
+      "seed": 103,
+      "gameDays": 30,
+      "elapsedMs": 33,
+      "hourlyActivitySamples": {
+        "read": 114,
+        "work": 91,
+        "garden": 21,
+        "eat": 45,
+        "create": 59,
+        "sleep": 215,
+        "wash": 19,
+        "socialize": 80,
+        "play": 29,
+        "study": 20,
+        "shop": 10,
+        "coffee": 12,
+        "walk": 3,
+        "rest": 2
+      },
+      "finalMoney": 5550,
+      "minimum": {
+        "energy": 41.80000000000026,
+        "mood": 84.77823737079045,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 75.34999999999981,
+        "mood": 99.86014,
+        "stress": 0,
+        "social": 100,
+        "fun": 65.39999999999796,
+        "health": 100
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "coffee",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "便利店店员",
+      "seed": 104,
+      "gameDays": 30,
+      "elapsedMs": 35,
+      "hourlyActivitySamples": {
+        "sleep": 185,
+        "eat": 42,
+        "read": 125,
+        "create": 43,
+        "garden": 18,
+        "walk": 6,
+        "work": 138,
+        "play": 45,
+        "socialize": 66,
+        "rest": 3,
+        "shop": 11,
+        "coffee": 10,
+        "wash": 14,
+        "study": 14
+      },
+      "finalMoney": 6963,
+      "minimum": {
+        "energy": 51.04000000000066,
+        "mood": 76.25491773541651,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 54.020000000000664,
+        "hunger": 6.599999999999999,
+        "mood": 99.86014,
+        "stress": 3.1000000000000174,
+        "social": 100,
+        "fun": 40.900000000000055,
+        "health": 100
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "letter",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 29
+    },
+    {
+      "job": "自由职业者",
+      "seed": 105,
+      "gameDays": 30,
+      "elapsedMs": 32,
+      "hourlyActivitySamples": {
+        "work": 104,
+        "study": 21,
+        "read": 129,
+        "play": 35,
+        "socialize": 68,
+        "eat": 38,
+        "create": 49,
+        "sleep": 210,
+        "walk": 7,
+        "coffee": 12,
+        "garden": 15,
+        "rest": 7,
+        "wash": 15,
+        "shop": 10
+      },
+      "finalMoney": 5536,
+      "minimum": {
+        "energy": 41.80000000000026,
+        "mood": 78.52100896443359,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 71.39999999999966,
+        "mood": 95.31700798207407,
+        "stress": 0,
+        "social": 87.58000000000004,
+        "fun": 41.69999999999203,
+        "health": 100
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "coffee",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "book",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "插画师",
+      "seed": 106,
+      "gameDays": 30,
+      "elapsedMs": 33,
+      "hourlyActivitySamples": {
+        "coffee": 5,
+        "play": 30,
+        "work": 100,
+        "eat": 43,
+        "read": 124,
+        "create": 53,
+        "socialize": 80,
+        "sleep": 209,
+        "wash": 13,
+        "study": 23,
+        "garden": 23,
+        "rest": 2,
+        "walk": 6,
+        "shop": 9
+      },
+      "finalMoney": 5630,
+      "minimum": {
+        "energy": 41.80000000000026,
+        "mood": 78.46132932579457,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 79.74999999999979,
+        "mood": 96.23228568818614,
+        "stress": 0,
+        "social": 98.8,
+        "fun": 50.09999999999437,
+        "health": 100
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "learning",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "作家",
+      "seed": 107,
+      "gameDays": 30,
+      "elapsedMs": 32,
+      "hourlyActivitySamples": {
+        "read": 128,
+        "work": 102,
+        "eat": 47,
+        "create": 57,
+        "walk": 12,
+        "socialize": 67,
+        "study": 20,
+        "coffee": 6,
+        "shop": 8,
+        "sleep": 215,
+        "wash": 14,
+        "play": 23,
+        "garden": 19,
+        "rest": 2
+      },
+      "finalMoney": 5594,
+      "minimum": {
+        "energy": 40.41000000000024,
+        "mood": 81.79620139479046,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 27.199999999999356,
+        "mood": 99.93,
+        "stress": 0,
+        "social": 95.98000000000891,
+        "fun": 62.69999999998653,
+        "health": 99.8100000000001
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "letter",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "教师",
+      "seed": 108,
+      "gameDays": 30,
+      "elapsedMs": 32,
+      "hourlyActivitySamples": {
+        "read": 135,
+        "work": 102,
+        "create": 37,
+        "socialize": 81,
+        "rest": 2,
+        "eat": 46,
+        "study": 22,
+        "sleep": 205,
+        "coffee": 9,
+        "garden": 16,
+        "shop": 10,
+        "play": 32,
+        "walk": 7,
+        "wash": 16
+      },
+      "finalMoney": 5568,
+      "minimum": {
+        "energy": 49.20000000000028,
+        "mood": 83.87749043027048,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 33.449999999999704,
+        "mood": 99.79041972,
+        "stress": 0,
+        "social": 96.76,
+        "fun": 63.69999999998865,
+        "health": 99.59000000000015
+      },
+      "diaries": 30,
+      "relationships": 16,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "learning",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 22
+    },
+    {
+      "job": "无业者",
+      "seed": 109,
+      "gameDays": 30,
+      "elapsedMs": 32,
+      "hourlyActivitySamples": {
+        "read": 140,
+        "walk": 14,
+        "create": 96,
+        "garden": 32,
+        "socialize": 80,
+        "eat": 45,
+        "study": 44,
+        "sleep": 217,
+        "play": 10,
+        "wash": 13,
+        "shop": 10,
+        "coffee": 18,
+        "rest": 1
+      },
+      "finalMoney": 910,
+      "minimum": {
+        "energy": 41.80000000000026,
+        "mood": 81.79620139479046,
+        "health": 90.30000000000007
+      },
+      "finalNeeds": {
+        "energy": 97.12000000000006,
+        "hunger": 26.849999999999746,
+        "mood": 99.39851484958635,
+        "stress": 0,
+        "social": 93.94000000000491,
+        "fun": 84.39999999999974,
+        "health": 99.8300000000001
+      },
+      "diaries": 30,
+      "relationships": 18,
+      "pendingDecisions": 4,
+      "chains": [
+        {
+          "id": "seed",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "learning",
+          "stage": 3,
+          "status": "active"
+        },
+        {
+          "id": "recipe",
+          "stage": 3,
+          "status": "active"
+        }
+      ],
+      "salaryDays": 0
+    }
+  ]
+}

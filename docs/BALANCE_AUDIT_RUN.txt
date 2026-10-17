@@ -1,0 +1,235 @@
+
+> another-today@0.1.0 audit:balance
+> esbuild scripts/balance-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/balance.mjs && node dist-electron/balance.mjs
+
+[
+  {
+    "job": "学生",
+    "money": 1098,
+    "minEnergy": 49.940000000000445,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "read": 123,
+      "work": 90,
+      "create": 60,
+      "rest": 6,
+      "garden": 16,
+      "walk": 11,
+      "eat": 51,
+      "sleep": 212,
+      "wash": 19,
+      "socialize": 73,
+      "shop": 10,
+      "study": 19,
+      "play": 21,
+      "coffee": 9
+    },
+    "chains": 3
+  },
+  {
+    "job": "办公室职员",
+    "money": 5560,
+    "minEnergy": 46.980000000000274,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "create": 57,
+      "read": 118,
+      "work": 99,
+      "study": 26,
+      "play": 26,
+      "socialize": 77,
+      "garden": 22,
+      "rest": 4,
+      "sleep": 215,
+      "eat": 36,
+      "shop": 11,
+      "wash": 16,
+      "coffee": 10,
+      "walk": 3
+    },
+    "chains": 3
+  },
+  {
+    "job": "程序员",
+    "money": 5470,
+    "minEnergy": 47.720000000000276,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "create": 59,
+      "work": 95,
+      "garden": 24,
+      "read": 119,
+      "eat": 49,
+      "sleep": 211,
+      "wash": 19,
+      "study": 16,
+      "socialize": 76,
+      "coffee": 10,
+      "shop": 11,
+      "play": 24,
+      "walk": 5,
+      "rest": 2
+    },
+    "chains": 3
+  },
+  {
+    "job": "咖啡师",
+    "money": 5550,
+    "minEnergy": 41.80000000000026,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "read": 114,
+      "work": 91,
+      "garden": 21,
+      "eat": 45,
+      "create": 59,
+      "sleep": 215,
+      "wash": 19,
+      "socialize": 80,
+      "play": 29,
+      "study": 20,
+      "shop": 10,
+      "coffee": 12,
+      "walk": 3,
+      "rest": 2
+    },
+    "chains": 3
+  },
+  {
+    "job": "便利店店员",
+    "money": 6963,
+    "minEnergy": 51.04000000000066,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "sleep": 185,
+      "eat": 42,
+      "read": 125,
+      "create": 43,
+      "garden": 18,
+      "walk": 6,
+      "work": 138,
+      "play": 45,
+      "socialize": 66,
+      "rest": 3,
+      "shop": 11,
+      "coffee": 10,
+      "wash": 14,
+      "study": 14
+    },
+    "chains": 3
+  },
+  {
+    "job": "自由职业者",
+    "money": 5536,
+    "minEnergy": 41.80000000000026,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "work": 104,
+      "study": 21,
+      "read": 129,
+      "play": 35,
+      "socialize": 68,
+      "eat": 38,
+      "create": 49,
+      "sleep": 210,
+      "walk": 7,
+      "coffee": 12,
+      "garden": 15,
+      "rest": 7,
+      "wash": 15,
+      "shop": 10
+    },
+    "chains": 3
+  },
+  {
+    "job": "插画师",
+    "money": 5630,
+    "minEnergy": 41.80000000000026,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "coffee": 5,
+      "play": 30,
+      "work": 100,
+      "eat": 43,
+      "read": 124,
+      "create": 53,
+      "socialize": 80,
+      "sleep": 209,
+      "wash": 13,
+      "study": 23,
+      "garden": 23,
+      "rest": 2,
+      "walk": 6,
+      "shop": 9
+    },
+    "chains": 3
+  },
+  {
+    "job": "作家",
+    "money": 5594,
+    "minEnergy": 40.41000000000024,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "read": 128,
+      "work": 102,
+      "eat": 47,
+      "create": 57,
+      "walk": 12,
+      "socialize": 67,
+      "study": 20,
+      "coffee": 6,
+      "shop": 8,
+      "sleep": 215,
+      "wash": 14,
+      "play": 23,
+      "garden": 19,
+      "rest": 2
+    },
+    "chains": 3
+  },
+  {
+    "job": "教师",
+    "money": 5568,
+    "minEnergy": 49.20000000000028,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "read": 135,
+      "work": 102,
+      "create": 37,
+      "socialize": 81,
+      "rest": 2,
+      "eat": 46,
+      "study": 22,
+      "sleep": 205,
+      "coffee": 9,
+      "garden": 16,
+      "shop": 10,
+      "play": 32,
+      "walk": 7,
+      "wash": 16
+    },
+    "chains": 3
+  },
+  {
+    "job": "无业者",
+    "money": 910,
+    "minEnergy": 41.80000000000026,
+    "minHealth": 90.30000000000007,
+    "activities": {
+      "read": 140,
+      "walk": 14,
+      "create": 96,
+      "garden": 32,
+      "socialize": 80,
+      "eat": 45,
+      "study": 44,
+      "sleep": 217,
+      "play": 10,
+      "wash": 13,
+      "shop": 10,
+      "coffee": 18,
+      "rest": 1
+    },
+    "chains": 3
+  }
+]

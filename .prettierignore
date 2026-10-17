@@ -1,0 +1,8 @@
+node_modules
+release
+dist
+dist-electron
+test-results
+playwright-report
+docs/ORIGINAL_REQUEST.txt
+package-lock.json

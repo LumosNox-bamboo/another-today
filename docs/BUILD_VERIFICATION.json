@@ -1,0 +1,56 @@
+{
+  "macOS-arm64": [
+    {
+      "file": "dist-electron/main.cjs",
+      "sha256": "9115b5d21e4e3cd49b87f2d184311fb3e040ecc71053e2fdbc115dcd956ad501",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist-electron/preload.cjs",
+      "sha256": "3d38fb07c349274bd702a5498af4fed2ce4dbcde32e02cf2c30fa4dbca849f77",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/index.html",
+      "sha256": "53bc4d634b2378a388187aa0850edeb7808cf0e0fab6771e850f083beff85641",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/assets/index-4aetns-E.css",
+      "sha256": "4fa98fb9c69cf8a970d4fb6dbf837be63f025cbe26f2161bb361453e7dd5e00d",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/assets/index-Bd_sZvGD.js",
+      "sha256": "f7d1790702feabc2f72aaa15e69f91f58668ea43f627e0c64c0dcce358daa049",
+      "matchesFinalBuild": true
+    }
+  ],
+  "Windows-x64": [
+    {
+      "file": "dist-electron/main.cjs",
+      "sha256": "9115b5d21e4e3cd49b87f2d184311fb3e040ecc71053e2fdbc115dcd956ad501",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist-electron/preload.cjs",
+      "sha256": "3d38fb07c349274bd702a5498af4fed2ce4dbcde32e02cf2c30fa4dbca849f77",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/index.html",
+      "sha256": "53bc4d634b2378a388187aa0850edeb7808cf0e0fab6771e850f083beff85641",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/assets/index-4aetns-E.css",
+      "sha256": "4fa98fb9c69cf8a970d4fb6dbf837be63f025cbe26f2161bb361453e7dd5e00d",
+      "matchesFinalBuild": true
+    },
+    {
+      "file": "dist/assets/index-Bd_sZvGD.js",
+      "sha256": "f7d1790702feabc2f72aaa15e69f91f58668ea43f627e0c64c0dcce358daa049",
+      "matchesFinalBuild": true
+    }
+  ]
+}

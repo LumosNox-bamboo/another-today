@@ -1,0 +1,10 @@
+{
+  "packaged": true,
+  "version": "0.1.0",
+  "electron": "44.9.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "errors": [],
+  "savedAndQuit": true,
+  "passed": true
+}
