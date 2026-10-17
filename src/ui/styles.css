@@ -2306,3 +2306,9 @@ svg {
   max-height: none;
   object-fit: contain;
 }
+
+@media (max-width: 600px) {
+  .right-column {
+    grid-template-columns: 1fr;
+  }
+}

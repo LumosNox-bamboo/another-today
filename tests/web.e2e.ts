@@ -18,6 +18,9 @@ test('friends can create, play, export and resume their own browser world', asyn
   await page.getByRole('button', { name: '暂停', exact: true }).click();
   const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
   await expect.poll(async () => (await saved())?.character.name).toBe('小满');
+  await page.getByRole('button', { name: '和小满聊聊天' }).click();
+  await expect(page.getByRole('textbox', { name: '聊天内容' })).toBeVisible();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
   const before = await saved();
   await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
   for (let i = 0; i < 4; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
