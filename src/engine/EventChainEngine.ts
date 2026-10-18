@@ -19,6 +19,9 @@ export function advanceChains(w: World) {
       rememberEvent(w, e, 75);
       c.stage++;
       c.due = w.time + d.delayDays * DAY;
+    } else if (w.decisions.some((x) => x.chainId === c.id && w.time - x.created >= 3 * DAY)) {
+      // Ordinary stories keep moving when the player is away. Major life choices still wait.
+      resolveChain(w, c.id, w.character.traits[d.trait] + random(w) * 35 > 65);
     } else if (!w.decisions.some((x) => x.chainId === c.id)) {
       if (
         w.settings.advice === 'autonomous' ||
@@ -29,7 +32,7 @@ export function advanceChains(w: World) {
         w.decisions.push({
           id: uid(w, 'decision'),
           title: d.title,
-          text: '这件小事走到了一个岔路口。鼓励迈出一步，还是按自己的节奏慢慢来？',
+          text: '这件小事走到了一个岔路口。鼓励迈出一步，还是按自己的节奏慢慢来？如果你暂时没空，三天后 TA 会自己决定。',
           kind: 'chain',
           chainId: c.id,
           created: w.time,

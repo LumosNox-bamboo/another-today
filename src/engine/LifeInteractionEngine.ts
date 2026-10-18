@@ -1,4 +1,5 @@
 import { type World, type Activity, activityNames, sceneNames, clamp, HOUR, record } from './model';
+import { discoveries } from '../content/places';
 import { gifts } from '../content/living';
 import { revealSecret } from './SecretEngine';
 export const lifePrompts = [
@@ -9,6 +10,8 @@ export const lifePrompts = [
   '愿意说说心事吗？',
   '讲讲过去的记忆',
   '介绍一下这座城市',
+  '最近去了哪里？',
+  '讲讲散步见闻',
   '回顾我们的共同经历',
   '建议你多阅读',
   '你可以按自己的节奏来',
@@ -23,7 +26,22 @@ export function lifeReply(w: World, s: string): string | undefined {
       ? `我认识了${n.map((n) => `${n.name}，是一位${n.job}，喜欢${n.interest}`).join('；')}。`
       : '还在慢慢认识街区的人，没有新的朋友可介绍。';
   }
+  if (/最近去了哪里|去过哪里|散步见闻/.test(s)) {
+    const entries = Object.entries(w.living.exploration.visits)
+      .sort((a, b) => b[1].last - a[1].last)
+      .slice(0, 3);
+    const latest = w.living.exploration.discoveries.at(-1);
+    const d = discoveries.find((d) => d.id === latest?.id);
+    return entries.length
+      ? `最近去过${entries.map(([scene]) => sceneNames[scene as keyof typeof sceneNames]).join('、')}。${d ? `我在见闻手册里留下了「${d.name}」：${d.text}` : '还在慢慢熟悉这些地方。'}`
+      : '还没有亲自去过街区外的新地方。等有空，我想慢慢走一走。';
+  }
   if (/收藏|礼物/.test(s)) {
+    const recent = w.living.exploration.discoveries
+      .slice(-2)
+      .map((d) => discoveries.find((x) => x.id === d.id)?.name);
+    if (recent.length)
+      return `这几次出门，我在见闻手册留下了${recent.join('、')}。它们各有真正到访的日期，可以在世界里的“散步与见闻”看看。`;
     return w.living.gifts.length
       ? `我留着这些心意：${w.living.gifts
           .slice(-3)

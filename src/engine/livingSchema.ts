@@ -14,6 +14,17 @@ export const sharedKinds = [
 ] as const;
 export const livingSchema = z.object({
   revision: z.literal(1).default(1),
+  exploration: z
+    .object({
+      visits: z.record(
+        z.object({ days: z.number().int().positive(), first: time, last: time, source: id }),
+      ),
+      discoveries: z.array(z.object({ id, time, source: id })).max(40),
+      suggestion: z.object({ scene: id, until: time }).optional(),
+      display: id.optional(),
+    })
+    .default({ visits: {}, discoveries: [] }),
+  eventHistory: z.record(z.object({ time, source: id })).default({}),
   notifications: z
     .object({
       enabled: z.boolean(),

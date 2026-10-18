@@ -1,3 +1,4 @@
+import { outskirtsEvents } from './outskirtsEvents';
 import type { Activity, Scene, World } from '../engine/model';
 export type Gate =
   | 'any'
@@ -23,6 +24,7 @@ export interface EventDefinition {
   choices: string[];
   effects: { mood: number; stress: number; money: number };
   followUpEvents: string[];
+  requiresEvent?: { id: string; days: number };
   memoryTags: string[];
   rarity: 'common' | 'uncommon';
   scenes?: Scene[];
@@ -737,3 +739,6 @@ export const chains: ChainDefinition[] = [
   delayDays,
   trait,
 })) as ChainDefinition[];
+
+// Additive IDs preserve every existing event and save reference.
+events.push(...outskirtsEvents);

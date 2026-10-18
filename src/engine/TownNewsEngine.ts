@@ -1,3 +1,4 @@
+import { destinations } from '../content/places';
 import { newsTemplates } from '../content/living';
 import { type World, type Scene, type Activity, DAY, dayKey, random, record, uid } from './model';
 import { linkCause } from './EventCausalityGraph';
@@ -49,6 +50,8 @@ export function newsTick(w: World) {
   const candidates = newsTemplates.filter(
     (d) =>
       d.effect !== 'npc' &&
+      (!destinations.find((x) => x.scene === d.scene)?.weekend ||
+        [0, 6].includes(new Date(w.time).getUTCDay())) &&
       (!['news-0', 'news-1', 'news-2', 'news-3'].includes(d.id) ||
         ['春', '夏', '秋', '冬'][Number(d.id.split('-')[1])] === w.living.calendar.season) &&
       !w.living.news.some((n) => n.definition === d.id && w.time - n.time < 14 * DAY),

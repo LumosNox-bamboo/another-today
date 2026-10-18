@@ -15,6 +15,7 @@ export function maybeStartArc(w: World) {
   const list = storyArcs.filter(
     (d) =>
       d.scene === w.activity.scene &&
+      (!d.minVisits || (w.living.exploration.visits[d.scene]?.days || 0) >= d.minVisits) &&
       d.activity === w.activity.kind &&
       !w.living.arcs.some((a) => a.id === d.id) &&
       (d.gate !== 'rain' || Math.floor(w.time / DAY) % 4 === 0) &&

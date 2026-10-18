@@ -1,3 +1,4 @@
+import { outskirtsGifts } from './outskirtsGifts';
 import type { Activity, Scene, Trait } from '../engine/model';
 export interface GiftDefinition {
   id: string;
@@ -7,6 +8,7 @@ export interface GiftDefinition {
   activity: Activity;
   trait: Trait;
   followUp: string;
+  scene?: Scene;
 }
 const giftRows = [
   [
@@ -268,3 +270,42 @@ export const newsTemplates: NewsDefinition[] = `
       effect: effect as NewsDefinition['effect'],
     };
   });
+
+gifts.push(...outskirtsGifts);
+
+newsTemplates.push(
+  ...`
+河岸观察桌|芦苇河岸摆出可自由使用的记录板，来往居民可以留下今天看到的水面变化。|riverside|walk|4|opportunity
+桥影写生日|河岸留出一处安全的写生位置，初学者也可以只画一小块影子。|riverside|create|3|gathering
+步道护栏维护|河岸步道进行护栏检修，这几天先到别处散步。|riverside|walk|2|repair
+温室育苗课|玻璃温室开放基础育苗练习，先学习观察土壤再决定是否浇水。|greenhouse|garden|5|opportunity
+植物名牌整理|温室邀请居民一起核对名牌与登记册，也可以来读一读植物资料。|greenhouse|study|3|gathering
+温室玻璃检修|温室正在检查玻璃和通风窗，暂时关闭公共照料区域。|greenhouse|garden|2|repair
+旧物修补桌|工坊开放旧木料和布片练习桌，想学修补可以从最小的一步开始。|workshop|study|5|opportunity
+碎布拼贴会|工坊安排一次碎布拼贴活动，没缝过东西也可以先观察。|workshop|create|4|gathering
+工具架维护|工坊整理并检修公用工具，这两天暂停开放练习。|workshop|create|2|repair
+周末食材桌|集市增加当季食材介绍桌，开放日可以来比较味道和做法。|market|eat|2|opportunity
+纸品交换小桌|集市本周末安排公开纸品交换桌，请只带适合分享的非私人物品。|market|shop|2|gathering
+集市棚架检修|集市检修遮棚，本次开放暂停，居民改到街角补充日用品。|market|shop|2|repair
+剧场开放练习|纸灯小剧场本周安排公开练习时段，居民可以阅读台本或尝试道具制作。|theater|create|6|opportunity
+五分钟声音分享|剧场开启简短的声音分享，允许只说一句或安静旁听。|theater|socialize|3|gathering
+剧场灯具检修|剧场进行灯具检查，这几天先在其他地方练习或休息。|theater|rest|2|repair
+山坡星图桌|观测站摆出纸制星图，阴天也可以学习日期和方向，不承诺特殊天象。|observatory|study|6|opportunity
+傍晚天气记录会|山坡安排轻量天气观察，记录看到的云和风就可以，不需要准备设备。|observatory|walk|4|gathering
+观测站步道检修|通往观测站的公共步道需要检修，站点暂时关闭，晚间请改在街区活动。|observatory|walk|2|repair
+`
+    .trim()
+    .split('\n')
+    .map((row, i) => {
+      const [title, text, scene, activity, days, effect] = row.split('|');
+      return {
+        id: `news-out-${i}`,
+        title,
+        text,
+        scene: scene as Scene,
+        activity: activity as Activity,
+        days: +days,
+        effect: effect as NewsDefinition['effect'],
+      };
+    }),
+);

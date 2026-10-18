@@ -31,6 +31,11 @@ export function linkCause(w: World, e: LifeEvent, parents: string[] = [], reason
     const protectedIds = new Set([
       ...w.living.causes.flatMap((c) => c.parents),
       ...w.living.gifts.map((g) => g.source),
+      ...Object.values(w.living.exploration.visits).map((v) => v.source),
+      ...w.living.exploration.discoveries.map((d) => d.source),
+      ...Object.entries(w.living.eventHistory)
+        .filter(([id]) => id.startsWith('outskirts-'))
+        .map(([, v]) => v.source),
       ...w.living.arcs.flatMap((a) => [a.origin, a.lastEvent]),
       ...w.living.creations.map((c) => c.eventId),
     ]);

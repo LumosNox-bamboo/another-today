@@ -116,3 +116,68 @@ test('living expansion migrates an old save and exposes real gifts, habits, town
   expect(after.living.creations).toEqual(before.living.creations);
   expect(errors).toEqual([]);
 });
+
+test('outskirts visits, suggestions, keepsakes and six distinct scenes work without replacing an old world', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  const name = (await saved()).character.name;
+  await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+  await page.getByRole('tab', { name: '散步与见闻' }).click();
+  await expect(page.getByText('走远一点，也可以慢慢来')).toBeVisible();
+  await expect(page.locator('.destination-card')).toHaveCount(6);
+  const originalActivity = (await saved()).activity;
+  const river = page
+    .locator('.destination-card')
+    .filter({ has: page.getByRole('heading', { name: '芦苇河岸', exact: true }) });
+  await river.getByRole('button', { name: '建议有空去看看' }).click();
+  await expect
+    .poll(async () => (await saved()).living.exploration.suggestion?.scene)
+    .toBe('riverside');
+  expect((await saved()).activity).toEqual(originalActivity);
+  for (const [id, name] of [
+    ['riverside', '芦苇河岸'],
+    ['greenhouse', '玻璃温室'],
+    ['workshop', '旧物工坊'],
+    ['market', '周末集市'],
+    ['theater', '纸灯小剧场'],
+    ['observatory', '山坡观测站'],
+  ]) {
+    await page.getByRole('button', { name: `看看${name}`, exact: true }).click();
+    const modal = page.getByRole('dialog');
+    await expect(modal.locator('canvas')).toBeVisible();
+    const canvasBounds = await modal.locator('canvas').boundingBox();
+    expect(canvasBounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width - 32);
+    expect((await saved()).living.exploration.visits).toEqual({});
+    await modal.screenshot({ path: test.info().outputPath(`scene-${id}.png`) });
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
+  }
+  await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+  for (let i = 0; i < 56; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
+  await expect
+    .poll(async () => (await saved()).living.exploration.discoveries.length)
+    .toBeGreaterThan(0);
+  await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+  await page.getByRole('tab', { name: '散步与见闻' }).click();
+  await page.getByRole('button', { name: '展示在公寓里', exact: true }).first().click();
+  const after = await saved();
+  expect(after.character.name).toBe(name);
+  expect(after.living.exploration.display).toBeTruthy();
+  expect(Object.keys(after.living.exploration.visits).length).toBeGreaterThanOrEqual(4);
+  await page.screenshot({ path: test.info().outputPath('outskirts-journal.png'), fullPage: true });
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  await page.reload();
+  expect((await saved()).living.exploration).toEqual(after.living.exploration);
+  await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+  await page.getByRole('tab', { name: '散步与见闻' }).click();
+  await expect(page.getByRole('button', { name: '收起公寓里的展示', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});

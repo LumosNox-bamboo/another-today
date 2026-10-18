@@ -1,3 +1,7 @@
+import { drawOutskirts } from './OutskirtsScenes';
+import { destinationOpen } from '../engine/ExplorationEngine';
+import { destinations, discoveries } from '../content/places';
+import { gifts } from '../content/living';
 import { useEffect, useRef } from 'react';
 import { type World, type Scene, hour } from '../engine/model';
 const W = 480,
@@ -148,6 +152,7 @@ function painter(ctx: CanvasRenderingContext2D) {
   }
   return { r, line, ellipse, plant, window, shelf, table, lamp, tree, person };
 }
+export type PixelPainter = ReturnType<typeof painter>;
 function draw(
   ctx: CanvasRenderingContext2D,
   w: World,
@@ -159,6 +164,8 @@ function draw(
   const { r, line, ellipse, plant, window, shelf, table, lamp, tree, person } = painter(ctx);
   const h = hour(w.time),
     night = h >= 19 || h < 6;
+  const destination = destinations.find((d) => d.scene === scene);
+  const open = !destination || destinationOpen(w, destination);
   const season = w.living.calendar.season;
   const sky = night
     ? '#8993a6'
@@ -200,7 +207,7 @@ function draw(
     r(408, 20, 17, 17, '#f1dcaa');
     r(404, 24, 25, 9, '#f1dcaa');
   }
-  const outdoor = ['park', 'street', 'night'].includes(scene);
+  const outdoor = ['park', 'street', 'night', 'riverside', 'market', 'observatory'].includes(scene);
   if (!outdoor) {
     // Cutaway dollhouse, deep plinth and pixel floorboards.
     ellipse(240, 280, 211, 15, '#6f785b25');
@@ -291,6 +298,32 @@ function draw(
       plant(427, 223, 0.9);
       r(377, 236, 39, 15, '#a37d60');
       r(381, 231, 31, 9, '#e0c19b');
+      // Only display objects which actually exist in this world's collection.
+      const display = discoveries.find((d) => d.id === w.living.exploration.display);
+      if (display) {
+        r(286, 89, 26, 28, '#9b7f65');
+        r(289, 92, 20, 22, '#e7dbbb');
+        for (let i = 0; i < 5; i++)
+          r(
+            292 + i * 3,
+            100 + (i % 3) * 3,
+            3,
+            7,
+            ['#87afa9', '#94ac7d', '#c39c73', '#c5aa75', '#b18d98', '#8b9fbe'][
+              ['riverside', 'greenhouse', 'workshop', 'market', 'theater', 'observatory'].indexOf(
+                display.scene,
+              )
+            ],
+          );
+      }
+      if (
+        w.living.gifts.some((g) => gifts.find((d) => d.id === g.definition)?.category === '乐器')
+      ) {
+        r(285, 206, 10, 20, '#bb9970');
+        r(288, 210, 2, 12, '#e0cc9b');
+      }
+      if (w.living.gifts.some((g) => gifts.find((d) => d.id === g.definition)?.category === '植物'))
+        plant(309, 139, 0.6);
     } else if (scene === 'office') {
       window(82, 87, 67, 45, night);
       window(203, 87, 67, 45, night);
@@ -363,7 +396,9 @@ function draw(
       r(345, 197, 17, 10, '#bbccc0');
       r(64, 211, 98, 26, '#b5b79b');
       for (let i = 0; i < 7; i++) r(68 + i * 13, 207, 10, 10, i % 2 ? '#b79160' : '#c1a66b');
-    }
+    } else drawOutskirts(painter(ctx), scene, t, night, open);
+  } else if (['riverside', 'market', 'observatory'].includes(scene)) {
+    drawOutskirts(painter(ctx), scene, t, night, open);
   } else if (scene === 'park') {
     r(0, 126, 480, 184, night ? '#7c9176' : '#a7b78d');
     r(0, 222, 480, 32, '#c6bea0');
@@ -566,6 +601,14 @@ export function PixelWorld({
       else if (s === 'shop') target = { x: 336, y: 249 };
       else if (s === 'park') target = { x: 225 + Math.sin(ms / 17000) * 50, y: 251 };
       else if (s === 'street') target = { x: 240 + Math.sin(ms / 25000) * 100, y: 218 };
+      else if (s === 'riverside')
+        target = { x: 220 + (k === 'walk' ? Math.sin(ms / 22000) * 65 : 0), y: 274 };
+      else if (s === 'greenhouse') target = { x: 237, y: 233 };
+      else if (s === 'workshop') target = { x: 172, y: 244 };
+      else if (s === 'market')
+        target = { x: 252 + (k === 'walk' ? Math.sin(ms / 20000) * 65 : 0), y: 264 };
+      else if (s === 'theater') target = { x: 250, y: 249 };
+      else if (s === 'observatory') target = { x: 251, y: 265 };
       else target = { x: 296, y: 254 };
       const p = position.current,
         dist = Math.hypot(target.x - p.x, target.y - p.y),

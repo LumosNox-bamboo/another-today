@@ -1,3 +1,4 @@
+import { outskirtsStories } from './outskirtsStories';
 import type { Activity, Scene, Trait } from '../engine/model';
 export interface ArcDefinition {
   id: string;
@@ -8,6 +9,8 @@ export interface ArcDefinition {
   delay: number;
   nodes: [string, string, string];
   branch: string;
+  choices?: [string, string];
+  minVisits?: number;
   bold: string;
   quiet: string;
   consequence: 'friend' | 'skill' | 'dream' | 'collection';
@@ -63,3 +66,5 @@ export const storyArcs: ArcDefinition[] = `
       consequence: consequence as ArcDefinition['consequence'],
     };
   });
+
+storyArcs.push(...outskirtsStories);

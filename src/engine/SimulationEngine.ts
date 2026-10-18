@@ -1,3 +1,5 @@
+import { destinations } from '../content/places';
+import { chooseDestination, completeVisit, explorationBias } from './ExplorationEngine';
 import { maybeStartArc, arcsTick } from './StoryArcEngine';
 import { creationTick, exhibitCreations } from './CreationEngine';
 import { dreamsTick } from './RegretAndDreamEngine';
@@ -109,7 +111,8 @@ export function chooseActivity(w: World) {
       habitBias(w, kind) +
       secretBias(w, kind) +
       seasonBias(w, kind) +
-      townBias(w, kind);
+      townBias(w, kind) +
+      explorationBias(w, kind);
   for (const kind of w.recentActivities.slice(-3)) scores[kind] -= 25;
   const kinds = (Object.keys(scores) as Activity[]).filter((k) => k !== 'work' || isWorking(w));
   // Softmax allows lower-scoring but reasonable activities; urgent needs remain deterministic.
@@ -148,12 +151,18 @@ export function chooseActivity(w: World) {
               ? 'library'
               : 'office';
   if (best === 'read' || best === 'study') scene = random(w) < 0.55 ? 'library' : 'apartment';
-  if (best === 'create') scene = random(w) < 0.2 ? 'park' : 'apartment';
+  if (best === 'read' && h >= 8 && h < 19 && Math.floor(w.time / DAY) % 4 !== 0 && random(w) < 0.16)
+    scene = 'park';
+  if (best === 'create') {
+    const place = random(w);
+    scene = place < 0.2 ? 'park' : place < 0.35 ? 'cafe' : 'apartment';
+  }
   if (best === 'walk') scene = random(w) < 0.7 ? 'park' : 'street';
   if (best === 'coffee' || best === 'socialize') scene = random(w) < 0.8 ? 'cafe' : 'park';
+  if (best === 'socialize' && h >= 9 && h < 20 && random(w) < 0.15) scene = 'library';
   if (best === 'shop') scene = 'shop';
   if (best === 'rest' && h >= 19 && h < 23 && random(w) < 0.35) scene = 'night';
-  scene = openScene(w, scene);
+  scene = openScene(w, chooseDestination(w, best, scene));
   w.activity = { kind: best, start: w.time, end: w.time + duration * MINUTE, scene };
   record(
     w,
@@ -176,6 +185,12 @@ function completeActivity(w: World) {
   if (a.kind === 'coffee') transact(w, -Math.min(w.money, 12), '一杯咖啡');
   if (a.kind === 'shop') transact(w, -Math.min(w.money, 18), '生活用品');
   if (['socialize', 'coffee', 'walk'].includes(a.kind)) encounter(w);
+  else if (
+    destinations.some((d) => d.scene === a.scene) &&
+    ['garden', 'study', 'read', 'create'].includes(a.kind) &&
+    random(w) < 0.18
+  )
+    encounter(w);
   if (a.kind === 'garden') {
     w.needs.mood = clamp(w.needs.mood + 5);
     w.items.filter((i) => i.anchor === 'plant').forEach((i) => i.uses++);
@@ -240,6 +255,7 @@ function completeActivity(w: World) {
     );
   }
   w.living.stats.activities[a.kind] = (w.living.stats.activities[a.kind] || 0) + 1;
+  completeVisit(w);
   practiceInterests(w, a.kind);
   useGifts(w, a.kind);
   practiceHabits(w, a.kind);

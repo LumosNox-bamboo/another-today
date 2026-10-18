@@ -231,6 +231,10 @@ describe('long stories, creations and dreams', () => {
     w.activity.kind = 'socialize';
     w.activity.scene = w.npcs[0].scene;
     exhibitCreations(w);
+    expect(c.exhibited).toBe(false);
+    w.activity.scene = 'street';
+    w.npcs[0].scene = 'street';
+    exhibitCreations(w);
     expect(c.exhibited).toBe(true);
   });
   it('abandoned dreams become reflection and can be resumed without losing progress', () => {
@@ -282,6 +286,12 @@ describe('content validity and real-world privacy', () => {
       if (e.triggerConditions.gate === 'weekend')
         w.time = new Date('2026-10-18T12:00:00Z').getTime();
       if (e.triggerConditions.gate === 'rain') w.time = Math.floor(w.time / (4 * DAY)) * 4 * DAY;
+      if (e.requiresEvent)
+        w.living.eventHistory[e.requiresEvent.id] = {
+          time: w.time - e.requiresEvent.days * DAY,
+          source: w.events[0].id,
+        };
+      if (e.season) w.living.calendar.season = e.season;
       if (e.requiredState === 'gift') giveGift(w, gifts[0].id);
       if (e.requiredState === 'habit')
         w.living.habits.push({

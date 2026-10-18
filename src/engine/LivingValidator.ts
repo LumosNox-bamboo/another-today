@@ -1,8 +1,9 @@
+import { destinations, discoveries } from '../content/places';
 import type { World } from './model';
 import { activityNames, sceneNames } from './model';
 import { gifts, habits, secrets, newsTemplates } from '../content/living';
 import { storyArcs } from '../content/storyArcs';
-import { chains } from '../content/events';
+import { chains, events } from '../content/events';
 export function validateLiving(w: World) {
   const l = w.living;
   const fail = () => {
@@ -15,6 +16,25 @@ export function validateLiving(w: World) {
     )
       fail();
   };
+  check(l.exploration.discoveries, discoveries);
+  if (
+    Object.entries(l.exploration.visits).some(
+      ([scene, v]) =>
+        !destinations.some((d) => d.scene === scene) || v.last < v.first || v.last > w.time,
+    ) ||
+    l.exploration.discoveries.some((d) => {
+      const v = l.exploration.visits[discoveries.find((x) => x.id === d.id)!.scene];
+      return !v || d.time < v.first || d.time > w.time;
+    }) ||
+    (l.exploration.suggestion &&
+      !destinations.some((d) => d.scene === l.exploration.suggestion?.scene)) ||
+    (l.exploration.display &&
+      !l.exploration.discoveries.some((d) => d.id === l.exploration.display)) ||
+    Object.entries(l.eventHistory).some(
+      ([id, v]) => !events.some((e) => e.eventId === id) || v.time > w.time,
+    )
+  )
+    fail();
   check(l.habits, habits);
   check(l.secrets, secrets);
   check(l.arcs, storyArcs);

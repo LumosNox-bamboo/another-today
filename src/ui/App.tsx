@@ -291,7 +291,7 @@ export function App() {
               让故事自然发生。
             </p>
             <small>
-              <i className="status-dot" /> {window.desktop ? '本地离线世界' : '网页版'} · v0.2
+              <i className="status-dot" /> {window.desktop ? '本地离线世界' : '网页版'} · v0.3
             </small>
           </div>
         </aside>
@@ -406,7 +406,9 @@ export function App() {
                         <small>
                           {preview && preview !== w.activity.scene
                             ? '正在浏览 · 小人不在这里'
-                            : w.character.housing + ' · 梧桐街 07 号'}
+                            : scene === 'apartment'
+                              ? w.character.housing + ' · 梧桐街 07 号'
+                              : '按自己的节奏，走过这座小镇'}
                         </small>
                       </div>
                     </div>
@@ -1714,7 +1716,7 @@ function SettingsView({
             <Tag>{events.length} 个结构化日常事件</Tag>
             <Tag>{chains.length} 条分支故事链</Tag>
             <Tag>{w.npcs.length} 位独立居民</Tag>
-            <Tag>8 个微缩场景</Tag>
+            <Tag>14 个微缩场景</Tag>
           </div>
           <p className="muted">
             当前使用离线规则对话，不提供在线语言模型连接。公寓内包含卧室、客厅与厨房；外貌支持发色、衣服和肤色。教育与家庭用于人物背景，尚未扩展为专属剧情。完整功能与限制详见项目

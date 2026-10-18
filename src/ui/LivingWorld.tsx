@@ -1,3 +1,4 @@
+import { ExplorationView } from './ExplorationView';
 import { useState } from 'react';
 import { type World, dayKey, activityNames } from '../engine/model';
 import { gifts, habits, secrets } from '../content/living';
@@ -245,12 +246,13 @@ export function LivingWorld({ world: w }: { world: World }) {
         </div>
       </div>
       <div className="living-tabs" role="tablist" aria-label="世界内容">
-        {['街区近况', '礼物与作品', '长线故事', '习惯与愿望'].map((t) => (
+        {['街区近况', '散步与见闻', '礼物与作品', '长线故事', '习惯与愿望'].map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}>
             {t}
           </button>
         ))}
       </div>
+      {tab === '散步与见闻' && <ExplorationView world={w} />}
       {tab === '街区近况' && (
         <div className="living-grid">
           <section className="card">
@@ -464,10 +466,10 @@ export function LivingWorld({ world: w }: { world: World }) {
                           <p>{d.branch}</p>
                           <div className="button-row">
                             <button onClick={() => mutate((x) => chooseArc(x, a.id, 'bold'))}>
-                              建议试一试
+                              {d.choices?.[0] || '建议试一试'}
                             </button>
                             <button onClick={() => mutate((x) => chooseArc(x, a.id, 'quiet'))}>
-                              建议慢慢来
+                              {d.choices?.[1] || '建议慢慢来'}
                             </button>
                           </div>
                           {a.choice && <p>已记下你的建议。</p>}

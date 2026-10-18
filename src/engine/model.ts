@@ -23,6 +23,12 @@ export const sceneNames = {
   shop: '街角便利店',
   street: '梧桐街',
   night: '星夜天台',
+  riverside: '芦苇河岸',
+  greenhouse: '玻璃温室',
+  workshop: '旧物工坊',
+  market: '周末集市',
+  theater: '纸灯小剧场',
+  observatory: '山坡观测站',
 } as const;
 export const activityNames = {
   sleep: '睡觉',
@@ -78,6 +84,12 @@ export const sceneSchema = z.enum([
   'shop',
   'street',
   'night',
+  'riverside',
+  'greenhouse',
+  'workshop',
+  'market',
+  'theater',
+  'observatory',
 ]);
 export type Scene = z.infer<typeof sceneSchema>;
 export const activitySchema = z.enum([

@@ -1,3 +1,4 @@
+import { destinations, discoveries } from '../content/places';
 import { events, chains, type EventDefinition } from '../content/events';
 import { gifts, habits, secrets, newsTemplates } from '../content/living';
 import { storyArcs } from '../content/storyArcs';
@@ -47,6 +48,37 @@ export function validateContent(definitions: EventDefinition[] = events) {
     'chains',
     chains.map((d) => d.id),
   );
+  unique(
+    'destinations',
+    destinations.map((d) => d.scene),
+  );
+  unique(
+    'discoveries',
+    discoveries.map((d) => d.id),
+  );
+  for (const d of destinations) {
+    if (
+      !(d.scene in sceneNames) ||
+      !d.activities.length ||
+      d.activities.some((a) => !(a in activityNames)) ||
+      !(d.trait in traitNames) ||
+      d.hours[0] < 0 ||
+      d.hours[1] > 24 ||
+      d.hours[0] >= d.hours[1]
+    )
+      errors.push(`${d.scene}: 地点开放条件无效`);
+  }
+  for (const d of discoveries) {
+    const place = destinations.find((p) => p.scene === d.scene);
+    if (
+      !place ||
+      !d.activities.length ||
+      d.activities.some((a) => !place.activities.includes(a)) ||
+      !Number.isInteger(d.days) ||
+      d.days < 1
+    )
+      errors.push(`${d.id}: 见闻不可达`);
+  }
   const ids = new Set(definitions.map((e) => e.eventId));
   for (const e of definitions) {
     const fail = (s: string) => errors.push(`${e.eventId}: ${s}`);
@@ -89,6 +121,17 @@ export function validateContent(definitions: EventDefinition[] = events) {
         Math.abs(e.branch.mood) > 100)
     )
       fail('分支条件非法');
+    if (
+      e.requiresEvent &&
+      (!ids.has(e.requiresEvent.id) ||
+        !Number.isFinite(e.requiresEvent.days) ||
+        e.requiresEvent.days < 1 ||
+        e.requiresEvent.days > 60 ||
+        !definitions
+          .find((d) => d.eventId === e.requiresEvent?.id)
+          ?.followUpEvents.includes(e.eventId))
+    )
+      fail('前因或时间间隔无效');
     if (e.followUpEvents.some((id) => !ids.has(id))) fail('后续事件不存在');
     if (e.playerChoiceRequired) fail('普通模板必须由独立剧情系统承接选择');
   }
@@ -108,7 +151,7 @@ export function validateContent(definitions: EventDefinition[] = events) {
   definitions.forEach((e) => visit(e.eventId));
   for (const d of [...gifts, ...habits, ...secrets, ...newsTemplates, ...storyArcs]) {
     if (!(d.activity in activityNames)) errors.push(`${d.id}: 活动不存在`);
-    if ('scene' in d && !(d.scene in sceneNames)) errors.push(`${d.id}: 地点不存在`);
+    if ('scene' in d && d.scene && !(d.scene in sceneNames)) errors.push(`${d.id}: 地点不存在`);
     if ('trait' in d && !(d.trait in traitNames)) errors.push(`${d.id}: 人格条件不存在`);
   }
   for (const d of storyArcs)

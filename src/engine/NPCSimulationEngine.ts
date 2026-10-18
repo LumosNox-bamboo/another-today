@@ -1,6 +1,18 @@
+import { destinations } from '../content/places';
+import { destinationOpen } from './ExplorationEngine';
 import { npcLifeTick } from './NPCLifeEngine';
 import { openScene } from './TownNewsEngine';
-import { type World, type NPC, clamp, dayKey, hour, random, record, DAY } from './model';
+import {
+  type World,
+  type NPC,
+  clamp,
+  dayKey,
+  hour,
+  random,
+  record,
+  DAY,
+  sceneNames,
+} from './model';
 import { rememberEvent } from './MemoryEngine';
 export function npcTick(w: World) {
   npcLifeTick(w);
@@ -23,9 +35,24 @@ export function npcTick(w: World) {
       n.scene = (['park', 'cafe', 'library', 'street', 'apartment'] as const)[
         (Math.floor(h / 2) + i + Math.floor(w.time / DAY)) % 5
       ];
+    if (
+      h >= 7 &&
+      h < 23 &&
+      (weekend || h < 9 || h >= 17 || n.job === '无业者') &&
+      !(n.job === '便利店店员' && h >= 22)
+    ) {
+      const places = destinations.filter((d) => destinationOpen(w, d));
+      const choice = Math.floor(h / 2) + i + Math.floor(w.time / DAY);
+      const favorite = places.find((d) => d.interests.includes(n.interest));
+      if (places.length && choice % 3 !== 0)
+        n.scene = (favorite || places[choice % places.length]).scene;
+    }
     if (w.living.calendar.season === '冬' && n.scene === 'park') n.scene = 'cafe';
     const gathering = w.living.news.find((x) => x.effect === 'gathering' && x.expires > w.time);
-    if (gathering && h >= 17 && h < 19 && i % 3 === 0) n.scene = gathering.scene as typeof n.scene;
+    if (gathering && h >= 17 && h < 19 && i % 3 === 0) {
+      const d = destinations.find((d) => d.scene === gathering.scene);
+      if (!d || destinationOpen(w, d)) n.scene = gathering.scene as typeof n.scene;
+    }
     n.scene = openScene(w, n.scene);
     n.plan =
       n.scene === 'apartment'
@@ -34,7 +61,7 @@ export function npcTick(w: World) {
           ? '处理自己的工作'
           : n.scene === 'library'
             ? '阅读和学习'
-            : `在${n.scene === 'park' ? '公园' : n.scene === 'cafe' ? '咖啡馆' : '街区'}度过自己的时间`;
+            : `在${sceneNames[n.scene]}度过自己的时间`;
     if (w.flags[`npc-day-${n.id}`] !== day) {
       w.flags[`npc-day-${n.id}`] = day;
       if (random(w) < 0.16) {

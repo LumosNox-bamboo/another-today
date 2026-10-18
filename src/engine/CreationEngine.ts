@@ -68,7 +68,12 @@ export function creationTick(w: World, activity: Activity) {
 export function exhibitCreations(w: World) {
   const c = w.living.creations.find((c) => c.completed && !c.exhibited);
   const news = w.living.news.find(
-    (n) => n.expires > w.time && n.effect === 'opportunity' && n.activity === 'create',
+    (n) =>
+      n.expires > w.time &&
+      n.effect === 'opportunity' &&
+      n.activity === 'create' &&
+      n.scene === w.activity.scene &&
+      w.living.town.facilities[n.scene] !== 'repair',
   );
   if (!c || !news || w.activity.kind !== 'socialize') return;
   const n = w.npcs.find((n) => n.scene === w.activity.scene);

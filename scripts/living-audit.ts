@@ -2,6 +2,8 @@ import { writeFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import { createWorld, defaultCharacter } from '../src/content/people';
 import { events } from '../src/content/events';
+import { destinations, discoveries } from '../src/content/places';
+import { outskirtsEvents } from '../src/content/outskirtsEvents';
 import { gifts } from '../src/content/living';
 import { advance } from '../src/engine/SimulationEngine';
 import { validateWorld } from '../src/engine/validation';
@@ -77,6 +79,11 @@ const runs = Array.from({ length: 100 }, (_, i) => {
     secrets: w.living.secrets.length,
     maxPending,
     saveBytes: Buffer.byteLength(JSON.stringify(w)),
+    visits: w.living.exploration.visits,
+    discoveries: w.living.exploration.discoveries.map((d) => d.id),
+    newEvents: Object.entries(w.living.stats.definitions).filter(([id]) =>
+      outskirtsEvents.some((e) => e.eventId === id),
+    ),
     anomalies: [],
   };
 });
@@ -211,6 +218,26 @@ const report = {
     npcChanges: runs.reduce((s, r) => s + r.npcChanges, 0),
     careerChanges: runs.reduce((s, r) => s + r.careerChanges, 0),
     maxSaveBytes: Math.max(...runs.map((r) => r.saveBytes)),
+    worldsWithNewPlaces: runs.filter((r) => Object.keys(r.visits).length > 0).length,
+    worldsWithNewStories: runs.filter((r) =>
+      r.arcs.some((a) => a.id.startsWith('arc-') && !/^arc-\d+$/.test(a.id)),
+    ).length,
+    distinctDiscoveries: new Set(runs.flatMap((r) => r.discoveries)).size,
+    discoveryCatalog: discoveries.length,
+    newEventCoverage: new Set(runs.flatMap((r) => r.newEvents.map(([id]) => id))).size,
+    newEventCatalog: outskirtsEvents.length,
+    missingNewEvents: outskirtsEvents
+      .filter((e) => !runs.some((r) => r.newEvents.some(([id]) => id === e.eventId)))
+      .map((e) => ({
+        id: e.eventId,
+        title: e.title,
+        scene: e.scenes?.[0],
+        activity: e.triggerConditions.activities[0],
+        gate: e.triggerConditions.gate,
+      })),
+    placeReach: Object.fromEntries(
+      destinations.map((d) => [d.scene, runs.filter((r) => r.visits[d.scene]).length]),
+    ),
     maxPending: Math.max(...runs.map((r) => r.maxPending)),
   },
   categoryProportions: Object.fromEntries(
@@ -219,7 +246,7 @@ const report = {
   runs,
   personalities: comparisons,
 };
-writeFileSync('docs/LIVING_WORLD_AUDIT.json', JSON.stringify(report, null, 2) + '\n');
+writeFileSync('docs/OUTSKIRTS_AUDIT.json', JSON.stringify(report, null, 2) + '\n');
 console.log(
   JSON.stringify(
     {
@@ -230,4 +257,19 @@ console.log(
     null,
     2,
   ),
+);
+
+assert.equal(
+  report.summary.worldsWithNewPlaces,
+  100,
+  'all unattended worlds should discover new places',
+);
+assert.equal(
+  report.summary.distinctDiscoveries,
+  discoveries.length,
+  'every discovery must occur across the audit',
+);
+assert.ok(
+  report.summary.newEventCoverage >= 100,
+  'new content should be visible in natural simulation',
 );

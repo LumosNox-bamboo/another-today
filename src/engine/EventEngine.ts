@@ -1,5 +1,6 @@
 import { events, type Gate, type EventDefinition } from '../content/events';
-import { type World, clamp, random, record, transact, hour, MINUTE } from './model';
+import { type World, clamp, random, record, transact, hour, MINUTE, DAY } from './model';
+import { linkCause } from './EventCausalityGraph';
 import { rememberEvent } from './MemoryEngine';
 import { maybeStartChain } from './EventChainEngine';
 export function passesGate(w: World, gate: Gate) {
@@ -42,13 +43,19 @@ export function eligibleEvent(w: World, e: EventDefinition) {
             : e.requiredState === 'news'
               ? w.living.news.some((n) => n.expires > w.time)
               : w.living.creations.some((c) => c.completed))) &&
+    (!e.requiresEvent ||
+      (w.living.eventHistory[e.requiresEvent.id] &&
+        w.time - w.living.eventHistory[e.requiresEvent.id].time >= e.requiresEvent.days * DAY)) &&
     (!w.cooldowns[e.eventId] || w.time >= w.cooldowns[e.eventId])
   );
 }
 export function sampleEvent(w: World) {
   if (random(w) > 0.38) return;
-  const list = events.filter((e) => eligibleEvent(w, e));
-  if (!list.length) return;
+  const eligible = events.filter((e) => eligibleEvent(w, e));
+  if (!eligible.length) return;
+  // A place's own stories should be heard among the general everyday templates.
+  const local = eligible.filter((e) => e.scenes?.includes(w.activity.scene));
+  const list = local.length && random(w) < 0.7 ? local : eligible;
   const weight = (d: EventDefinition) =>
     d.weight / (1 + (w.living.stats.definitions[d.eventId] || 0) * 0.3);
   let pick = random(w) * list.reduce((sum, d) => sum + weight(d), 0);
@@ -72,7 +79,16 @@ export function sampleEvent(w: World) {
     false,
     d.eventId,
     npc?.id,
+    d.requiresEvent ? w.living.eventHistory[d.requiresEvent.id]?.source : undefined,
   );
+  w.living.eventHistory[d.eventId] = { time: w.time, source: e.id };
+  if (d.followUpEvents.length || d.requiresEvent)
+    linkCause(
+      w,
+      e,
+      e.cause ? [e.cause] : [],
+      d.requiresEvent ? '从前一次实际发生的经历继续' : '一件留下后续线索的小事',
+    );
   w.cooldowns[d.eventId] =
     d.repeatPolicy === 'once' ? Number.MAX_SAFE_INTEGER : w.time + d.cooldown * MINUTE;
   w.needs.mood = clamp(
