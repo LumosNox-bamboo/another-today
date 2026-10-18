@@ -38,7 +38,13 @@ export function advanceChains(w: World) {
   }
 }
 export function maybeStartChain(w: World) {
-  if (w.chains.filter((c) => c.status === 'active').length >= 3 || random(w) > 0.1) return;
+  if (
+    w.chains.filter((c) => c.status === 'active').length +
+      w.living.arcs.filter((a) => a.status === 'active' || a.status === 'paused').length >=
+      3 ||
+    random(w) > 0.1
+  )
+    return;
   const d = chains.find(
     (d) =>
       d.scene === w.activity.scene &&

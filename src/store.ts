@@ -1,3 +1,4 @@
+import { scheduleInteraction } from './engine/InteractionScheduler';
 import { useSyncExternalStore } from 'react';
 import { type World } from './engine/model';
 import { catchUp, type CatchUpReport, shouldWelcome } from './engine/SimulationClock';
@@ -101,6 +102,7 @@ export async function initialize() {
     state.error = result.error;
     if (state.world) {
       const r = catchUp(state.world);
+      scheduleInteraction(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
       if (r.clockReversed)
         state.notice = '检测到系统时间回拨；将在时钟追上后继续推进，避免重复结算。';
@@ -116,6 +118,7 @@ export async function initialize() {
   setInterval(() => {
     if (!state.world) return;
     const r = catchUp(state.world);
+    scheduleInteraction(state.world, Date.now());
     if (shouldWelcome(r)) {
       state.report = r;
       void persist();
@@ -134,6 +137,7 @@ export async function initialize() {
   document.addEventListener('visibilitychange', () => {
     if (state.world) {
       const r = catchUp(state.world);
+      scheduleInteraction(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
       publish();
       void persist();

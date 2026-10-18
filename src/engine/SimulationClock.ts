@@ -1,3 +1,4 @@
+import { syncRealCalendar } from './SeasonEngine';
 import { type World, MINUTE, DAY } from './model';
 import { advance } from './SimulationEngine';
 export interface CatchUpReport {
@@ -26,6 +27,7 @@ export function catchUp(w: World, now = Date.now()): CatchUpReport {
     start = w.time,
     seq = w.sequence;
   advance(w, gameElapsed);
+  if (now >= w.lastReal) syncRealCalendar(w, now);
   const reversed = now < w.lastReal;
   // Retain the high-water mark when the OS clock moves backwards; elapsed time cannot be replayed.
   w.lastReal = Math.max(w.lastReal, now);

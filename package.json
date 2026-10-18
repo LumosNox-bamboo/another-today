@@ -1,6 +1,6 @@
 {
   "name": "another-today",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "另一个今天 · An offline pixel life companion",
   "author": "Another Today",
@@ -23,7 +23,8 @@
     "format:check": "prettier --check src electron scripts tests *.ts *.json *.html",
     "test:packaged": "node scripts/smoke-packaged.mjs",
     "build:web": "tsc --noEmit && vite build",
-    "test:web": "npm run build:web && playwright test --config playwright.web.config.ts"
+    "test:web": "npm run build:web && playwright test --config playwright.web.config.ts",
+    "audit:living": "esbuild scripts/living-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/living-audit.mjs && node dist-electron/living-audit.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { linkCause } from './EventCausalityGraph';
+import { livingSchema } from './livingSchema';
 
 export const traitNames = {
   extraversion: '外向程度',
@@ -154,6 +156,7 @@ const diarySchema = z.object({
 });
 export const stateSchema = z.object({
   version: z.literal(1),
+  living: livingSchema.default({}),
   seed: z.number().int().min(1).max(4294967295),
   sequence: z.number().int().min(0),
   time,
@@ -270,6 +273,15 @@ export const stateSchema = z.object({
         label: short,
         start: time,
         expectedMinutes: z.number().min(1).max(1440),
+        kind: z.enum(['学习', '阅读', '工作', '休息', '运动', '睡前回顾', '自定义事项']).optional(),
+        expectedEnd: time.optional(),
+        gameStart: time.optional(),
+        gameEnd: time.optional(),
+        independent: z
+          .array(z.object({ kind: activitySchema, minutes: z.number().nonnegative() }))
+          .max(14)
+          .optional(),
+        exchange: z.string().max(2000).optional(),
         returned: time.optional(),
         confirmedMinutes: z.number().min(0).max(1440).optional(),
         note: z.string().max(2000).optional(),
@@ -344,6 +356,12 @@ export function record(
     cause,
   };
   w.events.push(e);
+  w.living.stats.categories[category] = (w.living.stats.categories[category] || 0) + 1;
+  w.living.stats.definitions[definition] = (w.living.stats.definitions[definition] || 0) + 1;
+  if (important) {
+    w.living.stats.important++;
+    linkCause(w, e, cause ? [cause] : []);
+  }
   if (w.events.length > 1500) w.events.splice(0, w.events.length - 1500);
   return e;
 }

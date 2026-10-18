@@ -159,7 +159,16 @@ function draw(
   const { r, line, ellipse, plant, window, shelf, table, lamp, tree, person } = painter(ctx);
   const h = hour(w.time),
     night = h >= 19 || h < 6;
-  const sky = night ? '#8993a6' : '#ccdcd3';
+  const season = w.living.calendar.season;
+  const sky = night
+    ? '#8993a6'
+    : season === '冬'
+      ? '#d8e1e4'
+      : season === '秋'
+        ? '#e5d7ba'
+        : season === '夏'
+          ? '#b9d6d9'
+          : '#ccdcd3';
   r(0, 0, W, H, sky);
   // Quiet distant city, clouds and warm windows.
   r(0, 105, 480, 205, night ? '#8c9d91' : '#b8c6a8');
@@ -447,7 +456,7 @@ function draw(
       pos.x,
       pos.y,
       w.character.hair,
-      w.character.outfit,
+      season === '冬' ? '#8198a8' : w.character.outfit,
       w.character.skin,
       moving,
       t,
@@ -471,6 +480,22 @@ function draw(
     if (!moving && ['work', 'play'].includes(w.activity.kind))
       r(pos.x - 6, pos.y - 16, 15, 3, '#cdae86');
   }
+  if (outdoor && season === '冬') {
+    for (let i = 0; i < 35; i++) r((i * 47 + t * 3) % 480, (i * 29 + t * 9) % H, 2, 2, '#faf8ed');
+  }
+  if (outdoor && season === '秋') {
+    for (let i = 0; i < 12; i++)
+      r((i * 43 + t * 5) % 480, 160 + ((i * 19 + t * 8) % 120), 3, 2, '#c48b58');
+  }
+  if (
+    w.activity.kind === 'garden' &&
+    w.activity.scene === scene &&
+    !moving &&
+    w.living.habits.some(
+      (h) => h.formed && ['habit-13', 'habit-14', 'habit-15', 'habit-16'].includes(h.id),
+    )
+  )
+    r(pos.x + 8, pos.y - 12 + Math.sin(t * 3) * 2, 5, 4, '#8da4a1');
   // Tiny foreground details, pixel fireflies and evening color grading.
   if (scene === 'park' || scene === 'night') {
     for (let i = 0; i < 7; i++) {

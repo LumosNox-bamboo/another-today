@@ -25,6 +25,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm test
+      - run: npm run audit:living
       - run: npm run build:web
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.web.config.ts

@@ -7,5 +7,5 @@ export default defineConfig({
   expect: { timeout: 10000 },
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { trace: 'retain-on-failure' },
-  outputDir: 'test-results',
+  outputDir: 'test-results/desktop',
 });

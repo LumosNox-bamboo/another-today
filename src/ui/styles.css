@@ -2312,3 +2312,89 @@ svg {
     grid-template-columns: 1fr;
   }
 }
+
+/* Living world entries use the existing quiet card language. */
+.living-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.living-tabs [aria-selected='true'] {
+  background: #e4eadb;
+  border-color: #aebba2;
+}
+.living-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.living-grid .card,
+.interaction-card {
+  min-width: 0;
+}
+.living-entry {
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+  overflow-wrap: anywhere;
+}
+.living-entry h3 {
+  margin: 8px 0;
+  font-size: 15px;
+}
+.living-entry p {
+  line-height: 1.9;
+  font-size: 13px;
+}
+.living-entry small {
+  color: #7b8270;
+  line-height: 1.8;
+}
+.living-entry summary {
+  cursor: pointer;
+  line-height: 1.8;
+  font-size: 13px;
+}
+.living-entry button {
+  margin: 5px 6px 5px 0;
+}
+.living-grid select {
+  max-width: 100%;
+}
+.generated-art {
+  display: block;
+  width: 100%;
+  max-height: 230px;
+  image-rendering: pixelated;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+.work-text {
+  white-space: pre-line;
+  line-height: 1.9;
+}
+.interaction-card {
+  margin-bottom: 22px;
+  border-left: 3px solid #a7b693;
+}
+.interaction-card p {
+  line-height: 1.8;
+}
+.interaction-card small {
+  display: block;
+  margin-top: 12px;
+}
+.messages + .quick-prompts {
+  max-height: 110px;
+  overflow: auto;
+}
+@media (max-width: 800px) {
+  .living-grid {
+    grid-template-columns: 1fr;
+  }
+  .living-tabs button {
+    white-space: normal;
+    flex: 1 1 40%;
+  }
+}

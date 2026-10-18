@@ -1,3 +1,4 @@
+import { validateLiving } from './LivingValidator';
 import { stateSchema, type World, STEP } from './model';
 export function validateWorld(input: unknown): World {
   const w = stateSchema.parse(input);
@@ -19,12 +20,20 @@ export function validateWorld(input: unknown): World {
     ...w.ledger,
     ...w.playerActivities,
     ...w.decisions,
+    ...w.living.interactions,
+    ...w.living.gifts,
+    ...w.living.news,
+    ...w.living.creations,
+    ...w.living.dreams,
   ].map((x) => x.id);
   for (const id of generatedIds) {
-    const match = id.match(/^(?:event|memory|player-memory|money|focus|decision)-(\d+)$/);
+    const match = id.match(
+      /^(?:event|memory|player-memory|money|focus|decision|interaction|gift-instance|news|creation|wish)-(\d+)$/,
+    );
     if (match && Number(match[1]) > w.sequence) throw new Error('存档序号落后于已保存记录');
   }
   if (w.playerActivities.filter((a) => !a.returned).length > 1)
     throw new Error('存档有多个未结束的专注活动');
+  validateLiving(w);
   return w;
 }

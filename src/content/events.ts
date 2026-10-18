@@ -25,6 +25,15 @@ export interface EventDefinition {
   followUpEvents: string[];
   memoryTags: string[];
   rarity: 'common' | 'uncommon';
+  scenes?: Scene[];
+  requiredState?: 'gift' | 'habit' | 'npc-change' | 'news' | 'creation';
+  season?: '春' | '夏' | '秋' | '冬';
+  branch?: {
+    trait: keyof World['character']['traits'];
+    threshold: number;
+    text: string;
+    mood: number;
+  };
   repeatPolicy: 'cooldown' | 'once';
 }
 export const events: EventDefinition[] = [];
@@ -324,6 +333,148 @@ group(
 没有写完的便条|看到一张只写了开头的旧便条，剩下的故事留在想象里。
 `,
 );
+
+// First expansion: 60 authored events, with state-dependent prerequisites and outcomes.
+const expansionGroups: [string, Activity[], Scene[], EventDefinition['requiredState'], string][] = [
+  [
+    '礼物收藏',
+    ['read', 'create', 'garden', 'rest'],
+    ['apartment', 'library', 'park'],
+    'gift',
+    `
+礼物旁的新便条|给收到的礼物写下一张使用便条，记住它为什么来到这里。
+第一次带出门|试着把一件适合随身携带的收藏放进包里，观察它能派上什么用场。
+腾出一个位置|把常用物品挪开一点，为收到的心意留出不拥挤的位置。
+不熟悉的材料|拿起收到的材料试了一下，承认自己还需要慢慢熟悉。
+礼物的保养日|给收藏擦去灰尘，发现妥善保存也需要一点耐心。
+想起收到的那天|整理礼物时，重新想起最初收到它时的心情。
+没有急着用完|决定珍惜材料，也允许自己在练习时犯错。
+另一种用途|试着为闲置的礼物找到更适合自己的用途。
+收藏的顺序|重新排了收藏的位置，最常用的放在触手可及的地方。
+留在手边的心意|忙完后又看了一眼礼物，觉得普通的一天多了一点联系。`,
+  ],
+  [
+    '习惯成长',
+    ['read', 'study', 'walk', 'garden', 'rest'],
+    ['apartment', 'park', 'library', 'street'],
+    'habit',
+    `
+熟悉的开始|没有刻意提醒，也自然开始了最近常做的小事。
+今天换个顺序|把熟悉的安排调换顺序，看看哪一种更舒服。
+习惯里的留白|做完常做的事后，特意给自己留了一段空闲。
+错过也没关系|今天没完全按原来的节奏走，决定明天再继续。
+发现重复的价值|同一件事做得多了，终于注意到以前忽略的细节。
+不再追求整齐|允许日程不那么完美，留下真正能坚持的部分。
+适合自己的长度|把练习缩短了一点，反而更愿意继续。
+给日常换地点|换一个地方做熟悉的事情，体验有一点不同。
+轻轻地坚持|没有特别的进步，仍然完成了自己愿意做的一小步。
+旧节奏的新变化|发现习惯已经慢慢变化，决定按现在的需要调整。`,
+  ],
+  [
+    '居民生活',
+    ['socialize', 'coffee', 'walk'],
+    ['cafe', 'park', 'street'],
+    'npc-change',
+    `
+听到新近况|听街区居民谈起各自的新安排，发现每个人的日子都在变化。
+不同的通勤路线|路上遇到调整通勤的居民，简单交换了绕路的经验。
+新的话题|谈话里出现最近才开始的兴趣，愿意多听一会儿。
+各自忙碌的下午|大家各自有事，没有长聊，也互相点头问好。
+给改变一点时间|听到别人适应新生活的不容易，没有急着给结论。
+街区的熟面孔|再次碰见熟悉的人，聊了两句近日见闻。
+不一样的周末|发现邻里对周末有不同安排，各自选择了舒服的方式。
+尊重朋友的空间|原本想多聊一会儿，看到对方有事便留到下次。
+顺路的一小段|与遇到的居民走过一段相同的路，随后各自离开。
+还会再相遇|一次短暂交谈结束，没有承诺下次时间，但仍期待重逢。`,
+  ],
+  [
+    '社区新闻',
+    ['walk', 'socialize', 'read', 'coffee'],
+    ['park', 'street', 'cafe', 'library'],
+    'news',
+    `
+看完公告再决定|认真读过正在进行的社区安排，挑了适合自己的部分。
+活动边缘的位置|没有急着加入人群，先在旁边看了一会儿。
+临时改变路线|根据公告调整了出行安排，发现另一条路也不错。
+记下开放时间|把社区活动的时间记下来，决定有空再来。
+一句实用的提醒|从正在进行的社区安排里，找到一条对自己有用的信息。
+不参加也能欣赏|今天没有参加活动，只是远远欣赏街区的热闹。
+公告前的交谈|在公告附近听见居民交换想法，安静听了一段。
+留下自己的想法|为社区正在征集的内容想了一条小建议。
+热闹之后的安静|走离活动区域，发现安静的路段也很舒服。
+下一次再来|时间不合适，决定把这次机会留给别人，自己继续生活。`,
+  ],
+  [
+    '季节节庆',
+    ['walk', 'garden', 'read', 'rest'],
+    ['park', 'apartment', 'street', 'library'],
+    undefined,
+    `
+光线移过书页|察觉窗边光线的位置变了，把书挪到更明亮的地方。
+按天气安排步伐|今天没有坚持原来的路线，按气候调整了走路的距离。
+换一层舒服的衣物|根据季节添减衣物，照顾身体真实的感受。
+留意枝头的变化|经过熟悉的树时，注意到枝叶已经和前阵子不同。
+重新估量浇水量|照看植物时，想到季节变化会影响水分需要。
+一年的普通刻度|意识到日历又翻过一页，没有庆祝，也记住了今天。
+给窗边腾出空间|整理窗边，让季节的光更容易照进来。
+应季的阅读心情|翻书时发现自己对同一句话有了新的感受。
+天色提醒回家|留意到天色变化，按今天的身体状态决定回程。
+季节里的慢动作|没有赶着追上任何安排，慢慢度过气候变化的一天。`,
+  ],
+  [
+    '创作成果',
+    ['create', 'read', 'socialize'],
+    ['apartment', 'park', 'library', 'cafe'],
+    'creation',
+    `
+回看第一件作品|重新看自己的已完成作品，想起最初尝试时的笨拙。
+留下修改痕迹|没有抹去所有改动，觉得过程也是作品的一部分。
+标题终于确定|为作品考虑了几个标题，选择最接近自己意思的那个。
+想试另一种颜色|看过已有作品后，记下下次想尝试的色彩方向。
+不急着发表|决定先把作品放一放，等过些日子再看。
+给作品做目录|把完成的作品按时间排好，看见自己走过的小路。
+读出不同的意思|重读已完成的片段，发现它现在带来不同的感受。
+给下一件留空白|清理桌面，为下一次创作留出可以开始的位置。
+接受不完美的一笔|没有继续反复修改，让作品停在一个真实的状态。
+想分享的部分|从作品里选出自己愿意给别人看的部分，不必展示全部。`,
+  ],
+];
+for (const [category, activities, scenes, requiredState, rows] of expansionGroups) {
+  rows
+    .trim()
+    .split('\n')
+    .forEach((row, i) => {
+      const [title, description] = row.split('|');
+      events.push({
+        eventId: `living-event-${events.length + 1}`,
+        category,
+        title,
+        description,
+        triggerConditions: { activities, gate: 'any' },
+        scenes,
+        requiredState,
+        weight: i % 3 === 0 ? 1.4 : 1,
+        cooldown: (7 + (i % 4)) * 1440,
+        participants: 'self',
+        playerChoiceRequired: false,
+        choices: [],
+        effects: { mood: 2 + (i % 3), stress: -1 - (i % 2), money: 0 },
+        followUpEvents: [],
+        memoryTags: [category, title],
+        rarity: i % 3 === 0 ? 'uncommon' : 'common',
+        repeatPolicy: 'cooldown',
+        branch: {
+          trait: i % 2 ? 'openness' : 'discipline',
+          threshold: 65,
+          text:
+            i % 2
+              ? '愿意把这次发现当作下一次尝试的起点。'
+              : '把这个细节记下来，留作以后调整生活的参考。',
+          mood: 1,
+        },
+      });
+    });
+}
 
 export interface ChainDefinition {
   id: string;

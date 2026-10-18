@@ -47,3 +47,11 @@
 ## 测试重点
 
 固定步长与倍率一致性、暂停/回拨、跨夜/夜班、极长离线边界、工资幂等、真实日记来源、NPC 独立生活、全部 15 条链、重大选择等待、双方关系意愿、玩家隐私、实际专注时长、导入拒绝、并发保存、主档损坏恢复，以及真实 Electron UI 的完整链路。
+
+## Living World 0.2 扩展
+
+`livingSchema.ts` 提供 `version: 1` 内的默认迁移块；新增状态仍由原来的保存适配器写入。`SimulationEngine` 在活动选择前合并礼物、习惯、秘密、季节和新闻权重，在活动完成后推进创作、愿望与长线剧情。NPC 采用日级独立状态，5 分钟逻辑步仍负责位置和主角需求。
+
+`InteractionScheduler` 在真实时钟结算后调用，独立于游戏加速步进，防止离线补算产生几十条通知。`SharedActivityEngine` 每步记录小人实际活动，确认玩家活动时才生成结束交流。
+
+`EventCausalityGraph` 保存重要事件及被后续引用的事件快照。`ContentValidator` 验证内容目录，`LivingValidator` 验证运行存档引用和跨系统一致性。`LivingWorld.tsx` 使用原 store 的 `mutate` 接入操作，没有静态假事件数据。详见 `LIVING_WORLD.md`。

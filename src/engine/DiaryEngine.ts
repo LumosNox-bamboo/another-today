@@ -1,3 +1,4 @@
+import { habits } from '../content/living';
 import { type World, dayKey, sceneNames, realDate } from './model';
 export function closeDay(w: World, date: string) {
   if (w.diaries.some((d) => d.date === date)) return;
@@ -18,7 +19,11 @@ export function closeDay(w: World, date: string) {
   w.diaries.push({
     date,
     title: `${w.character.name}的${date.slice(5).replace('-', '月')}日`,
-    body: `${body}\n\n${tone}\n还想继续努力：${w.character.goal}。`,
+    body: `${body}\n\n${w.living.habits
+      .filter((h) => h.formed && dayKey(h.last) === date)
+      .slice(0, 2)
+      .map((h) => habits.find((d) => d.id === h.id)?.diary)
+      .join(' ')}\n${tone}\n还想继续努力：${w.character.goal}。`,
     mood: w.needs.mood >= 65 ? '晴朗' : w.needs.mood >= 40 ? '平静' : '需要休息',
     eventIds: selected.map((e) => e.id),
     places: [...new Set(selected.map((e) => e.scene))],

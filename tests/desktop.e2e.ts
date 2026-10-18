@@ -27,7 +27,7 @@ async function state() {
 test.describe.serial('real Electron desktop', () => {
   test.beforeAll(async () => {
     data = await mkdtemp(join(tmpdir(), 'another-today-e2e-'));
-    await mkdir('docs/screenshots', { recursive: true });
+    await mkdir('docs/screenshots/desktop-v02', { recursive: true });
     await launch();
   });
   test.afterAll(async () => {
@@ -36,7 +36,9 @@ test.describe.serial('real Electron desktop', () => {
   });
   test('creates a character and displays the live world with sandboxed renderer', async () => {
     await expect(page.getByText('TA 是什么样的人？')).toBeVisible();
-    await page.screenshot({ path: 'docs/screenshots/01-create.png', fullPage: true });
+    await page.getByLabel('名字', { exact: true }).fill('小满');
+    await expect(page.getByLabel('名字', { exact: true })).toHaveValue('小满');
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/01-create.png', fullPage: true });
     await page.getByRole('button', { name: '继续认识 TA' }).click();
     await page.getByRole('button', { name: '继续认识 TA' }).click();
     await page.getByRole('button', { name: '开始另一个今天' }).click();
@@ -53,11 +55,13 @@ test.describe.serial('real Electron desktop', () => {
     await expect.poll(async () => (await state())?.character.name).toBe('小满');
     await page.getByRole('button', { name: '暂停', exact: true }).click();
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({ path: 'docs/screenshots/02-life.png', fullPage: true });
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/02-life.png', fullPage: true });
     const sceneButtons = page.locator('.scene-tabs button');
     for (let i = 1; i < 9; i++) {
       await sceneButtons.nth(i).click();
-      await page.locator('.scene-view').screenshot({ path: `docs/screenshots/scene-${i}.png` });
+      await page
+        .locator('.scene-view')
+        .screenshot({ path: `docs/screenshots/desktop-v02/scene-${i}.png` });
     }
     await sceneButtons.first().click();
   });
@@ -82,7 +86,7 @@ test.describe.serial('real Electron desktop', () => {
     await expect.poll(async () => (await state()).playerDiaries[0]?.text).toContain('亲自填写');
     await page.getByLabel('小人日记日期').selectOption({ index: 1 });
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({ path: 'docs/screenshots/03-diary.png', fullPage: true });
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/03-diary.png', fullPage: true });
   });
   test('chat remembers only explicitly authorized facts, and forgotten facts stay gone', async () => {
     await page.locator('nav').getByRole('button', { name: '今天', exact: true }).click();
@@ -98,7 +102,7 @@ test.describe.serial('real Electron desktop', () => {
       .toBe(true);
     await page.getByRole('button', { name: '你记得我什么？' }).click();
     await expect(page.locator('.message.character').last()).toContainText('我正在学习德语');
-    await page.screenshot({ path: 'docs/screenshots/04-chat.png', fullPage: true });
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/04-chat.png', fullPage: true });
     await page.getByRole('button', { name: '关闭', exact: true }).click();
     await page.locator('nav').getByRole('button', { name: '记忆', exact: true }).click();
     await page.getByRole('button', { name: '删除记忆 我正在学习德语' }).click();
@@ -128,7 +132,7 @@ test.describe.serial('real Electron desktop', () => {
     const controls = await page.locator('.compact-actions').boundingBox();
     const viewportHeight = await page.evaluate(() => window.innerHeight);
     expect(controls!.y + controls!.height).toBeLessThanOrEqual(viewportHeight);
-    await page.screenshot({ path: 'docs/screenshots/05-compact.png' });
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/05-compact.png' });
     await page.getByRole('button', { name: '完整观察模式', exact: true }).click();
     await expect(page.locator('.app.compact')).toHaveCount(0);
   });
@@ -143,7 +147,7 @@ test.describe.serial('real Electron desktop', () => {
     await launch();
     await expect(page.getByRole('dialog', { name: '你不在的这段时间' })).toBeVisible();
     await expect(page.getByText(/现实经过 30 分钟/)).toBeVisible();
-    await page.screenshot({ path: 'docs/screenshots/06-return.png', fullPage: true });
+    await page.screenshot({ path: 'docs/screenshots/desktop-v02/06-return.png', fullPage: true });
     await page.getByRole('button', { name: '继续观察', exact: true }).click();
     const current = await state();
     expect(current.time - w.time).toBeGreaterThanOrEqual(120 * MINUTE);

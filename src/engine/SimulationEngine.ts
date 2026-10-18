@@ -1,3 +1,12 @@
+import { maybeStartArc, arcsTick } from './StoryArcEngine';
+import { creationTick, exhibitCreations } from './CreationEngine';
+import { dreamsTick } from './RegretAndDreamEngine';
+import { giftBias, useGifts, practiceInterests } from './GiftEngine';
+import { habitBias, practiceHabits, decayHabits } from './HabitEngine';
+import { secretBias, secretsTick } from './SecretEngine';
+import { seasonTick, seasonBias } from './SeasonEngine';
+import { newsTick, townBias, openScene } from './TownNewsEngine';
+import { trackShared } from './SharedActivityEngine';
 import {
   type World,
   type Activity,
@@ -94,6 +103,13 @@ export function chooseActivity(w: World) {
   }
   if (w.flags.suggestion && Number(w.flags.suggestionUntil) > w.time)
     scores[w.flags.suggestion as Activity] += 40;
+  for (const kind of Object.keys(scores) as Activity[])
+    scores[kind] +=
+      giftBias(w, kind) +
+      habitBias(w, kind) +
+      secretBias(w, kind) +
+      seasonBias(w, kind) +
+      townBias(w, kind);
   for (const kind of w.recentActivities.slice(-3)) scores[kind] -= 25;
   const kinds = (Object.keys(scores) as Activity[]).filter((k) => k !== 'work' || isWorking(w));
   // Softmax allows lower-scoring but reasonable activities; urgent needs remain deterministic.
@@ -137,6 +153,7 @@ export function chooseActivity(w: World) {
   if (best === 'coffee' || best === 'socialize') scene = random(w) < 0.8 ? 'cafe' : 'park';
   if (best === 'shop') scene = 'shop';
   if (best === 'rest' && h >= 19 && h < 23 && random(w) < 0.35) scene = 'night';
+  scene = openScene(w, scene);
   w.activity = { kind: best, start: w.time, end: w.time + duration * MINUTE, scene };
   record(
     w,
@@ -222,6 +239,15 @@ function completeActivity(w: World) {
       'dream',
     );
   }
+  w.living.stats.activities[a.kind] = (w.living.stats.activities[a.kind] || 0) + 1;
+  practiceInterests(w, a.kind);
+  useGifts(w, a.kind);
+  practiceHabits(w, a.kind);
+  secretsTick(w, a.kind);
+  creationTick(w, a.kind);
+  exhibitCreations(w);
+  dreamsTick(w, a.kind);
+  maybeStartArc(w);
   sampleEvent(w);
   w.recentActivities.push(a.kind);
   w.recentActivities = w.recentActivities.slice(-12);
@@ -261,6 +287,7 @@ function completeActivity(w: World) {
 function tick(w: World) {
   const n = w.needs,
     a = w.activity.kind;
+  trackShared(w, a, STEP / MINUTE);
   n.hunger = clamp(n.hunger + 0.55);
   n.social = clamp(n.social + 0.18);
   n.fun = clamp(n.fun - 0.2);
@@ -277,8 +304,12 @@ function tick(w: World) {
   if (n.hunger > 90 || n.energy < 10) n.mood = clamp(n.mood - 0.2, 15);
   else n.mood = clamp(n.mood + (65 - n.mood) * 0.002, 15);
   n.health = clamp(n.health + (n.energy > 25 && n.hunger < 80 ? 0.025 : -0.02), 35);
+  seasonTick(w);
+  newsTick(w);
+  decayHabits(w);
   npcTick(w);
   advanceChains(w);
+  arcsTick(w);
   if (w.time >= w.activity.end) {
     completeActivity(w);
     chooseActivity(w);
@@ -349,7 +380,12 @@ export function resolveDecision(w: World, id: string, choice: 'yes' | 'no' | 'se
         n.relation.type = '前任';
         text = `与${n.name}平静地结束了恋爱关系，尊重各自的未来。`;
       }
-    } else if (yes && n.relation.willing && !w.npcs.some((x) => x.relation.type === '恋人')) {
+    } else if (
+      yes &&
+      n.relation.willing &&
+      !w.npcs.some((x) => x.relation.type === '恋人') &&
+      !w.living.npcBonds.some((b) => b.status === '恋人' && (b.a === n.id || b.b === n.id))
+    ) {
       n.relation.type = '恋人';
       text = `向${n.name}表达了心意，对方也愿意试着一起走一段。`;
     } else

@@ -1,3 +1,4 @@
+import { removeLinkedMemory } from './PlayerLinkedEventEngine';
 import { type World, type Memory, type LifeEvent, uid } from './model';
 export function rememberEvent(w: World, e: LifeEvent, importance = 55) {
   if (w.memories.some((m) => m.source === e.id)) return;
@@ -14,6 +15,8 @@ export function rememberEvent(w: World, e: LifeEvent, importance = 55) {
     tags: [e.category, e.title],
     privacy: 'local',
   });
+  const node = w.living.causes.find((c) => c.id === e.id);
+  if (node) node.memories = w.memories.filter((m) => m.source === e.id).map((m) => m.id);
   trim(w);
 }
 function trim(w: World) {
@@ -47,6 +50,7 @@ export function rememberPlayer(w: World, text: string, realNow: number) {
   return true;
 }
 export function forget(w: World, id: string) {
+  removeLinkedMemory(w, id);
   w.memories = w.memories.filter((m) => m.id !== id);
 }
 export function retrieve(w: World, query: string, subject?: Memory['subject']) {

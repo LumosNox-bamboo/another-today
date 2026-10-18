@@ -1,4 +1,5 @@
 import { type Character, type NPC, type Traits, type World, STEP, record } from '../engine/model';
+import { createLiving } from '../engine/livingSchema';
 export const defaultTraits: Traits = {
   extraversion: 42,
   openness: 72,
@@ -59,6 +60,7 @@ export function createWorld(
   const t = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0);
   const w: World = {
     version: 1,
+    living: createLiving(),
     seed: seed >>> 0 || 1,
     sequence: 0,
     time: t,

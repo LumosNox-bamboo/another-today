@@ -1,6 +1,9 @@
+import { npcLifeTick } from './NPCLifeEngine';
+import { openScene } from './TownNewsEngine';
 import { type World, type NPC, clamp, dayKey, hour, random, record, DAY } from './model';
 import { rememberEvent } from './MemoryEngine';
 export function npcTick(w: World) {
+  npcLifeTick(w);
   const h = hour(w.time),
     day = dayKey(w.time),
     weekend = [0, 6].includes(new Date(w.time).getUTCDay());
@@ -20,6 +23,10 @@ export function npcTick(w: World) {
       n.scene = (['park', 'cafe', 'library', 'street', 'apartment'] as const)[
         (Math.floor(h / 2) + i + Math.floor(w.time / DAY)) % 5
       ];
+    if (w.living.calendar.season === '冬' && n.scene === 'park') n.scene = 'cafe';
+    const gathering = w.living.news.find((x) => x.effect === 'gathering' && x.expires > w.time);
+    if (gathering && h >= 17 && h < 19 && i % 3 === 0) n.scene = gathering.scene as typeof n.scene;
+    n.scene = openScene(w, n.scene);
     n.plan =
       n.scene === 'apartment'
         ? '在家休息'
@@ -82,6 +89,7 @@ export function encounter(w: World, n?: NPC) {
     n.traits.romance > 45 &&
     w.character.traits.romance > 45 &&
     !w.npcs.some((x) => x.relation.type === '恋人') &&
+    !w.living.npcBonds.some((b) => b.status === '恋人' && (b.a === n.id || b.b === n.id)) &&
     !['恋人', '前任'].includes(r.type) &&
     !w.decisions.some((d) => d.npcId === n!.id) &&
     !w.flags[`romance-${n.id}`]

@@ -1,3 +1,6 @@
+import { LivingWorld, LivingSettings, InteractionCard, CausalityView } from './LivingWorld';
+import { lifePrompts } from '../engine/LifeInteractionEngine';
+import { confirmShared } from '../engine/SharedActivityEngine';
 import { useEffect, useState } from 'react';
 import {
   Home,
@@ -69,6 +72,7 @@ const nav = [
   ['diary', '双人日记', BookOpen],
   ['memory', '记忆', Heart],
   ['history', '人生档案', History],
+  ['world', '世界', Leaf],
   ['settings', '设置', Settings],
 ] as const;
 type Tab = (typeof nav)[number][0];
@@ -287,7 +291,7 @@ export function App() {
               让故事自然发生。
             </p>
             <small>
-              <i className="status-dot" /> {window.desktop ? '本地离线世界' : '网页版'} · v0.1
+              <i className="status-dot" /> {window.desktop ? '本地离线世界' : '网页版'} · v0.2
             </small>
           </div>
         </aside>
@@ -361,6 +365,16 @@ export function App() {
           </div>
         )}
         <main>
+          {tab === 'world' && !s.compact && <LivingWorld world={w} />}
+          {tab === 'life' && !s.compact && (
+            <InteractionCard
+              world={w}
+              onChat={(text) => {
+                setModal('chat');
+                if (text) setMessages((m) => [...m, { role: 'character', text }]);
+              }}
+            />
+          )}
           {(tab === 'life' || s.compact) && (
             <>
               <div className="page-heading">
@@ -849,6 +863,7 @@ export function App() {
                 title="人生的慢慢长卷"
                 text="不是每一天都有转折，但每一个片刻都是真实发生过的。"
               />
+              <CausalityView world={w} />
               <div className="history-layout">
                 <section className="card">
                   <header className="section-heading">
@@ -970,7 +985,7 @@ export function App() {
             ))}
           </div>
           <div className="quick-prompts">
-            {['你今天做了什么？', '你记得我什么？', '今天有点累'].map((text) => (
+            {['你今天做了什么？', '你记得我什么？', '今天有点累', ...lifePrompts].map((text) => (
               <button key={text} onClick={() => send(text)}>
                 {text}
               </button>
@@ -1253,9 +1268,7 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
               }
               onClick={() => {
                 mutate((x) => {
-                  const a = x.playerActivities.find((a) => a.id === last.id)!;
-                  a.confirmedMinutes = Number(actual);
-                  a.note = note;
+                  confirmShared(x, last.id, Number(actual), note);
                 });
                 onClose();
               }}
@@ -1280,7 +1293,7 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
             <label>
               准备做什么
               <select value={label} onChange={(e) => setLabel(e.target.value)}>
-                {['学习', '工作', '阅读', '运动', '休息', '自定义事项'].map((x) => (
+                {['学习', '工作', '阅读', '运动', '休息', '睡前回顾', '自定义事项'].map((x) => (
                   <option key={x}>{x}</option>
                 ))}
               </select>
@@ -1528,6 +1541,7 @@ function SettingsView({
         text="没有必须完成的任务，也没有必须赶上的今天。"
       />
       <div className="settings-grid">
+        <LivingSettings world={w} />
         <section className="card">
           <h2>时间与自主生活</h2>
           <label>
@@ -1695,7 +1709,7 @@ function SettingsView({
         </section>
         <section className="card full">
           <h2>关于这个版本</h2>
-          <p>Another Today 0.1 · 完全离线的桌面生活模拟。</p>
+          <p>Another Today 0.2 · 持续变化的像素生活模拟。</p>
           <div className="tags">
             <Tag>{events.length} 个结构化日常事件</Tag>
             <Tag>{chains.length} 条分支故事链</Tag>

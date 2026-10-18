@@ -1,4 +1,5 @@
-import { type World, gameTime, activityNames, clamp, MINUTE, uid } from './model';
+import { lifeReply } from './LifeInteractionEngine';
+import { type World, gameTime, activityNames, clamp } from './model';
 export function reply(w: World, input: string): string {
   const s = input.trim(),
     c = w.character,
@@ -10,6 +11,8 @@ export function reply(w: World, input: string): string {
     t.extraversion > 65 ? '你来啦！' : t.extraversion < 35 ? '嗯，我在。' : '很高兴和你聊聊。';
   if (/不要记|别记住|别保存/.test(s))
     return '好，这条消息不会写入长期记忆。聊天窗口的内容只在本次打开时保留；以前授权的记忆可以在「记忆」中逐条删除。';
+  const contextual = lifeReply(w, s);
+  if (contextual) return contextual;
   if (/你.*(今天|做了|干了|最近)|发生|经历/.test(s)) {
     const es = w.events.filter((e) => e.definition !== 'activity').slice(-3);
     return es.length
@@ -44,19 +47,4 @@ export function reply(w: World, input: string): string {
     `我会认真听你说。今天哪一个片刻最想留下来？`,
   ][w.companion.conversations % 3];
 }
-export function startFocus(w: World, label: string, minutes: number, now: number) {
-  if (w.playerActivities.some((a) => !a.returned)) throw new Error('已有进行中的活动');
-  w.playerActivities.push({
-    id: uid(w, 'focus'),
-    label: label.trim().slice(0, 200) || '专注',
-    start: now,
-    expectedMinutes: Math.max(1, Math.min(1440, minutes)),
-  });
-  w.playerActivities = w.playerActivities.slice(-100);
-  w.flags.suggestion = w.character.traits.creativity > 65 ? 'create' : 'read';
-  w.flags.suggestionUntil = w.time + Math.min(minutes, 90) * MINUTE;
-}
-export function returnFocus(w: World, now: number) {
-  const a = w.playerActivities.find((a) => !a.returned);
-  if (a) a.returned = Math.max(a.start, now);
-}
+export { startShared as startFocus, returnShared as returnFocus } from './SharedActivityEngine';

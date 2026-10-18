@@ -44,3 +44,75 @@ test('friends can create, play, export and resume their own browser world', asyn
   await page.screenshot({ path: test.info().outputPath('web-game.png'), fullPage: true });
   expect(errors).toEqual([]);
 });
+
+test('living expansion migrates an old save and exposes real gifts, habits, town and artwork', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  // An actual old-format world has no extension block. Reload must preserve identity.
+  await page.evaluate(() => {
+    const w = JSON.parse(localStorage.getItem('another-today')!);
+    delete w.living;
+    localStorage.setItem('another-today', JSON.stringify(w));
+  });
+  // Avoid beforeunload writing the still-open in-memory world over the migration fixture.
+  const old = await page.evaluate(() => localStorage.getItem('another-today')!);
+  await page.goto('about:blank');
+  await page.addInitScript((raw) => {
+    if (location.protocol.startsWith('http') && !sessionStorage.getItem('migration-once')) {
+      localStorage.setItem('another-today', raw);
+      sessionStorage.setItem('migration-once', '1');
+    }
+  }, old);
+  await page.goto('./');
+  await expect(page.getByText('又是一个小小的今天')).toBeVisible();
+  const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  await expect.poll(async () => (await saved()).living?.revision).toBe(1);
+  await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+  await page.getByRole('tab', { name: '礼物与作品' }).click();
+  await page.getByLabel('挑选礼物').selectOption('gift-6-0');
+  await page.getByRole('button', { name: '送给 TA', exact: true }).click();
+  await expect.poll(async () => (await saved()).living.gifts.length).toBe(1);
+  await expect(page.getByRole('button', { name: '送给 TA', exact: true })).toBeDisabled();
+  await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByLabel('免打扰模式').check();
+  await page.getByLabel('季节日历').selectOption('real');
+  for (let i = 0; i < 28; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
+  await expect.poll(async () => (await saved()).living.npcLives.length).toBe(18);
+  await expect.poll(async () => (await saved()).living.news.length).toBeGreaterThan(0);
+  await expect
+    .poll(async () => (await saved()).living.habits.filter((h: any) => h.formed).length)
+    .toBeGreaterThan(0);
+  await expect
+    .poll(async () => (await saved()).living.creations.filter((c: any) => c.completed).length)
+    .toBeGreaterThan(0);
+  await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+  await page.getByRole('tab', { name: '街区近况' }).click();
+  await expect(page.getByRole('heading', { name: '小镇公告' })).toBeVisible();
+  await page.getByRole('tab', { name: '礼物与作品' }).click();
+  await page.getByRole('button', { name: '查看作品' }).first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('img', { name: /作品/ })).toBeVisible();
+  await page.getByRole('button', { name: '把作品送给朋友' }).click();
+  await expect(page.getByRole('button', { name: '已经送给朋友' })).toBeDisabled();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('tab', { name: '长线故事' }).click();
+  await page.getByLabel('回溯事件').selectOption({ index: 1 });
+  await page.getByRole('tab', { name: '习惯与愿望' }).click();
+  await expect(page.getByRole('heading', { name: '渐渐形成的习惯' })).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('living-world.png'), fullPage: true });
+  const before = await saved();
+  await page.reload();
+  await expect(page.getByText(/又是一个小小的今天|夜色正温柔/)).toBeVisible();
+  const after = await saved();
+  expect(after.living.gifts).toEqual(before.living.gifts);
+  expect(after.living.npcBonds).toEqual(before.living.npcBonds);
+  expect(after.living.creations).toEqual(before.living.creations);
+  expect(errors).toEqual([]);
+});
