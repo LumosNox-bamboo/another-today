@@ -186,6 +186,7 @@ test('scene controls explore actual places and give gifts without moving the cha
   page,
 }) => {
   await page.goto('./');
+  await page.getByLabel('名字', { exact: true }).fill('小满和一个很长的名字');
   await page.getByRole('button', { name: '继续认识 TA' }).click();
   await page.getByRole('button', { name: '继续认识 TA' }).click();
   await page.getByRole('button', { name: '开始另一个今天' }).click();
