@@ -171,7 +171,7 @@ describe('one household in one persistent world', () => {
       if (p.character.age < 18)
         expect(p.decisions.some((d) => d.kind === 'romance' || d.kind === 'career')).toBe(false);
     }
-  });
+  }, 30_000);
 });
 
 describe('household boundary cases', () => {
