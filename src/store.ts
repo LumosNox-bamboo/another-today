@@ -13,6 +13,7 @@ export type Snapshot = {
   report: CatchUpReport | null;
   notice: string;
   compact: boolean;
+  cloudPaused: boolean;
 };
 let state: Snapshot = {
   world: null,
@@ -23,6 +24,7 @@ let state: Snapshot = {
   report: null,
   notice: '',
   compact: false,
+  cloudPaused: false,
 };
 const listeners = new Set<() => void>();
 function publish() {
@@ -64,6 +66,10 @@ export async function persist() {
 }
 export function mutate(fn: (w: World) => void, autosave = true) {
   if (!state.world) return;
+  if (state.cloudPaused) {
+    notify('正在处理云存档交接，请到设置中接续，或断开同步后继续本机生活。');
+    return;
+  }
   fn(state.world);
   publish();
   if (autosave) void persist();
@@ -84,6 +90,8 @@ export function dismissReport() {
   publish();
 }
 export async function replaceWorld(world: World) {
+  adoptionRevision++;
+  worldReplacement();
   state.world = world;
   state.world.lastReal = Date.now();
   state.report = null;
@@ -91,16 +99,45 @@ export async function replaceWorld(world: World) {
   publish();
   await persist();
 }
+let worldReplacement = () => {};
+let adoptionRevision = 0;
+export function onWorldReplacement(callback: () => void) {
+  worldReplacement = callback;
+}
+export function pauseForCloud(value: boolean) {
+  state.cloudPaused = value;
+  publish();
+}
+export async function adoptCloudWorld(world: World, current: () => boolean) {
+  if (!current()) return;
+  const revision = ++adoptionRevision;
+  const r = catchUp(world);
+  scheduleInteraction(world, Date.now());
+  const result = await persistence.save(world);
+  if (!result.ok) throw new Error(result.error || '本地保存失败');
+  if (!current()) {
+    // An IPC disk write may finish after cancellation. Restore the still-current world,
+    // unless a newer import/adoption already owns the persistence queue.
+    if (revision === adoptionRevision && state.world) await persistence.save(state.world);
+    return;
+  }
+  state.world = world;
+  state.report = shouldWelcome(r) ? r : null;
+  state.error = null;
+  state.savedAt = Date.now();
+  publish();
+}
 export async function begin(c = structuredClone(defaultCharacter)) {
   await replaceWorld(createWorld(c, Date.now(), crypto.getRandomValues(new Uint32Array(1))[0]));
 }
-export async function initialize() {
+export async function initialize(holdForCloud = false) {
   if (state.loaded) return;
+  state.cloudPaused = holdForCloud;
   try {
     const result = await persistence.load();
     state.world = result.world;
     state.error = result.error;
-    if (state.world) {
+    if (state.world && !state.cloudPaused) {
       const r = catchUp(state.world);
       scheduleInteraction(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
@@ -116,7 +153,7 @@ export async function initialize() {
   if (state.world) await persist();
   let ticks = 0;
   setInterval(() => {
-    if (!state.world) return;
+    if (!state.world || state.cloudPaused) return;
     const r = catchUp(state.world);
     scheduleInteraction(state.world, Date.now());
     if (shouldWelcome(r)) {
@@ -128,14 +165,14 @@ export async function initialize() {
     publish();
   }, 1000);
   window.desktop?.onClose(() => {
-    if (state.world) catchUp(state.world);
+    if (state.world && !state.cloudPaused) catchUp(state.world);
     void persist();
   });
   window.addEventListener('beforeunload', () => {
     if (state.world) void persistence.save(state.world);
   });
   document.addEventListener('visibilitychange', () => {
-    if (state.world) {
+    if (state.world && !state.cloudPaused) {
       const r = catchUp(state.world);
       scheduleInteraction(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
@@ -147,7 +184,7 @@ export async function initialize() {
 export async function compact(value: boolean) {
   if (window.desktop) {
     state.compact = await window.desktop.compact(value);
-    if (value && state.world) {
+    if (value && state.world && !state.cloudPaused) {
       catchUp(state.world);
       state.world.settings.speed = 1;
       await persist();

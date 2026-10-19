@@ -1,5 +1,6 @@
 import { LivingWorld, LivingSettings, InteractionCard, CausalityView } from './LivingWorld';
 import { InstallApp } from './InstallApp';
+import { CloudSync } from './CloudSync';
 import { lifePrompts } from '../engine/LifeInteractionEngine';
 import { confirmShared } from '../engine/SharedActivityEngine';
 import { useEffect, useState } from 'react';
@@ -130,6 +131,7 @@ export function App() {
   const s = useGame(),
     w = s.world;
   const [tab, setTab] = useState<Tab>('life'),
+    [cloudOpen, setCloudOpen] = useState(false),
     [preview, setPreview] = useState<Scene | null>(null),
     [modal, setModal] = useState<'chat' | 'focus' | 'items' | 'new' | null>(null),
     [selectedAnchor, setSelectedAnchor] = useState(''),
@@ -217,6 +219,14 @@ export function App() {
     return (
       <>
         <CreateCharacter />
+        <button className="cloud-entry" onClick={() => setCloudOpen(true)}>
+          跨设备存档 / 登录
+        </button>
+        {cloudOpen && (
+          <Modal title="跨设备存档" onClose={() => setCloudOpen(false)}>
+            <CloudSync />
+          </Modal>
+        )}
         {s.error && (
           <div className="recovery">
             <strong>{s.error}</strong>
@@ -258,6 +268,11 @@ export function App() {
   };
   return (
     <div className={`app ${s.compact ? 'compact' : ''}`}>
+      {cloudOpen && (
+        <Modal title="跨设备存档" onClose={() => setCloudOpen(false)}>
+          <CloudSync />
+        </Modal>
+      )}
       {!s.compact && (
         <aside className="sidebar">
           <button className="brand" onClick={() => setTab('life')}>
@@ -366,6 +381,12 @@ export function App() {
           </div>
         )}
         <main>
+          {s.cloudPaused && (
+            <div className="notice" role="status">
+              云存档正在交接，本机生活已暂时停下。
+              <button onClick={() => setTab('settings')}>处理云存档</button>
+            </div>
+          )}
           {tab === 'world' && !s.compact && <LivingWorld world={w} />}
           {tab === 'life' && !s.compact && (
             <InteractionCard
@@ -1544,6 +1565,7 @@ function SettingsView({
         text="没有必须完成的任务，也没有必须赶上的今天。"
       />
       <div className="settings-grid">
+        <CloudSync />
         <InstallApp />
         <LivingSettings world={w} />
         <section className="card">

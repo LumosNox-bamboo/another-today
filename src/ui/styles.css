@@ -16,6 +16,23 @@
 body {
   margin: 0;
 }
+.cloud-entry {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.cloud-card p,
+.cloud-consent {
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.cloud-card .button-row {
+  margin: 12px 0;
+}
+.cloud-card input[type='email'],
+.cloud-card input[type='password'] {
+  font-size: 16px;
+}
 button,
 input,
 select,

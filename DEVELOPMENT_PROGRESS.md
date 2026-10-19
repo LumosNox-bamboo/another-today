@@ -72,3 +72,13 @@
 - 新增真实 service worker 测试，覆盖冷启动读档、离线游玩再保存、安装按钮、失败更新恢复、多窗口等待和缓存隔离。原 133 项测试、Chromium 电脑 / 手机 12 项、iPhone 尺寸 WebKit 5 项、Electron 6 项全部通过。WebKit 仅跳过 Playwright 不提供的 worker 生命周期检查，该项已在 Chromium 验证。
 - 构建、TypeScript 与格式检查通过；手机安装界面截图保存在 `docs/screenshots/mobile-pwa/`，旧截图保持原样。发布流程增加 WebKit 验收，继续部署到同一网址。真机系统安装仍需实际手机确认。
 - 文档：`docs/MOBILE.md`；未制作或声称发布原生 APK / iOS 包 / 微信小游戏。
+
+# 跨设备云存档基础版（2026-10-19）
+
+- 按用户选择采用 Supabase。保留 `version: 1` 与原本机存储；远程版本、设备租约、账号授权和交接备份放在独立结构中。
+- 已接入邮箱登录 / 注册 / 密码恢复、完整存档上传授权、首次角色选择、定时同步、保存并交接、明确接手、冲突选择、云端五版历史和本机三份交接备份。新设备不必先创建角色。
+- PostgreSQL 迁移包含 RLS、最小授权、按账号的事务锁、版本比较、请求 UUID 和租约；旧设备、旧请求和另一账号都不能绕过检查覆盖新存档。
+- 160 项单元 / 集成测试、4 项两设备 Chromium / WebKit 流程、12 项网页 / PWA、5 项 iPhone 尺寸 WebKit 和 6 项 Electron 回归均通过（WebKit 按原配置跳过一项仅 Chromium 支持的 worker 检查）。修复 JSONB 字段重排 / 可选字段导致的错误冲突，上传前加入本机时间结算和持久化检查。
+- 正式 Supabase 项目尚未创建，生产构建没有连接参数时明确保持本机模式，不发送存档。接通步骤见 `docs/CLOUD_SYNC.md`，建表脚本位于 `supabase/migrations/202610190001_cloud_saves.sql`。
+
+- 最终构建、严格 TypeScript、格式和空白检查通过；生产依赖审计无已报告漏洞。同步界面截图保存在 `docs/screenshots/cloud-sync/`，原截图未覆盖。CI 加入真实数据库规则与两设备同步测试。正式邮件和 Supabase 服务仍等待用户创建项目后验收。

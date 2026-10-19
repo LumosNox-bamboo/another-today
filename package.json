@@ -27,12 +27,14 @@
     "audit:living": "esbuild scripts/living-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/living-audit.mjs && node dist-electron/living-audit.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.0",
