@@ -1,3 +1,5 @@
+import { walletGroups } from './WalletEngine';
+import { focusRewards } from '../content/focusRewards';
 import { resident, validBond } from './HouseholdEngine';
 import { validateLiving } from './LivingValidator';
 import { stateSchema, type World, STEP } from './model';
@@ -57,6 +59,33 @@ export function validateWorld(input: unknown): World {
     )
   )
     throw new Error('家庭成员、关系或时间无效');
+  if (h.wallets) {
+    const expected = walletGroups(w)
+      .map((ids) => [...ids].sort().join('/'))
+      .sort();
+    const actual = h.wallets.map((a) => [...a.members].sort().join('/')).sort();
+    if (JSON.stringify(expected) !== JSON.stringify(actual))
+      throw new Error('钱包归属与家庭关系不符');
+  }
+  if (
+    h.bonds.some(
+      (b) =>
+        b.type === '夫妻' &&
+        h.bonds.filter((r) => r.type === '夫妻' && (r.a === b.a || r.b === b.a)).length > 1,
+    )
+  )
+    throw new Error('重复的夫妻关系');
+  if (
+    w.focusRewards &&
+    (new Set(w.focusRewards.placed).size !== w.focusRewards.placed.length ||
+      w.focusRewards.placed.some(
+        (id) =>
+          !focusRewards.some(
+            (r) => r.id === id && r.kind === 'furniture' && w.focusRewards!.completed >= r.at,
+          ),
+      ))
+  )
+    throw new Error('专注奖励状态无效');
   for (const m of h.members)
     if (m.state) {
       // Reuse the full world's checks without recursively storing another household.

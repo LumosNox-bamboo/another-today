@@ -1,3 +1,5 @@
+import { useRealClock } from './RealClock';
+import { clockText, focusRemaining } from '../engine/FocusRewardEngine';
 import { Household } from './Household';
 import { lifeRole } from '../engine/HouseholdEngine';
 import { useEffect, useState } from 'react';
@@ -24,7 +26,6 @@ import {
   Sparkles,
   ChevronRight,
   Moon,
-  Sun,
 } from 'lucide-react';
 import {
   type World,
@@ -102,6 +103,7 @@ export function GameStage({
   onPerson: () => void;
   compact?: boolean;
 }) {
+  const now = useRealClock();
   const [preview, setPreview] = useState<Scene | null>(null);
   const [panel, setPanel] = useState<'map' | 'gifts' | 'moments' | 'household' | null>(null);
   const [inspect, setInspect] = useState(false);
@@ -139,11 +141,33 @@ export function GameStage({
         </button>
         <div className="game-calendar">
           <span>
-            {night ? <Moon size={16} /> : <Sun size={16} />} {w.living.calendar.season} ·{' '}
-            {dayKey(w.time).slice(5).replace('-', ' / ')}
+            现实时间 ·{' '}
+            {new Date(now).toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' })}
           </span>
-          <strong>{gameTime(w.time)}</strong>
+          <strong aria-label="现实时间">
+            {new Date(now).toLocaleTimeString(undefined, {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            })}
+          </strong>
           <small>{night ? '夜色正温柔' : '又是一个小小的今天'}</small>
+          <small>
+            游戏 · 第{' '}
+            {Math.max(
+              1,
+              Math.floor(
+                (w.time -
+                  Date.UTC(
+                    new Date(w.createdReal).getFullYear(),
+                    new Date(w.createdReal).getMonth(),
+                    new Date(w.createdReal).getDate(),
+                  )) /
+                  86400000,
+              ) + 1,
+            )}{' '}
+            天 · {w.living.calendar.season} · {gameTime(w.time)}
+          </small>
         </div>
         <div className="game-needs">
           <Meter label="心情" value={w.needs.mood} color="#e6b45f" />
@@ -271,7 +295,7 @@ export function GameStage({
           )}
           <button onClick={onFocus} aria-label={focus ? '正在一起专注' : '一起专注'}>
             <Focus size={19} />
-            <span>{focus ? '一起专注中' : '一起专注'}</span>
+            <span>{focus ? `专注 ${clockText(focusRemaining(focus, now))}` : '一起专注'}</span>
           </button>
           {!compact && (
             <button onClick={onDiary}>

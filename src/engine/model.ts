@@ -203,7 +203,7 @@ const baseStateSchema = z.object({
     fun: bounded,
     health: bounded,
   }),
-  money: z.number().finite().min(0).max(1000000),
+  money: z.number().finite().min(0).max(6000000),
   activity: z.object({ kind: activitySchema, start: time, end: time, scene: sceneSchema }),
   recentActivities: z.array(activitySchema).max(12),
   npcs: z
@@ -296,6 +296,8 @@ const baseStateSchema = z.object({
           .optional(),
         exchange: z.string().max(2000).optional(),
         returned: time.optional(),
+        completed: z.boolean().optional(),
+        rewardGranted: z.boolean().optional(),
         confirmedMinutes: z.number().min(0).max(1440).optional(),
         note: z.string().max(2000).optional(),
       }),
@@ -315,7 +317,15 @@ const baseStateSchema = z.object({
     volume: z.number().min(0).max(1),
   }),
   ledger: z
-    .array(z.object({ id: short, time, amount: z.number().finite(), reason: short }))
+    .array(
+      z.object({
+        id: short,
+        time,
+        amount: z.number().finite(),
+        reason: short,
+        payerId: short.optional(),
+      }),
+    )
     .max(600),
   lastSalaryDay: short,
   lastRentDay: short,
@@ -354,6 +364,16 @@ export const personalSchema = baseStateSchema
   });
 export const householdSchema = z
   .object({
+    wallets: z
+      .array(
+        z.object({
+          members: z.array(short).min(1).max(6),
+          balance: z.number().finite().min(0).max(6000000),
+        }),
+      )
+      .max(6)
+      .optional(),
+    financeMigration: short.optional(),
     active: short.default('resident-0'),
     members: z
       .array(
@@ -383,7 +403,7 @@ export const householdSchema = z
         z.object({
           a: short,
           b: short,
-          type: z.enum(['室友', '伴侣', '手足', '亲子', '祖孙']),
+          type: z.enum(['室友', '伴侣', '夫妻', '手足', '亲子', '祖孙']),
           warmth: bounded,
           conflict: bounded,
           lastDay: short,
@@ -393,7 +413,12 @@ export const householdSchema = z
       .default([]),
   })
   .default({});
-export const stateSchema = baseStateSchema.extend({ household: householdSchema });
+export const stateSchema = baseStateSchema.extend({
+  household: householdSchema,
+  focusRewards: z
+    .object({ completed: z.number().int().min(0), placed: z.array(short).max(4) })
+    .optional(),
+});
 export type World = z.infer<typeof stateSchema>;
 export type Character = World['character'];
 export type NPC = World['npcs'][number];
@@ -454,8 +479,16 @@ export function record(
 }
 export function transact(w: World, amount: number, reason: string) {
   const before = w.money;
-  w.money = clamp(w.money + amount, 0, 1000000);
-  w.ledger.push({ id: uid(w, 'money'), time: w.time, amount: w.money - before, reason });
+  w.money = clamp(w.money + amount, 0, 6000000);
+  w.ledger.push({
+    id: uid(w, 'money'),
+    time: w.time,
+    amount: w.money - before,
+    reason,
+    payerId: w.household.active,
+  });
+  const wallet = w.household.wallets?.find((a) => a.members.includes(w.household.active));
+  if (wallet) wallet.balance = w.money;
   w.ledger = w.ledger.slice(-600);
 }
 export function labels(t: Traits) {

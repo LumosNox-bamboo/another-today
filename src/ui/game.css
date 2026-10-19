@@ -1071,3 +1071,47 @@
     gap: 6px;
   }
 }
+
+.focus-rewards,
+.personality-editor {
+  border: 1px solid #d6c7ae;
+  padding: 14px;
+  background: #f7f1e5;
+  border-radius: 10px;
+}
+.focus-rewards summary,
+.personality-editor summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.focus-rewards p,
+.personality-editor p {
+  margin: 12px 0;
+}
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.reward-grid button {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 12px 6px;
+  white-space: normal;
+}
+.reward-grid button > span {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #fff8e8;
+  box-shadow: 3px 3px #655d4933;
+}
+.personality-editor input[type='range'] {
+  width: 100%;
+}
+.game-calendar small {
+  display: block;
+  white-space: normal;
+}

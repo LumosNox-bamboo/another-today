@@ -1,3 +1,4 @@
+import { chargeRent } from './WalletEngine';
 import {
   initHousehold,
   selectResident,
@@ -396,15 +397,7 @@ export function advance(w: World, deltaMs: number) {
       }
       if (dayKey(w.time) !== prevDay) {
         closeDay(w, prevDay);
-        const today = dayKey(w.time);
-        if (w.lastRentDay !== today) {
-          transact(
-            w,
-            -Math.min(w.money, w.character.housing === '合租小屋' ? 18 : 30),
-            '每日住房与公共开支',
-          );
-          w.lastRentDay = today;
-        }
+        if (index === 0) chargeRent(w, selectResident);
         // Keep only recent day-based habit and payroll counters; long-term story flags are retained.
         for (const k of Object.keys(w.flags)) {
           const date = k.match(/\d{4}-\d{2}-\d{2}$/)?.[0];

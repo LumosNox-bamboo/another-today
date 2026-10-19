@@ -29,7 +29,7 @@ describe('one household in one persistent world', () => {
   it('switches full personal histories and NPC relations without copying town or money', () => {
     const w = fresh();
     w.npcs[0].relation.trust = 80;
-    const id = addResident(w, '小禾', 8, '室友');
+    const id = addResident(w, '小禾', 8, '室友', 100);
     const originalEvents = structuredClone(w.events);
     const npcs = w.npcs,
       town = w.living.town;
@@ -45,14 +45,15 @@ describe('one household in one persistent world', () => {
     expect(w.npcs).toBe(npcs);
     expect(w.living.town).toBe(town);
     expect(w.npcs[0].relation.trust).toBe(80);
-    expect(w.money).toBe(2990);
+    expect(w.money).toBe(3000);
     const reloaded = validateWorld(JSON.parse(JSON.stringify(w)));
     selectResident(reloaded, id);
     expect(reloaded.needs.energy).toBe(49);
+    expect(reloaded.money).toBe(90);
   });
   it('advances everyone while away, with one clock, diary per resident, and one rent charge', () => {
     const w = fresh();
-    const id = addResident(w, '阿禾', 12, '室友');
+    const id = addResident(w, '阿禾', 6, '亲子');
     w.settings.speed = 1;
     const before = w.time;
     catchUp(w, w.lastReal + DAY);

@@ -33,11 +33,25 @@ export function returnShared(w: World, now: number) {
     a.gameEnd = w.time;
   }
 }
-export function confirmShared(w: World, id: string, minutes: number, note: string) {
+export function confirmShared(
+  w: World,
+  id: string,
+  minutes: number,
+  note: string,
+  completed = false,
+) {
   const a = w.playerActivities.find((a) => a.id === id);
   if (!a?.returned || a.confirmedMinutes !== undefined) return;
   if (!Number.isFinite(minutes) || minutes < 0 || minutes > 1440) throw new Error('实际时长无效');
   a.confirmedMinutes = minutes;
+  a.completed = completed;
+  // Self-confirmed task completion, with at least one actual wall-clock minute.
+  // Timer expiry alone never asserts anything about the player's real life.
+  if (completed && minutes >= 1 && a.returned - a.start >= MINUTE) {
+    w.focusRewards ??= { completed: 0, placed: [] };
+    w.focusRewards.completed++;
+    a.rewardGranted = true;
+  }
   a.note = note.trim().slice(0, 2000);
   const p = resident(w, a.residentId || 'resident-0');
   if (p) p.companion.sharedMinutes += minutes;

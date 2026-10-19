@@ -348,3 +348,85 @@ test('large family saves migrate atomically to IndexedDB and recover their backu
   await page.getByRole('button', { name: '家庭与行动' }).click();
   await expect(page.getByRole('button', { name: '切换到成员80' })).toBeVisible();
 });
+
+test('roommate wallets, marriage and edited personality persist', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  const dialog = page.getByRole('dialog', { name: '我们的家' });
+  await dialog.getByLabel('成员名字').fill('青禾');
+  await dialog.getByLabel('成员年龄').fill('26');
+  await dialog.getByLabel('成员初始存款').fill('500');
+  await dialog.getByRole('button', { name: '加入这个家' }).click();
+  await dialog.getByRole('button', { name: '切换到青禾' }).click();
+  await expect(dialog.getByText(/个人存款 ¥500.00/)).toBeVisible();
+  await dialog.getByText('调整青禾的性格', { exact: true }).click();
+  await dialog.getByRole('slider', { name: '外向程度' }).press('End');
+  await expect(dialog.getByRole('slider', { name: '外向程度' })).toHaveValue('100');
+  await dialog.getByRole('button', { name: '保存性格' }).click();
+  await dialog.getByLabel('与小满的关系').selectOption('夫妻');
+  await expect(dialog.getByText(/核心家庭存款 ¥3500.00/)).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await expect(dialog.getByText(/核心家庭存款 ¥3500.00/)).toBeVisible();
+  await dialog.getByText('调整青禾的性格', { exact: true }).click();
+  await expect(dialog.getByRole('slider', { name: '外向程度' })).toHaveValue('100');
+  await dialog.getByLabel('与小满的关系').selectOption('室友');
+  await expect(dialog.getByText(/个人存款 ¥1750.00/)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+});
+
+test('real-time pomodoro earns wearable clothes and visible furniture only after confirmation', async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date('2026-10-19T12:00:00Z') });
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  const initialGameTime = (await saved()).time;
+  for (let i = 0; i < 2; i++) {
+    await page.getByRole('button', { name: '一起专注', exact: true }).click();
+    const modal = page.getByRole('dialog', { name: '一起专注，各自生活' });
+    await modal.getByLabel('准备做什么').selectOption(i === 0 ? '收拾房间' : '自定义事项');
+    if (i === 1) await modal.getByLabel('事项名称').fill('练习手写字');
+    await modal.getByRole('button', { name: '开始一起专注' }).click();
+    await expect(modal.locator('.focus-clock')).toContainText('25:00');
+    await page.clock.fastForward(61_000);
+    await expect(modal.locator('.focus-clock')).toContainText('23:59');
+    expect((await saved()).time).toBe(initialGameTime);
+    await modal.getByRole('button', { name: '我回来了', exact: true }).click();
+    await modal.getByLabel('实际活动分钟').fill('1');
+    await modal.getByRole('checkbox', { name: '我确认完成了这次现实任务' }).check();
+    await modal.getByRole('button', { name: '确认保存', exact: true }).click();
+  }
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await page.getByText('专注奖励 · 已完成 2 个任务', { exact: true }).click();
+  await page.getByRole('button', { name: '使用鼠尾草绿衬衫', exact: true }).click();
+  await page.getByRole('button', { name: '使用向日葵地毯', exact: true }).click();
+  await expect(page.getByRole('button', { name: '已使用向日葵地毯', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.reload();
+  await expect(page.locator('.game-calendar').getByLabel('现实时间')).toBeVisible();
+  const w = await saved();
+  expect(w.focusRewards).toEqual({ completed: 2, placed: ['sunny-rug'] });
+  expect(w.character.outfit).toBe('#7f9d85');
+  expect(w.playerActivities.map((a: { label: string }) => a.label)).toEqual([
+    '收拾房间',
+    '练习手写字',
+  ]);
+  await page.screenshot({
+    path: test.info().outputPath('focus-rewards-scene.png'),
+    fullPage: true,
+  });
+});

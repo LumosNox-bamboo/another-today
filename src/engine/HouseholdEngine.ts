@@ -1,8 +1,11 @@
+import { reconcileWallets, syncWallet } from './WalletEngine';
 import { createWorld, defaultCharacter } from '../content/people';
 import {
   personalSchema,
   type World,
   type Character,
+  type Traits,
+  traitSchema,
   type Activity,
   type Scene,
   DAY,
@@ -56,6 +59,7 @@ export function initHousehold(w: World) {
       interrupted: false,
       birthday: w.time,
     });
+  if (!w.household.wallets) reconcileWallets(w);
 }
 export function resident(w: World, id: string) {
   return id === w.household.active ? w : w.household.members.find((m) => m.id === id)?.state;
@@ -66,6 +70,7 @@ export function selectResident(w: World, id: string) {
   const next = w.household.members.find((m) => m.id === id);
   if (!next?.state) throw new Error('找不到这位家庭成员');
   const current = w.household.members.find((m) => m.id === w.household.active)!;
+  syncWallet(w);
   current.state = capture(w);
   current.relations = Object.fromEntries(w.npcs.map((n) => [n.id, n.relation]));
   const shared = Object.fromEntries(sharedLiving.map((k) => [k, w.living[k]]));
@@ -84,13 +89,14 @@ export function selectResident(w: World, id: string) {
     };
   next.state = undefined;
   w.household.active = id;
+  w.money = w.household.wallets!.find((a) => a.members.includes(id))!.balance;
 }
 export function validBond(
   a: Character,
   b: Character,
   type: World['household']['bonds'][number]['type'],
 ) {
-  if (type === '伴侣') return a.age >= 18 && b.age >= 18;
+  if (type === '伴侣' || type === '夫妻') return a.age >= 18 && b.age >= 18;
   if (type === '亲子') return a.age - b.age >= 18;
   if (type === '祖孙') return a.age - b.age >= 36;
   return true;
@@ -105,20 +111,34 @@ export function setBond(
     y = resident(w, b);
   if (!x || !y || a === b || !validBond(x.character, y.character, type))
     throw new Error('关系与年龄不符；亲子、祖孙请先选择长辈');
+  if (
+    type === '夫妻' &&
+    w.household.bonds.some(
+      (r) =>
+        r.type === '夫妻' &&
+        (r.a === a || r.b === a || r.a === b || r.b === b) &&
+        !([r.a, r.b].includes(a) && [r.a, r.b].includes(b)),
+    )
+  )
+    throw new Error('请先结束已有夫妻关系');
   const old = w.household.bonds.find((r) => (r.a === a && r.b === b) || (r.a === b && r.b === a));
   if (old) {
     old.a = a;
     old.b = b;
     old.type = type;
   } else w.household.bonds.push({ a, b, type, warmth: 55, conflict: 0, lastDay: '' });
+  reconcileWallets(w);
 }
 export function addResident(
   w: World,
   name: string,
   age: number,
   type: World['household']['bonds'][number]['type'],
+  savings = age >= 18 ? 1800 : 0,
 ) {
   initHousehold(w);
+  if (!Number.isFinite(savings) || savings < 0 || savings > 1000000)
+    throw new Error('初始存款应为 0–1000000');
   if (
     w.household.members.length >= 6 ||
     !name.trim() ||
@@ -128,8 +148,16 @@ export function addResident(
     age > 100
   )
     throw new Error('家庭最多 6 人，年龄范围 6–100 岁');
+  if (
+    type === '夫妻' &&
+    w.household.bonds.some(
+      (b) => b.type === '夫妻' && (b.a === w.household.active || b.b === w.household.active),
+    )
+  )
+    throw new Error('请先结束已有夫妻关系');
   const c = structuredClone(defaultCharacter);
   c.name = name.trim();
+  c.housing = w.character.housing;
   c.age = age;
   c.job = age < 18 ? '学生' : age >= 65 ? '无业者' : '办公室职员';
   c.goal = age < 18 ? '学会一件新本领' : age >= 65 ? '记录生活里的美好' : '把自己的日子过好';
@@ -158,6 +186,8 @@ export function addResident(
     interrupted: false,
     birthday: w.time,
   });
+  syncWallet(w);
+  w.household.wallets!.push({ members: [id], balance: Math.round(savings * 100) / 100 });
   setBond(w, w.household.active, id, type);
   record(
     w,
@@ -247,6 +277,7 @@ export function familyTick(w: World) {
     }
   }
   selectResident(w, selected);
+  reconcileWallets(w);
   for (const b of w.household.bonds) {
     const a = resident(w, b.a)!,
       c = resident(w, b.b)!;
@@ -277,4 +308,21 @@ export function familyTick(w: World) {
     }
     selectResident(w, selected);
   }
+}
+
+export function editPersonality(w: World, traits: Traits) {
+  const parsed = traitSchema.parse(traits);
+  for (const key of Object.keys(parsed) as (keyof Traits)[]) {
+    const delta = parsed[key] - w.character.traits[key];
+    if (delta)
+      w.evolution.push({
+        time: w.time,
+        trait: key,
+        delta,
+        reason: '玩家调整人物性格',
+        source: 'character-editor',
+      });
+  }
+  w.character.traits = parsed;
+  w.evolution = w.evolution.slice(-100);
 }

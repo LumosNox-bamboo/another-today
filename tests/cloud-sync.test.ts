@@ -239,11 +239,19 @@ test('canonical hashes survive PostgreSQL JSON key ordering', async () => {
   expect(await worldHash(remote!.payload)).toBe(await worldHash(a.state.world!));
 });
 
-test('hands off all household members, private histories and queued commands together', async () => {
+test('hands off household wallets, focus rewards, private histories and queued commands together', async () => {
   const { addResident, commandResident, selectResident } =
     await import('../src/engine/HouseholdEngine');
   const w = createWorld();
   w.settings.speed = 0;
+  const { startShared, returnShared, confirmShared } =
+    await import('../src/engine/SharedActivityEngine');
+  const { useFocusReward } = await import('../src/engine/FocusRewardEngine');
+  startShared(w, '学习', 25, Date.now() - 25 * 60000);
+  returnShared(w, Date.now());
+  confirmShared(w, w.playerActivities[0].id, 25, '完成', true);
+  useFocusReward(w, 'sage-shirt');
+  addResident(w, '室友', 24, '室友', 800);
   const id = addResident(w, '小禾', 6, '亲子');
   commandResident(w, id, 'read', 'apartment');
   selectResident(w, id);
@@ -256,8 +264,11 @@ test('hands off all household members, private histories and queued commands tog
   await b.controller.choose('cloud');
   expect(b.controller.state.mode).toBe('ready');
   expect(b.state.world!.household).toEqual(a.state.world!.household);
+  expect(b.state.world!.focusRewards).toEqual({ completed: 1, placed: [] });
+  expect(b.state.world!.household.wallets).toHaveLength(2);
   expect(b.state.world!.character.name).toBe('小禾');
   selectResident(b.state.world!, 'resident-0');
   expect(b.state.world!.character.name).toBe('小满');
+  expect(b.state.world!.character.outfit).toBe('#7f9d85');
   expect(b.state.world!.events.some((e) => e.definition === 'family-arrival')).toBe(true);
 });

@@ -308,6 +308,27 @@ function draw(
       r(377, 236, 39, 15, '#a37d60');
       r(381, 231, 31, 9, '#e0c19b');
       // Only display objects which actually exist in this world's collection.
+      const placed = w.focusRewards?.placed || [];
+      if (placed.includes('sunny-rug')) {
+        r(195, 247, 96, 22, '#d8b86b');
+        r(201, 252, 84, 12, '#e9ce88');
+        for (let i = 0; i < 7; i++) r(205 + i * 12, 256, 4, 4, '#b58950');
+      }
+      if (placed.includes('reading-lamp')) {
+        r(128, 179, 3, 28, '#756b58');
+        r(119, 176, 21, 9, '#f3cf7c');
+        r(122, 206, 16, 3, '#756b58');
+      }
+      if (placed.includes('patchwork-sofa')) {
+        r(206, 180, 22, 15, '#819da3');
+        r(231, 180, 22, 15, '#b3bd9a');
+      }
+      if (placed.includes('star-print')) {
+        r(333, 120, 27, 23, '#dfc79e');
+        r(336, 123, 21, 17, '#7485ae');
+        r(344, 126, 3, 10, '#f5dc8c');
+        r(341, 130, 9, 3, '#f5dc8c');
+      }
       const display = discoveries.find((d) => d.id === w.living.exploration.display);
       if (display) {
         r(286, 89, 26, 28, '#9b7f65');
@@ -521,7 +542,7 @@ function draw(
       pos.x,
       pos.y,
       w.character.hair,
-      season === '冬' ? '#8198a8' : w.character.outfit,
+      w.character.outfit,
       w.character.skin,
       moving,
       t,

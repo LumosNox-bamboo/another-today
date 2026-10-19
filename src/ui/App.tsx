@@ -1,3 +1,7 @@
+import { useRealClock } from './RealClock';
+import { FocusRewards } from './FocusRewards';
+import { clockText, focusRemaining } from '../engine/FocusRewardEngine';
+import { walletMembers, walletLabel } from '../engine/WalletEngine';
 import { lifeRole } from '../engine/HouseholdEngine';
 import { GameStage } from './GameStage';
 import { LivingWorld, LivingSettings, CausalityView } from './LivingWorld';
@@ -110,6 +114,7 @@ function Timeline({
   );
 }
 export function App() {
+  const realNow = useRealClock();
   const s = useGame(),
     w = s.world;
   const [tab, setTab] = useState<Tab>('life'),
@@ -236,7 +241,7 @@ export function App() {
       </>
     );
   const focus = w.playerActivities.find((a) => !a.returned),
-    focusDue = focus && Date.now() - focus.start >= focus.expectedMinutes * MINUTE;
+    focusDue = focus && realNow - focus.start >= focus.expectedMinutes * MINUTE;
   const openChat = () => {
     setModal('chat');
   };
@@ -651,15 +656,16 @@ export function App() {
                     )}
                   </section>
                   <section className="card">
-                    <h2>收支小本</h2>
+                    <h2>{walletLabel(w)} · 收支小本</h2>
                     <div className="ledger-total">¥ {money(w.money)}</div>
                     {w.ledger
+                      .filter((l) => !l.payerId || walletMembers(w).includes(l.payerId))
                       .slice(-15)
                       .reverse()
                       .map((l) => (
                         <div className="ledger" key={l.id}>
                           <div>
-                            {l.reason}
+                            {l.payerId ? l.reason : `迁移前共享账单 · ${l.reason}`}
                             <small>
                               {dayKey(l.time)} {gameTime(l.time)}
                             </small>
@@ -942,6 +948,8 @@ function Welcome({
   );
 }
 function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }) {
+  const now = useRealClock();
+  const [completed, setCompleted] = useState(false);
   const [label, setLabel] = useState('学习'),
     [custom, setCustom] = useState(''),
     [minutes, setMinutes] = useState(25),
@@ -954,8 +962,12 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
       {active ? (
         <>
           <div className="focus-clock">
-            {Math.max(0, Math.floor((Date.now() - active.start) / MINUTE))}
-            <small>分钟后，仍在这里</small>
+            {clockText(focusRemaining(active, now))}
+            <small>
+              {focusRemaining(active, now) === 0
+                ? '时间到了，请确认实际完成情况'
+                : '现实时间倒计时 · 游戏暂停也会继续'}
+            </small>
           </div>
           <p className="center">
             原计划{active.label} {active.expectedMinutes} 分钟。实际完成情况由你回来后确认。
@@ -999,6 +1011,14 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={completed}
+              onChange={(e) => setCompleted(e.target.checked)}
+            />
+            我确认完成了这次现实任务
+          </label>
           <div className="button-row end">
             <button onClick={onClose}>暂不确认</button>
             <button
@@ -1011,7 +1031,9 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
               }
               onClick={() => {
                 mutate((x) => {
-                  confirmShared(x, last.id, Number(actual), note);
+                  confirmShared(x, last.id, Number(actual), note, completed);
+                  if (x.playerActivities.find((a) => a.id === last.id)?.rewardGranted)
+                    notify('完成记录 +1，可以在专注奖励中查看解锁进度。');
                 });
                 onClose();
               }}
@@ -1036,9 +1058,11 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
             <label>
               准备做什么
               <select value={label} onChange={(e) => setLabel(e.target.value)}>
-                {['学习', '工作', '阅读', '运动', '休息', '睡前回顾', '自定义事项'].map((x) => (
-                  <option key={x}>{x}</option>
-                ))}
+                {['学习', '收拾房间', '工作', '阅读', '运动', '休息', '睡前回顾', '自定义事项'].map(
+                  (x) => (
+                    <option key={x}>{x}</option>
+                  ),
+                )}
               </select>
             </label>
             <label>
@@ -1091,6 +1115,7 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
           </button>
         </>
       )}
+      <FocusRewards world={w} />
     </Modal>
   );
 }
