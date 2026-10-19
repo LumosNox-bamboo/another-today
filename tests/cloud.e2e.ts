@@ -196,6 +196,10 @@ test('two devices log in, explicitly authorize upload, hand off and resume one r
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       page.viewportSize()!.width,
     );
+    await page.setViewportSize({ width: 320, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      320,
+    );
     expect(errors).toEqual([]);
   } finally {
     await phoneContext.close();

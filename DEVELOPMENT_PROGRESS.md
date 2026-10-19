@@ -82,3 +82,5 @@
 - 正式 Supabase 项目尚未创建，生产构建没有连接参数时明确保持本机模式，不发送存档。接通步骤见 `docs/CLOUD_SYNC.md`，建表脚本位于 `supabase/migrations/202610190001_cloud_saves.sql`。
 
 - 最终构建、严格 TypeScript、格式和空白检查通过；生产依赖审计无已报告漏洞。同步界面截图保存在 `docs/screenshots/cloud-sync/`，原截图未覆盖。CI 加入真实数据库规则与两设备同步测试。正式邮件和 Supabase 服务仍等待用户创建项目后验收。
+
+- CI 的 Linux WebKit 字体暴露了长日期备份按钮横向撑宽的问题；已限定云同步卡片及按钮宽度、允许文字换行，并加入 320 像素窄屏断言。

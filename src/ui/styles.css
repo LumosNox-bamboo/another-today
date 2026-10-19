@@ -29,6 +29,14 @@ body {
 .cloud-card .button-row {
   margin: 12px 0;
 }
+.cloud-card {
+  min-width: 0;
+}
+.cloud-card button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .cloud-card input[type='email'],
 .cloud-card input[type='password'] {
   font-size: 16px;
