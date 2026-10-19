@@ -1,3 +1,4 @@
+import { databaseMarker, readDatabase, writeDatabase } from './browserStorage';
 import { type World } from './engine/model';
 import { validateWorld } from './engine/validation';
 declare global {
@@ -15,6 +16,7 @@ declare global {
 }
 export async function load() {
   if (window.desktop) return window.desktop.load();
+  if (localStorage.getItem(databaseMarker) === 'indexeddb') return readDatabase();
   let found = false;
   for (const key of ['another-today', 'another-today-backup']) {
     try {
@@ -42,6 +44,17 @@ export async function save(w: World) {
   try {
     validateWorld(w);
     const raw = localStorage.getItem('another-today');
+    if (
+      localStorage.getItem(databaseMarker) === 'indexeddb' ||
+      JSON.stringify(w).length > 1_000_000
+    ) {
+      await writeDatabase(w, raw);
+      // Do not remove the legacy save until the transaction and routing marker succeed.
+      localStorage.setItem(databaseMarker, 'indexeddb');
+      localStorage.removeItem('another-today');
+      localStorage.removeItem('another-today-backup');
+      return { ok: true };
+    }
     if (raw) {
       try {
         validateWorld(JSON.parse(raw));

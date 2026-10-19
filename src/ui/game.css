@@ -944,3 +944,130 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Household controls live in a drawer; the scene keeps its breathing room. */
+.household-panel {
+  display: grid;
+  gap: 16px;
+}
+.household-panel h3,
+.household-panel p {
+  margin: 0;
+}
+.household-roster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.household-roster button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  min-width: 0;
+  background: #f4ead9;
+  border: 2px solid #dac8ae;
+}
+.household-roster button[aria-pressed='true'] {
+  border-color: #668a72;
+  background: #e3eadb;
+  box-shadow: inset 0 -4px #cad8bd;
+}
+.household-roster strong,
+.household-roster small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.household-current {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  gap: 16px;
+}
+.household-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.household-actions button {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 14px 4px;
+  background: #f5edde;
+  border: 1px solid #d2bea0;
+  box-shadow: 0 3px #c9b899;
+}
+.household-actions button span {
+  font-size: 24px;
+}
+.household-queue {
+  padding: 16px;
+  background: #eee7d9;
+  border-left: 3px solid #708b72;
+  display: grid;
+  gap: 8px;
+}
+.household-queue ol {
+  margin: 0;
+  padding-left: 22px;
+}
+.household-relation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px dashed #ccbda7;
+  padding-bottom: 12px;
+}
+.household-relation span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.household-relation small {
+  display: block;
+}
+.household-add {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  background: #f2ebdf;
+}
+.household-add h3 {
+  grid-column: 1 / -1;
+}
+.household-add label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.household-add input,
+.household-add select {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .household-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .household-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .household-current {
+    grid-template-columns: 1fr 1fr;
+  }
+  .household-current > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .household-relation {
+    flex-wrap: wrap;
+  }
+  .household-relation span {
+    flex-basis: 100%;
+  }
+  .stage-location {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

@@ -60,6 +60,7 @@ export function createWorld(
   const t = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0);
   const w: World = {
     version: 1,
+    household: { active: 'resident-0', members: [], bonds: [] },
     living: createLiving(),
     seed: seed >>> 0 || 1,
     sequence: 0,
@@ -140,6 +141,11 @@ export function createWorld(
     lastSalaryDay: '',
     lastRentDay: '',
   };
+  if (w.character.age < 18) {
+    w.character.job = '学生';
+    w.character.education = w.character.age < 13 ? '小学' : '中学';
+  }
+  if (w.character.age >= 65) w.character.job = '无业者';
   record(
     w,
     '搬进梧桐街',

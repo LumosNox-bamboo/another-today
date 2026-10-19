@@ -1,3 +1,4 @@
+import { lifeRole } from '../engine/HouseholdEngine';
 import { GameStage } from './GameStage';
 import { LivingWorld, LivingSettings, CausalityView } from './LivingWorld';
 import { InstallApp } from './InstallApp';
@@ -121,6 +122,11 @@ export function App() {
     [filter, setFilter] = useState(false),
     [confirm, setConfirm] = useState<{ text: string; action: () => void } | null>(null),
     [showReturn, setShowReturn] = useState(true);
+  useEffect(() => {
+    setMessages([]);
+    setChatText('');
+    setConsent(false);
+  }, [w?.household.active]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [tab, s.compact, Boolean(w)]);
@@ -392,7 +398,7 @@ export function App() {
                     <div>
                       <h2>{w.character.name}</h2>
                       <p>
-                        {w.character.age} 岁 · {w.character.gender} · {w.character.job}
+                        {w.character.age} 岁 · {w.character.gender} · {lifeRole(w.character)}
                       </p>
                       <div className="tags">
                         {labels(w.character.traits).map((l) => (
@@ -1456,7 +1462,9 @@ function SettingsView({
             <Tag>14 个微缩场景</Tag>
           </div>
           <p className="muted">
-            当前使用离线规则对话，不提供在线语言模型连接。公寓内包含卧室、客厅与厨房；外貌支持发色、衣服和肤色。教育与家庭用于人物背景，尚未扩展为专属剧情。完整功能与限制详见项目
+            当前使用离线规则对话，不提供在线语言模型连接。公寓内包含卧室、客厅与厨房；外貌支持发色、衣服和肤色。支持
+            6 岁起的年龄阶段、最多 6
+            人家庭、行动队列与共享回忆；婴幼儿照护和房屋建造尚未实现。完整功能与限制详见项目
             README。
           </p>
         </section>

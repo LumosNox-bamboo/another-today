@@ -166,7 +166,7 @@ const diarySchema = z.object({
   places: z.array(sceneSchema).max(8),
   people: z.array(short).max(30),
 });
-export const stateSchema = z.object({
+const baseStateSchema = z.object({
   version: z.literal(1),
   living: livingSchema.default({}),
   seed: z.number().int().min(1).max(4294967295),
@@ -177,7 +177,7 @@ export const stateSchema = z.object({
   createdReal: time,
   character: z.object({
     name: z.string().min(1).max(20),
-    age: z.number().int().min(18).max(90),
+    age: z.number().int().min(6).max(100),
     gender: short,
     job: z.enum(jobs),
     education: short,
@@ -282,6 +282,7 @@ export const stateSchema = z.object({
     .array(
       z.object({
         id: short,
+        residentId: short.optional(),
         label: short,
         start: time,
         expectedMinutes: z.number().min(1).max(1440),
@@ -319,6 +320,80 @@ export const stateSchema = z.object({
   lastSalaryDay: short,
   lastRentDay: short,
 });
+// The selected resident remains in the original fields for backwards compatibility.
+export const personalSchema = baseStateSchema
+  .pick({
+    character: true,
+    needs: true,
+    activity: true,
+    recentActivities: true,
+    events: true,
+    memories: true,
+    diaries: true,
+    cooldowns: true,
+    flags: true,
+    chains: true,
+    decisions: true,
+    evolution: true,
+    companion: true,
+    lastSalaryDay: true,
+  })
+  .extend({
+    living: livingSchema.omit({
+      npcLives: true,
+      npcBonds: true,
+      news: true,
+      town: true,
+      calendar: true,
+      notifications: true,
+      interactionDay: true,
+      ordinaryCount: true,
+      notificationCount: true,
+      lastInteraction: true,
+    }),
+  });
+export const householdSchema = z
+  .object({
+    active: short.default('resident-0'),
+    members: z
+      .array(
+        z.object({
+          id: short,
+          state: personalSchema.optional(),
+          relations: z.record(relationshipSchema).default({}),
+          queue: z
+            .array(
+              z.object({
+                kind: activitySchema,
+                scene: sceneSchema,
+                minutes: z.number().int().min(15).max(180),
+              }),
+            )
+            .max(5)
+            .default([]),
+          commanded: z.boolean().default(false),
+          interrupted: z.boolean().default(false),
+          birthday: time,
+        }),
+      )
+      .max(6)
+      .default([]),
+    bonds: z
+      .array(
+        z.object({
+          a: short,
+          b: short,
+          type: z.enum(['室友', '伴侣', '手足', '亲子', '祖孙']),
+          warmth: bounded,
+          conflict: bounded,
+          lastDay: short,
+        }),
+      )
+      .max(15)
+      .default([]),
+  })
+  .default({});
+export const stateSchema = baseStateSchema.extend({ household: householdSchema });
 export type World = z.infer<typeof stateSchema>;
 export type Character = World['character'];
 export type NPC = World['npcs'][number];

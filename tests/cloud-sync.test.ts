@@ -238,3 +238,26 @@ test('canonical hashes survive PostgreSQL JSON key ordering', async () => {
   const remote = await db.port(USER_A, DEVICE_A).read();
   expect(await worldHash(remote!.payload)).toBe(await worldHash(a.state.world!));
 });
+
+test('hands off all household members, private histories and queued commands together', async () => {
+  const { addResident, commandResident, selectResident } =
+    await import('../src/engine/HouseholdEngine');
+  const w = createWorld();
+  w.settings.speed = 0;
+  const id = addResident(w, '小禾', 6, '亲子');
+  commandResident(w, id, 'read', 'apartment');
+  selectResident(w, id);
+  const a = device(DEVICE_A, w);
+  await a.controller.connect();
+  await a.controller.choose('local');
+  await a.controller.handoff();
+  const b = device(DEVICE_B, null);
+  await b.controller.connect();
+  await b.controller.choose('cloud');
+  expect(b.controller.state.mode).toBe('ready');
+  expect(b.state.world!.household).toEqual(a.state.world!.household);
+  expect(b.state.world!.character.name).toBe('小禾');
+  selectResident(b.state.world!, 'resident-0');
+  expect(b.state.world!.character.name).toBe('小满');
+  expect(b.state.world!.events.some((e) => e.definition === 'family-arrival')).toBe(true);
+});

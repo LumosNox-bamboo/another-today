@@ -1,3 +1,4 @@
+import { npcHasOtherPartner } from './HouseholdEngine';
 import { type World, DAY, dayKey, random, clamp, record, jobs } from './model';
 import { publishNews } from './TownNewsEngine';
 import { rememberEvent } from './MemoryEngine';
@@ -71,7 +72,8 @@ export function npcLifeTick(w: World) {
         if (bond.warmth >= 55 && bond.status !== '恋人') bond.status = '朋友';
         const taken = (id: string) =>
           w.living.npcBonds.some((b) => b.status === '恋人' && (b.a === id || b.b === id)) ||
-          w.npcs.find((n) => n.id === id)?.relation.type === '恋人';
+          w.npcs.find((n) => n.id === id)?.relation.type === '恋人' ||
+          npcHasOtherPartner(w, id);
         if (
           bond.warmth >= 75 &&
           n.traits.romance > 45 &&

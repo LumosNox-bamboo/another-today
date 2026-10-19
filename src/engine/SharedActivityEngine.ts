@@ -1,3 +1,4 @@
+import { resident } from './HouseholdEngine';
 import { type World, type Activity, MINUTE, uid, activityNames } from './model';
 import { sharedKinds } from './livingSchema';
 export function startShared(w: World, label: string, minutes: number, now: number) {
@@ -6,6 +7,7 @@ export function startShared(w: World, label: string, minutes: number, now: numbe
   const kind = sharedKinds.find((k) => k === label) || '自定义事项';
   w.playerActivities.push({
     id: uid(w, 'focus'),
+    residentId: w.household.active,
     label: label.trim().slice(0, 200) || kind,
     kind,
     start: now,
@@ -18,7 +20,7 @@ export function startShared(w: World, label: string, minutes: number, now: numbe
 }
 export function trackShared(w: World, kind: Activity, minutes: number) {
   const a = w.playerActivities.find((a) => !a.returned);
-  if (!a) return;
+  if (!a || (a.residentId || 'resident-0') !== w.household.active) return;
   a.independent ??= [];
   const entry = a.independent.find((e) => e.kind === kind);
   if (entry) entry.minutes += minutes;
@@ -37,7 +39,8 @@ export function confirmShared(w: World, id: string, minutes: number, note: strin
   if (!Number.isFinite(minutes) || minutes < 0 || minutes > 1440) throw new Error('实际时长无效');
   a.confirmedMinutes = minutes;
   a.note = note.trim().slice(0, 2000);
-  w.companion.sharedMinutes += minutes;
+  const p = resident(w, a.residentId || 'resident-0');
+  if (p) p.companion.sharedMinutes += minutes;
   const own = a.independent
     ?.map((x) => `${activityNames[x.kind]} ${x.minutes} 个游戏分钟`)
     .join('、');

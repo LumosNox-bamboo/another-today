@@ -1,3 +1,10 @@
+import {
+  initHousehold,
+  selectResident,
+  startCommand,
+  familyTick,
+  npcHasOtherPartner,
+} from './HouseholdEngine';
 import { destinations } from '../content/places';
 import { chooseDestination, completeVisit, explorationBias } from './ExplorationEngine';
 import { maybeStartArc, arcsTick } from './StoryArcEngine';
@@ -34,12 +41,15 @@ import { rememberEvent } from './MemoryEngine';
 export function isWorking(w: World) {
   const h = hour(w.time),
     job = w.character.job;
-  if (job === '无业者') return false;
+  if (job === '无业者' || w.character.age < 18 || w.character.age >= 65) return false;
   if (job === '便利店店员') return h >= 22 || h < 6;
   if ([0, 6].includes(new Date(w.time).getUTCDay())) return false;
   return h >= 9 && h < 17;
 }
 function sleepHours(w: World) {
+  if (w.character.age < 13) return { start: 21, end: 7 };
+  if (w.character.age < 18) return { start: 22, end: 7 };
+  if (w.character.age >= 65) return { start: 22, end: 6 };
   const nightShift = w.character.job === '便利店店员';
   return nightShift
     ? { start: 8, end: 15 }
@@ -50,6 +60,7 @@ function sleepHours(w: World) {
         : { start: 23, end: 7 };
 }
 export function chooseActivity(w: World) {
+  if (startCommand(w)) return;
   const n = w.needs,
     t = w.character.traits,
     h = hour(w.time),
@@ -72,6 +83,17 @@ export function chooseActivity(w: World) {
     rest: (100 - n.energy) * 0.65 + n.stress * 0.4,
     coffee: 15 + t.extraversion * 0.3,
   };
+  if (w.character.age < 18) {
+    const school = ![0, 6].includes(new Date(w.time).getUTCDay()) && h >= 8 && h < 15;
+    scores.study += school ? 170 : 20;
+    scores.play += 20;
+    scores.coffee = -200;
+  }
+  if (w.character.age >= 65) {
+    scores.garden += 25;
+    scores.walk += 20;
+    scores.rest += 20;
+  }
   if (n.energy < 12) scores.sleep += 180;
   if (n.hunger > 85) scores.eat += 200;
   if (w.character.interest === '阅读') scores.read += 20;
@@ -135,6 +157,7 @@ export function chooseActivity(w: World) {
     if (wake <= w.time) wake += DAY;
     duration = sleepTime ? Math.min(9 * 60, (wake - w.time) / MINUTE) : 60;
   }
+  if (best === 'study' && w.character.age < 18 && h >= 8 && h < 15) duration = 60;
   if (best === 'wash') duration = 15;
   if (best === 'work') duration = 90;
   if (best === 'eat') duration = 30;
@@ -259,15 +282,34 @@ function completeActivity(w: World) {
   practiceInterests(w, a.kind);
   useGifts(w, a.kind);
   practiceHabits(w, a.kind);
-  secretsTick(w, a.kind);
+  if (w.character.age >= 18) secretsTick(w, a.kind);
   creationTick(w, a.kind);
   exhibitCreations(w);
-  dreamsTick(w, a.kind);
-  maybeStartArc(w);
-  sampleEvent(w);
+  if (w.character.age >= 18) {
+    dreamsTick(w, a.kind);
+    maybeStartArc(w);
+    sampleEvent(w);
+  } else if (['study', 'play', 'create'].includes(a.kind) && random(w) < 0.3) {
+    const text =
+      a.kind === 'study'
+        ? w.character.age < 13
+          ? '把今天学到的新知识画进了小本子。'
+          : '解开了一道之前不会的题，慢慢找到了自己的方法。'
+        : a.kind === 'play'
+          ? '玩了一会儿喜欢的游戏，给自己放个小假。'
+          : '完成了一张练习画，想留给家人看看。';
+    const e = record(w, '成长的小事', text, '成长');
+    rememberEvent(w, e, 45);
+  }
   w.recentActivities.push(a.kind);
   w.recentActivities = w.recentActivities.slice(-12);
-  if (!w.flags.careerQuestion && w.character.skill >= 25 && w.character.job !== '学生') {
+  if (
+    w.character.age >= 18 &&
+    w.character.age < 65 &&
+    !w.flags.careerQuestion &&
+    w.character.skill >= 25 &&
+    w.character.job !== '学生'
+  ) {
     w.flags.careerQuestion = true;
     w.decisions.push({
       id: 'career-first',
@@ -277,7 +319,7 @@ function completeActivity(w: World) {
       created: w.time,
     });
   }
-  if (!w.flags.housingQuestion && w.money >= 12000) {
+  if (w.character.age >= 18 && !w.flags.housingQuestion && w.money >= 12000) {
     w.flags.housingQuestion = true;
     w.decisions.push({
       id: 'housing-first',
@@ -320,14 +362,15 @@ function tick(w: World) {
   if (n.hunger > 90 || n.energy < 10) n.mood = clamp(n.mood - 0.2, 15);
   else n.mood = clamp(n.mood + (65 - n.mood) * 0.002, 15);
   n.health = clamp(n.health + (n.energy > 25 && n.hunger < 80 ? 0.025 : -0.02), 35);
-  seasonTick(w);
-  newsTick(w);
   decayHabits(w);
-  npcTick(w);
-  advanceChains(w);
-  arcsTick(w);
+  if (w.character.age >= 18) {
+    advanceChains(w);
+    arcsTick(w);
+  }
   if (w.time >= w.activity.end) {
-    completeActivity(w);
+    const member = w.household.members.find((m) => m.id === w.household.active);
+    if (!member?.interrupted) completeActivity(w);
+    if (member) member.interrupted = false;
     chooseActivity(w);
   } else if ((n.hunger > 94 && a !== 'eat') || (n.energy < 5 && a !== 'sleep')) {
     chooseActivity(w);
@@ -338,28 +381,40 @@ export function advance(w: World, deltaMs: number) {
   const target = w.time + deltaMs;
   if (!Number.isSafeInteger(Math.floor(target)) || target > 8640000000000000)
     throw new Error('Invalid game date');
+  initHousehold(w);
+  const selected = w.household.active;
   while (w.simulatedUntil + STEP <= target) {
     const prevDay = dayKey(w.simulatedUntil);
     w.simulatedUntil += STEP;
     w.time = w.simulatedUntil;
-    if (dayKey(w.time) !== prevDay) {
-      closeDay(w, prevDay);
-      const today = dayKey(w.time);
-      if (w.lastRentDay !== today) {
-        transact(
-          w,
-          -Math.min(w.money, w.character.housing === '合租小屋' ? 18 : 30),
-          '每日住房与公共开支',
-        );
-        w.lastRentDay = today;
+    for (const [index, member] of w.household.members.entries()) {
+      selectResident(w, member.id);
+      if (index === 0) {
+        seasonTick(w);
+        newsTick(w);
+        npcTick(w);
       }
-      // Keep only recent day-based habit and payroll counters; long-term story flags are retained.
-      for (const k of Object.keys(w.flags)) {
-        const date = k.match(/\d{4}-\d{2}-\d{2}$/)?.[0];
-        if (date && date < dayKey(w.time - 40 * DAY)) delete w.flags[k];
+      if (dayKey(w.time) !== prevDay) {
+        closeDay(w, prevDay);
+        const today = dayKey(w.time);
+        if (w.lastRentDay !== today) {
+          transact(
+            w,
+            -Math.min(w.money, w.character.housing === '合租小屋' ? 18 : 30),
+            '每日住房与公共开支',
+          );
+          w.lastRentDay = today;
+        }
+        // Keep only recent day-based habit and payroll counters; long-term story flags are retained.
+        for (const k of Object.keys(w.flags)) {
+          const date = k.match(/\d{4}-\d{2}-\d{2}$/)?.[0];
+          if (date && date < dayKey(w.time - 40 * DAY)) delete w.flags[k];
+        }
       }
+      tick(w);
     }
-    tick(w);
+    selectResident(w, selected);
+    familyTick(w);
   }
   w.time = target;
 }
@@ -382,6 +437,8 @@ export function resolveDecision(w: World, id: string, choice: 'yes' | 'no' | 'se
     if (yes && w.money >= 3000) {
       transact(w, -3000, '搬家');
       w.character.housing = '带阳台的小屋';
+      for (const m of w.household.members)
+        if (m.state) m.state.character.housing = w.character.housing;
       text = '搬进带阳台的小屋，把旧物件也带了过来。';
     } else text = '决定继续住在熟悉的地方，把搬家的念头留给以后。';
   }
@@ -398,6 +455,9 @@ export function resolveDecision(w: World, id: string, choice: 'yes' | 'no' | 'se
       }
     } else if (
       yes &&
+      w.character.age >= 18 &&
+      n.age >= 18 &&
+      !npcHasOtherPartner(w, n.id) &&
       n.relation.willing &&
       !w.npcs.some((x) => x.relation.type === '恋人') &&
       !w.living.npcBonds.some((b) => b.status === '恋人' && (b.a === n.id || b.b === n.id))

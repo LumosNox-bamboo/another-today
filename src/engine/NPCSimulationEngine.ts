@@ -1,3 +1,4 @@
+import { npcHasOtherPartner } from './HouseholdEngine';
 import { destinations } from '../content/places';
 import { destinationOpen } from './ExplorationEngine';
 import { npcLifeTick } from './NPCLifeEngine';
@@ -110,6 +111,9 @@ export function encounter(w: World, n?: NPC) {
   if (first || r.familiarity % 16 < 4) rememberEvent(w, e, first ? 70 : 45);
   if (r.familiarity > 40 && r.affection > 60 && nice) r.dates++;
   if (
+    w.character.age >= 18 &&
+    n.age >= 18 &&
+    !npcHasOtherPartner(w, n.id) &&
     r.dates >= 3 &&
     r.trust > 45 &&
     r.intimacy > 20 &&

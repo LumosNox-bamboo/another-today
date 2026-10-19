@@ -1,3 +1,5 @@
+import { Household } from './Household';
+import { lifeRole } from '../engine/HouseholdEngine';
 import { useEffect, useState } from 'react';
 import {
   Map,
@@ -101,7 +103,7 @@ export function GameStage({
   compact?: boolean;
 }) {
   const [preview, setPreview] = useState<Scene | null>(null);
-  const [panel, setPanel] = useState<'map' | 'gifts' | 'moments' | null>(null);
+  const [panel, setPanel] = useState<'map' | 'gifts' | 'moments' | 'household' | null>(null);
   const [inspect, setInspect] = useState(false);
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
@@ -131,7 +133,7 @@ export function GameStage({
           <span>
             <strong>{w.character.name}</strong>
             <small>
-              {w.character.job} · {activityNames[w.activity.kind]}
+              {lifeRole(w.character)} · {activityNames[w.activity.kind]}
             </small>
           </span>
         </button>
@@ -151,6 +153,15 @@ export function GameStage({
       </header>
 
       <div className="stage-location">
+        <button
+          className="follow-button"
+          onClick={() => {
+            setPreview(null);
+            setPanel('household');
+          }}
+        >
+          家庭与行动
+        </button>
         <span>
           <i className="status-dot" /> {sceneNames[scene]}{' '}
           <small>{away ? '正在浏览 · TA 不在这里' : 'TA 的此刻'}</small>
@@ -286,6 +297,11 @@ export function GameStage({
             <ChevronRight size={16} />
           </span>
         </button>
+      )}
+      {panel === 'household' && (
+        <Modal title="我们的家" wide onClose={() => setPanel(null)}>
+          <Household world={w} />
+        </Modal>
       )}
       {compact && w.decisions.length > 0 && (
         <button onClick={() => setPanel('moments')}>待商量 {w.decisions.length}</button>

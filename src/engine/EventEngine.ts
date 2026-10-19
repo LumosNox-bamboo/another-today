@@ -6,7 +6,11 @@ import { maybeStartChain } from './EventChainEngine';
 export function passesGate(w: World, gate: Gate) {
   switch (gate) {
     case 'employed':
-      return !['学生', '无业者'].includes(w.character.job);
+      return (
+        w.character.age >= 18 &&
+        w.character.age < 65 &&
+        !['学生', '无业者'].includes(w.character.job)
+      );
     case 'friend':
       return w.npcs.some((n) => n.scene === w.activity.scene && n.relation.familiarity > 0);
     case 'partner':

@@ -247,3 +247,104 @@ test('scene controls explore actual places and give gifts without moving the cha
   }
   await page.screenshot({ path: test.info().outputPath('scene-game.png'), fullPage: true });
 });
+
+test('household controls persist members, commands and the selected resident', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  const dialog = page.getByRole('dialog', { name: '我们的家' });
+  await dialog.getByLabel('成员名字').fill('小禾');
+  await dialog.getByLabel('成员年龄').fill('6');
+  await dialog.getByLabel('与当前人物的关系').selectOption('亲子');
+  await dialog.getByRole('button', { name: '加入这个家' }).click();
+  await expect(dialog.getByRole('button', { name: '切换到小禾' })).toBeVisible();
+  await dialog.getByRole('button', { name: '一起吃饭', exact: true }).click();
+  await dialog.getByRole('button', { name: '切换到小禾' }).click();
+  await expect(dialog.getByRole('heading', { name: '小禾的安排' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '去工作', exact: true })).toHaveCount(0);
+  await expect(dialog.getByLabel('行动队列')).toContainText('做饭与吃饭');
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(page.getByRole('button', { name: '和小禾聊聊天' })).toBeVisible();
+  await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+  await page.getByRole('button', { name: '快进 6 小时' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await expect(dialog.getByRole('button', { name: '切换到小禾' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(saved.household.members.length).toBe(2);
+  expect(saved.household.bonds[0].warmth).toBeGreaterThan(55);
+  expect(saved.memories.some((m: { content: string }) => m.content.includes('小满和小禾'))).toBe(
+    true,
+  );
+  await dialog.getByRole('button', { name: '切换到小满' }).click();
+  await expect(dialog.getByRole('heading', { name: '小满的安排' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+  await page.screenshot({ path: test.info().outputPath('household.png'), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('large family saves migrate atomically to IndexedDB and recover their backup', async ({
+  page,
+}) => {
+  const { createWorld } = await import('../src/content/people');
+  const { addResident } = await import('../src/engine/HouseholdEngine');
+  const { advance } = await import('../src/engine/SimulationEngine');
+  const { DAY } = await import('../src/engine/model');
+  const w = createWorld();
+  for (const age of [8, 16, 35, 67, 80]) addResident(w, `成员${age}`, age, '室友');
+  advance(w, 30 * DAY);
+  w.settings.speed = 0;
+  expect(JSON.stringify(w).length).toBeGreaterThan(1_000_000);
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+  page.on('dialog', (dialog) => dialog.accept());
+  await page.getByLabel('导入浏览器 JSON 存档').setInputFiles({
+    name: 'family.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(w)),
+  });
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('another-today-storage')))
+    .toBe('indexeddb');
+  await page.reload();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await expect(page.getByRole('button', { name: '切换到成员80' })).toBeVisible();
+  await page.getByRole('button', { name: '切换到成员16' }).click();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: '导出存档', exact: true }).click();
+  const file = await download;
+  const exported = JSON.parse(await readFile((await file.path())!, 'utf8'));
+  expect(exported.character.name).toBe('成员16');
+  expect(exported.household.members.length).toBe(6);
+  // Leave first so beforeunload cannot repair the deliberately corrupted fixture.
+  await page.goto('about:blank');
+  await page.addInitScript(() => {
+    if (!location.protocol.startsWith('http') || sessionStorage.getItem('corrupt-once')) return;
+    sessionStorage.setItem('corrupt-once', 'yes');
+    const r = indexedDB.open('another-today-worlds', 1);
+    r.onsuccess = () => {
+      const tx = r.result.transaction('saves', 'readwrite');
+      tx.objectStore('saves').put('{broken', 'world');
+      tx.oncomplete = () => r.result.close();
+    };
+  });
+  await page.goto('./');
+  await expect(page.getByText('已从备份恢复游戏。最近一次保存之后的进度可能丢失。')).toBeVisible();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await expect(page.getByRole('button', { name: '切换到成员80' })).toBeVisible();
+});

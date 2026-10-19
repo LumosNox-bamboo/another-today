@@ -109,13 +109,21 @@ function painter(ctx: CanvasRenderingContext2D) {
     sleep = false,
     npc = false,
     sitting = false,
+    age = 24,
   ) {
+    ctx.save();
+    const size = age < 13 ? 0.72 : age < 18 ? 0.88 : 1;
+    ctx.translate(x, y);
+    ctx.scale(size, size);
+    ctx.translate(-x, -y);
+    if (age >= 65) hair = '#b6aca0';
     ellipse(x + 1, y + 1, 10, 3, '#00000019');
     if (sleep) {
       r(x - 9, y - 15, 16, 10, outfit);
       r(x + 5, y - 19, 12, 12, hair);
       r(x + 7, y - 16, 9, 7, skin);
       r(x + 13, y - 13, 3, 1, palette.ink);
+      ctx.restore();
       return;
     }
     const stride = moving ? Math.sin(t * 12) * 2 : 0;
@@ -149,6 +157,7 @@ function painter(ctx: CanvasRenderingContext2D) {
     if (!npc) {
       r(x + 2, y - 40 - bob, 4, 3, '#e8c681');
     }
+    ctx.restore();
   }
   return { r, line, ellipse, plant, window, shelf, table, lamp, tree, person };
 }
@@ -486,6 +495,27 @@ function draw(
           true,
         ),
       );
+  w.household.members
+    .filter((m) => m.state?.activity.scene === scene)
+    .forEach((m, i) => {
+      const c = m.state!.character;
+      person(
+        100 + i * 57,
+        245,
+        c.hair,
+        c.outfit,
+        c.skin,
+        false,
+        t + i,
+        m.state!.activity.kind === 'sleep',
+        true,
+        false,
+        c.age,
+      );
+      ctx.fillStyle = '#f8e9d0';
+      ctx.font = '9px monospace';
+      ctx.fillText(c.name.slice(0, 6), 85 + i * 57, 258);
+    });
   if (w.activity.scene === scene) {
     person(
       pos.x,
@@ -501,6 +531,7 @@ function draw(
         ['read', 'study', 'work', 'create', 'play', 'eat', 'rest', 'coffee'].includes(
           w.activity.kind,
         ),
+      w.character.age,
     );
     if (!moving && ['read', 'study', 'create'].includes(w.activity.kind)) {
       r(pos.x - 7, pos.y - 18, 16, 8, '#eeddb8');

@@ -142,10 +142,10 @@ export function CreateCharacter({ onCancel }: { onCancel?: () => void }) {
               年龄
               <input
                 type="number"
-                min="18"
-                max="90"
+                min="6"
+                max="100"
                 value={c.age}
-                onChange={(e) => change('age', Math.max(18, Math.min(90, Number(e.target.value))))}
+                onChange={(e) => change('age', Math.max(6, Math.min(100, Number(e.target.value))))}
               />
             </label>
             <label>
