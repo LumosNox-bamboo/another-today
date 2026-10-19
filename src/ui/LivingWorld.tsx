@@ -1,3 +1,15 @@
+import {
+  BookOpen,
+  Sprout,
+  Armchair,
+  Lamp,
+  Pencil,
+  Music,
+  Palette,
+  Gem,
+  Shirt,
+  Gift,
+} from 'lucide-react';
 import { ExplorationView } from './ExplorationView';
 import { useState } from 'react';
 import { type World, dayKey, activityNames } from '../engine/model';
@@ -11,6 +23,19 @@ import { changeDream } from '../engine/RegretAndDreamEngine';
 import { setCalendarMode } from '../engine/SeasonEngine';
 import { traceCauses } from '../engine/EventCausalityGraph';
 import { Modal, Empty } from './components';
+
+const giftIcons = {
+  书籍: BookOpen,
+  植物: Sprout,
+  家具: Armchair,
+  装饰: Lamp,
+  文具: Pencil,
+  乐器: Music,
+  艺术用品: Palette,
+  收藏品: Gem,
+  衣物: Shirt,
+  纪念品: Gift,
+};
 
 export function InteractionCard({
   world: w,
@@ -226,8 +251,14 @@ async function playCreation(seed: number) {
   }
   setTimeout(() => void audio.close(), 3300);
 }
-export function LivingWorld({ world: w }: { world: World }) {
-  const [tab, setTab] = useState('街区近况'),
+export function LivingWorld({
+  world: w,
+  initialTab = '街区近况',
+}: {
+  world: World;
+  initialTab?: string;
+}) {
+  const [tab, setTab] = useState(initialTab),
     [gift, setGift] = useState(gifts[0].id),
     [work, setWork] = useState<string | null>(null),
     [recipient, setRecipient] = useState('npc-0');
@@ -357,6 +388,25 @@ export function LivingWorld({ world: w }: { world: World }) {
             <p className="muted">
               不需要连续送礼。TA 会有自己的喜好，也可能珍惜一件暂时用不上的物品。
             </p>
+            <div className="gift-catalog" role="group" aria-label="礼物架">
+              {gifts.map((g) => {
+                const Icon = giftIcons[g.category as keyof typeof giftIcons] || Gift;
+                const owned = w.living.gifts.some((item) => item.definition === g.id);
+                return (
+                  <button
+                    key={g.id}
+                    aria-label={`选择礼物 ${g.name}`}
+                    aria-pressed={gift === g.id}
+                    data-category={g.category}
+                    onClick={() => setGift(g.id)}
+                  >
+                    <Icon size={25} />
+                    <strong>{g.name}</strong>
+                    <small>{owned ? '已经收藏' : g.category}</small>
+                  </button>
+                );
+              })}
+            </div>
             <label>
               挑选礼物
               <select value={gift} onChange={(e) => setGift(e.target.value)}>

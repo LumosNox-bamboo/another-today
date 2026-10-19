@@ -1,4 +1,5 @@
-import { LivingWorld, LivingSettings, InteractionCard, CausalityView } from './LivingWorld';
+import { GameStage } from './GameStage';
+import { LivingWorld, LivingSettings, CausalityView } from './LivingWorld';
 import { InstallApp } from './InstallApp';
 import { CloudSync } from './CloudSync';
 import { lifePrompts } from '../engine/LifeInteractionEngine';
@@ -10,19 +11,12 @@ import {
   Users,
   Heart,
   Settings,
-  Sparkles,
   MessageCircle,
   Clock,
   Maximize2,
   Minimize2,
   Leaf,
-  Sun,
-  Moon,
-  CloudRain,
-  ChevronRight,
-  ArrowUpRight,
   Send,
-  Pause,
   Play,
   Check,
   Download,
@@ -30,18 +24,15 @@ import {
   Volume2,
   VolumeX,
   MapPin,
-  Wallet,
   Flower2,
   NotebookPen,
   History,
   X,
   Trash2,
-  Focus,
 } from 'lucide-react';
 import { useGame, mutate, persist, notify, dismissReport, compact, replaceWorld } from '../store';
 import {
   type World,
-  type Scene,
   type Trait,
   type LifeEvent,
   sceneNames,
@@ -50,21 +41,19 @@ import {
   labels,
   dayKey,
   gameTime,
-  hour,
   realDate,
   DAY,
   HOUR,
   MINUTE,
 } from '../engine/model';
 import { setSpeed, type CatchUpReport, catchUp } from '../engine/SimulationClock';
-import { advance, resolveDecision } from '../engine/SimulationEngine';
+import { advance } from '../engine/SimulationEngine';
 import { reply, startFocus, returnFocus } from '../engine/ConversationEngine';
 import { rememberPlayer, forget } from '../engine/MemoryEngine';
 import { playerDraft } from '../engine/DiaryEngine';
 import { validateWorld } from '../engine/validation';
 import { exportSave } from '../persistence';
 import { events, chains } from '../content/events';
-import { PixelWorld } from './PixelWorld';
 import { Modal, Meter, Tag, Empty, Avatar, CreateCharacter } from './components';
 import { setAmbience } from './audio';
 const nav = [
@@ -80,14 +69,6 @@ const nav = [
 type Tab = (typeof nav)[number][0];
 type ChatMessage = { role: 'player' | 'character'; text: string; remembered?: boolean };
 const money = (n: number) => n.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
-function dateLabel(t: number) {
-  return new Intl.DateTimeFormat('zh-CN', {
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
-    timeZone: 'UTC',
-  }).format(t);
-}
 function Timeline({
   world,
   items,
@@ -132,7 +113,6 @@ export function App() {
     w = s.world;
   const [tab, setTab] = useState<Tab>('life'),
     [cloudOpen, setCloudOpen] = useState(false),
-    [preview, setPreview] = useState<Scene | null>(null),
     [modal, setModal] = useState<'chat' | 'focus' | 'items' | 'new' | null>(null),
     [selectedAnchor, setSelectedAnchor] = useState(''),
     [messages, setMessages] = useState<ChatMessage[]>([]),
@@ -143,7 +123,7 @@ export function App() {
     [showReturn, setShowReturn] = useState(true);
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [tab, s.compact]);
+  }, [tab, s.compact, Boolean(w)]);
   useEffect(() => {
     setShowReturn(true);
   }, [w?.playerActivities.at(-1)?.id]);
@@ -199,7 +179,6 @@ export function App() {
           action: () => {
             void replaceWorld(incoming);
             setMessages([]);
-            setPreview(null);
             notify('存档已导入。导入时不补算导出后的时间。');
           },
         });
@@ -250,24 +229,20 @@ export function App() {
         )}
       </>
     );
-  const scene = preview || w.activity.scene,
-    isNight = hour(w.time) >= 19 || hour(w.time) < 6,
-    focus = w.playerActivities.find((a) => !a.returned),
+  const focus = w.playerActivities.find((a) => !a.returned),
     focusDue = focus && Date.now() - focus.start >= focus.expectedMinutes * MINUTE;
   const openChat = () => {
     setModal('chat');
   };
   const openFocus = () => setModal('focus');
-  const changeSpeed = (speed: World['settings']['speed']) =>
-    mutate((x) => {
-      setSpeed(x, speed);
-    });
   const sceneClick = (anchor: string) => {
     setSelectedAnchor(anchor);
     setModal('items');
   };
   return (
-    <div className={`app ${s.compact ? 'compact' : ''}`}>
+    <div
+      className={`app game-shell ${tab === 'life' ? 'at-home' : 'in-journal'} ${s.compact ? 'compact' : ''}`}
+    >
       {cloudOpen && (
         <Modal title="跨设备存档" onClose={() => setCloudOpen(false)}>
           <CloudSync />
@@ -291,6 +266,7 @@ export function App() {
                 aria-label={label}
                 key={id}
                 className={tab === id ? 'active' : ''}
+                aria-current={tab === id ? 'page' : undefined}
                 onClick={() => setTab(id)}
               >
                 <Icon size={19} />
@@ -388,281 +364,19 @@ export function App() {
             </div>
           )}
           {tab === 'world' && !s.compact && <LivingWorld world={w} />}
-          {tab === 'life' && !s.compact && (
-            <InteractionCard
+          {(tab === 'life' || s.compact) && (
+            <GameStage
               world={w}
+              compact={s.compact}
+              onObject={sceneClick}
               onChat={(text) => {
                 setModal('chat');
                 if (text) setMessages((m) => [...m, { role: 'character', text }]);
               }}
+              onFocus={openFocus}
+              onDiary={() => setTab('diary')}
+              onPerson={() => setTab('person')}
             />
-          )}
-          {(tab === 'life' || s.compact) && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <div className="eyebrow">LIFE, AT ITS OWN PACE</div>
-                  <h1>
-                    {isNight ? '夜色正温柔' : '又是一个小小的今天'}
-                    <span className="heading-dot">✳</span>
-                  </h1>
-                  <p>
-                    你在过你的今天，{w.character.name}也在过{w.character.name}的今天。
-                  </p>
-                </div>
-                <button className="quiet-button" onClick={openFocus}>
-                  <Focus size={16} />
-                  {focus ? '正在一起专注' : '一起专注'}
-                  <ArrowUpRight size={14} />
-                </button>
-              </div>
-              <div className="life-grid">
-                <section className="world-card">
-                  <div className="world-toolbar">
-                    <div className="location">
-                      <span className="location-icon">
-                        <MapPin size={17} />
-                      </span>
-                      <div>
-                        <strong>{sceneNames[scene]}</strong>
-                        <small>
-                          {preview && preview !== w.activity.scene
-                            ? '正在浏览 · 小人不在这里'
-                            : scene === 'apartment'
-                              ? w.character.housing + ' · 梧桐街 07 号'
-                              : '按自己的节奏，走过这座小镇'}
-                        </small>
-                      </div>
-                    </div>
-                    <div className="weather">
-                      {isNight ? (
-                        <Moon size={18} />
-                      ) : Math.floor(w.time / DAY) % 4 === 0 ? (
-                        <CloudRain size={18} />
-                      ) : (
-                        <Sun size={18} />
-                      )}
-                      <span>
-                        {gameTime(w.time)}
-                        <small>{dateLabel(w.time)}</small>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="scene-view">
-                    <PixelWorld world={w} scene={scene} onObject={sceneClick} />
-                    <div className="scene-caption">
-                      <i className="status-dot" />
-                      {w.character.name}正在{activityNames[w.activity.kind]}
-                    </div>
-                    <span className="scene-corner">梧桐街 · {isNight ? '夜' : '日'}</span>
-                  </div>
-                  <div className="scene-footer">
-                    <div className="scene-tabs">
-                      <button
-                        className={!preview ? 'selected' : ''}
-                        onClick={() => setPreview(null)}
-                      >
-                        跟随 TA
-                      </button>
-                      {(Object.entries(sceneNames) as [Scene, string][]).map(([id, name]) => (
-                        <button
-                          key={id}
-                          className={preview === id ? 'selected' : ''}
-                          onClick={() => setPreview(id)}
-                        >
-                          {name
-                            .replace('梧桐', '')
-                            .replace('转角', '')
-                            .replace('晚风', '')
-                            .replace('月光', '')
-                            .replace('街角', '')
-                            .replace('小小', '')
-                            .replace('星夜', '')}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="time-controls">
-                      <span>
-                        <Clock size={13} />
-                        {w.settings.speed === 0
-                          ? '世界已暂停'
-                          : w.settings.speed === 1
-                            ? '现实同步陪伴'
-                            : '人生观察加速'}
-                      </span>
-                      <div>
-                        {([0, 1, 4, 12] as const).map((speed) => (
-                          <button
-                            key={speed}
-                            title={speed === 0 ? '暂停' : `${speed} 倍速`}
-                            aria-label={speed === 0 ? '暂停' : `${speed} 倍速`}
-                            className={w.settings.speed === speed ? 'selected' : ''}
-                            onClick={() => changeSpeed(speed)}
-                          >
-                            {speed === 0 ? <Pause size={12} /> : <>{speed}×</>}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-                <aside className="right-column">
-                  <section className="character-card">
-                    <div className="card-kicker">
-                      此刻的 TA <Leaf size={15} />
-                    </div>
-                    <div className="character-title">
-                      <Avatar world={w} />
-                      <div>
-                        <h2>
-                          {w.character.name}
-                          <span>●</span>
-                        </h2>
-                        <p>
-                          {w.character.age} 岁 · {w.character.job}
-                        </p>
-                      </div>
-                      <button
-                        className="icon-button"
-                        aria-label="查看人物"
-                        onClick={() => setTab('person')}
-                      >
-                        <ArrowUpRight size={19} />
-                      </button>
-                    </div>
-                    <div className="tags">
-                      {labels(w.character.traits)
-                        .slice(0, 3)
-                        .map((l) => (
-                          <Tag key={l}>{l}</Tag>
-                        ))}
-                    </div>
-                    <div className="needs">
-                      <Meter label="心情" value={w.needs.mood} color="#d0ad71" />
-                      <Meter label="精力" value={w.needs.energy} color="#8c9d7e" />
-                      <Meter label="饱腹" value={100 - w.needs.hunger} color="#b98f74" />
-                    </div>
-                    <div className="wallet">
-                      <span>
-                        <Wallet size={15} /> 一点小积蓄
-                      </span>
-                      <strong>¥ {money(w.money)}</strong>
-                    </div>
-                    <div className="small-goal">
-                      <Sparkles size={15} />
-                      <p>
-                        <small>心里藏着的小愿望</small>
-                        {w.character.goal}
-                      </p>
-                    </div>
-                  </section>
-                  <section className="chat-invite">
-                    <div className="chat-bubble">
-                      <span>“</span>
-                      {w.events.filter((e) => e.definition !== 'activity').at(-1)?.text ||
-                        '今天也按自己的节奏生活。'}
-                    </div>
-                    <button onClick={openChat}>
-                      <MessageCircle size={16} />和{w.character.name}聊聊天
-                      <ArrowUpRight size={15} />
-                    </button>
-                  </section>
-                </aside>
-              </div>
-              {!s.compact && (
-                <div className="below-grid">
-                  <section className="card today-card">
-                    <header className="section-heading">
-                      <div>
-                        <span className="eyebrow">LITTLE MOMENTS</span>
-                        <h2>
-                          今天的小事{' '}
-                          <span>
-                            {w.events.filter((e) => dayKey(e.time) === dayKey(w.time)).length}
-                          </span>
-                        </h2>
-                      </div>
-                      <button className="text-button" onClick={() => setTab('history')}>
-                        翻看全部 <ChevronRight size={14} />
-                      </button>
-                    </header>
-                    <Timeline
-                      world={w}
-                      items={w.events.filter((e) => dayKey(e.time) === dayKey(w.time))}
-                      limit={4}
-                    />
-                  </section>
-                  <section className="card together-card">
-                    <span className="eyebrow">TWO LIVES, ONE DAY</span>
-                    <h2>我们的今天</h2>
-                    <div className="two-stems">
-                      <div>
-                        <span>你</span>
-                        <i />
-                        <p>{focus ? `计划${focus.label}` : '今天，想留下什么？'}</p>
-                      </div>
-                      <div>
-                        <span>{w.character.name}</span>
-                        <i />
-                        <p>{activityNames[w.activity.kind]}</p>
-                      </div>
-                    </div>
-                    <p className="muted">不同的日子，也有交汇的片刻。</p>
-                    <button className="quiet-button" onClick={() => setTab('diary')}>
-                      打开双人日记 <BookOpen size={15} />
-                    </button>
-                  </section>
-                </div>
-              )}
-              {w.decisions.length > 0 && !s.compact && (
-                <section className="card decisions">
-                  <h2>有件小事，想听听你</h2>
-                  <p className="muted">不着急回答。等你想好时，生活也一直继续。</p>
-                  {w.decisions.map((d) => (
-                    <article key={d.id}>
-                      <div>
-                        <strong>{d.title}</strong>
-                        <p>{d.text}</p>
-                      </div>
-                      <div className="button-row">
-                        <button
-                          className="primary"
-                          onClick={() => mutate((x) => resolveDecision(x, d.id, 'yes'))}
-                        >
-                          鼓励尝试
-                        </button>
-                        <button onClick={() => mutate((x) => resolveDecision(x, d.id, 'no'))}>
-                          {d.id.startsWith('conflict') ? '平静告别' : '先慢一点'}
-                        </button>
-                        <button onClick={() => mutate((x) => resolveDecision(x, d.id, 'self'))}>
-                          由 TA 决定
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </section>
-              )}
-              {s.compact && (
-                <div className="compact-actions">
-                  <button onClick={openChat}>
-                    <MessageCircle size={16} /> 聊聊
-                  </button>
-                  <button onClick={openFocus}>
-                    <Focus size={16} /> 专注
-                  </button>
-                  {w.decisions.length > 0 && (
-                    <button
-                      onClick={() => {
-                        void compact(false);
-                        setTab('life');
-                      }}
-                    >
-                      待商量 {w.decisions.length}
-                    </button>
-                  )}
-                </div>
-              )}
-            </>
           )}
           {tab === 'person' && !s.compact && (
             <>
@@ -1094,7 +808,6 @@ export function App() {
             onCancel={() => {
               setModal(null);
               setMessages([]);
-              setPreview(null);
               setTab('life');
             }}
           />

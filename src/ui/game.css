@@ -1,0 +1,936 @@
+/* A persistent game HUD and scene, with secondary pages kept in a field journal. */
+.game-shell {
+  --game-ink: #f4e6c8;
+  background: #273c37;
+  min-height: 100dvh;
+  background-image: radial-gradient(ellipse at 50% 35%, #52664e 0, #2d433b 55%, #1f302e 100%);
+}
+.game-shell .workspace {
+  margin: 0;
+  width: 100%;
+}
+.game-shell .topbar {
+  height: 48px;
+  padding: 0 26px;
+  background: #20332ee8;
+  color: #d5d9c3;
+  border-bottom: 1px solid #76867140;
+}
+.game-shell .breadcrumb {
+  color: #e2d6b6;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.game-shell .topbar .save-state {
+  color: #c5cdb9;
+}
+.game-shell .topbar .icon-button {
+  color: #c5cdb9;
+}
+.game-shell .sidebar {
+  z-index: 20;
+  position: fixed;
+  top: auto;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  height: auto;
+  max-width: calc(100% - 24px);
+  padding: 7px;
+  border: 2px solid #c8b591;
+  border-radius: 12px;
+  background: #eee3cb;
+  box-shadow:
+    0 5px 0 #182c2b,
+    0 10px 26px #14242160;
+}
+.game-shell .sidebar .brand,
+.game-shell .sidebar-caption,
+.game-shell .sidebar-bottom {
+  display: none;
+}
+.game-shell .sidebar nav {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin: 0;
+}
+.game-shell .sidebar nav button {
+  position: relative;
+  width: 70px;
+  min-height: 52px;
+  padding: 7px 9px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #766951;
+  border-radius: 6px;
+}
+.game-shell .sidebar nav button span {
+  display: block;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.game-shell .sidebar nav button.active {
+  background: #566e57;
+  color: #fff1d1;
+  box-shadow: inset 0 -3px #374e40;
+}
+.game-shell .sidebar nav button b {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  margin: 0;
+}
+.game-shell .workspace main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 26px 32px 120px;
+}
+.game-shell.at-home .workspace main {
+  max-width: 1440px;
+  padding: 16px 28px 108px;
+}
+.game-shell.at-home .page-footer {
+  display: none;
+}
+.game-shell.in-journal .workspace main {
+  background: #f5efdf;
+  min-height: calc(100dvh - 48px);
+  border-left: 1px solid #d3c4a3;
+  border-right: 1px solid #d3c4a3;
+}
+.game-shell.in-journal .card {
+  border-color: #d9ccb1;
+  box-shadow: 0 3px 0 #e3d8c0;
+  border-radius: 6px;
+}
+.game-shell .notice,
+.game-shell .focus-notice {
+  max-width: 1150px;
+  margin: 10px auto 0;
+}
+.game-stage {
+  color: var(--game-ink);
+  max-width: 1120px;
+  margin: auto;
+}
+.game-hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.resident-badge {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #f4e6c8;
+  padding: 0;
+  text-align: left;
+}
+.resident-badge:hover {
+  background: #ffffff0a;
+}
+.resident-badge > span {
+  display: grid;
+  gap: 6px;
+}
+.resident-badge strong {
+  font-size: 23px;
+  letter-spacing: 2px;
+}
+.resident-badge small {
+  font-size: 11px;
+  color: #c0cbb3;
+}
+.resident-badge .avatar {
+  border: 2px solid #c7b48b;
+  border-radius: 9px;
+  background: #a7b592;
+}
+.game-calendar {
+  text-align: center;
+  min-width: 150px;
+}
+.game-calendar > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #d7cb9e;
+}
+.game-calendar > strong {
+  display: block;
+  font:
+    32px/1.2 Georgia,
+    serif;
+  letter-spacing: 3px;
+  margin: 3px 0;
+}
+.game-calendar > small {
+  font-size: 10px;
+  color: #c0cbb3;
+}
+.game-needs {
+  justify-self: end;
+  width: 195px;
+  display: grid;
+  gap: 7px;
+}
+.game-needs .meter > div:first-child {
+  color: #d0d7bd;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+.game-needs .track {
+  height: 5px;
+  background: #162e29;
+  border-radius: 1px;
+}
+.game-needs .track i {
+  border-radius: 1px;
+}
+.stage-location {
+  max-width: 960px;
+  margin: 0 auto 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+.stage-location > span {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.stage-location small {
+  font-size: 10px;
+  color: #b6c5ad;
+}
+.game-stage .follow-button {
+  background: #263f36;
+  border-color: #7b9270;
+  color: #dce4c9;
+  padding: 7px 11px;
+  font-size: 11px;
+}
+.stage-landscape {
+  display: flex;
+  justify-content: center;
+}
+.game-shell .stage-surface {
+  position: relative;
+  width: min(100%, calc((100dvh - 340px) * 480 / 310));
+  min-width: 480px;
+  aspect-ratio: 480 / 310;
+  overflow: visible;
+  background: #d6d7ad;
+  border: 5px solid #c5ad7f;
+  border-radius: 4px;
+  outline: 2px solid #796547;
+  box-shadow:
+    0 8px 0 #1b302b,
+    0 20px 35px #0d221c60;
+}
+.game-shell .stage-surface canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+.stage-scene-label {
+  line-height: 1.5;
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  pointer-events: none;
+  color: #f3e5c7;
+  text-shadow: 0 2px #344538;
+}
+.stage-scene-label span {
+  display: block;
+  font: 17px var(--serif);
+  letter-spacing: 4px;
+}
+.stage-scene-label small {
+  font: 7px monospace;
+  letter-spacing: 2px;
+}
+.room-hotspot {
+  line-height: 1.4;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 5px 7px;
+  border: 1px solid #7c6039;
+  border-radius: 3px;
+  background: #fff0c7ee;
+  color: #614b2b;
+  box-shadow: 0 3px 0 #70553480;
+  font-size: 10px;
+  min-height: 30px;
+}
+.room-hotspot:active {
+  transform: translate(-50%, calc(-50% + 1px));
+}
+.stage-context {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  min-height: 41px;
+  font-size: 11px;
+  color: #d2dcc2;
+  margin-top: 7px;
+}
+.stage-context button {
+  background: transparent;
+  border: 0;
+  color: #f2cf8a;
+  padding: 6px 0;
+  font-size: 11px;
+}
+.stage-context > small {
+  font-size: 10px;
+  color: #a8baa3;
+}
+.stage-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.game-stage .time-controls {
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+.game-stage .time-controls > span {
+  color: #b7c8ac;
+  font-size: 10px;
+}
+.game-stage .time-controls > div {
+  display: flex;
+  gap: 4px;
+}
+.game-stage .time-controls button {
+  width: 34px;
+  height: 28px;
+  padding: 4px;
+  border: 1px solid #728568;
+  color: #e4dfc4;
+  background: #304b3f;
+  border-radius: 3px;
+}
+.game-stage .time-controls button.selected {
+  background: #e7ce93;
+  color: #3b4c37;
+  border-color: #f0dba9;
+}
+.stage-tools {
+  display: flex;
+  gap: 8px;
+}
+.stage-tools button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 72px;
+  padding: 9px 12px;
+  color: #4b513c;
+  background: #e9ddbc;
+  border: 1px solid #c5ac7c;
+  border-radius: 5px;
+  box-shadow: 0 3px 0 #97815d;
+}
+.stage-tools button:hover {
+  background: #fff0c8;
+  transform: translateY(-2px);
+}
+.stage-tools span {
+  font-size: 10px;
+}
+.moment-ribbon {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  margin: 22px auto 0;
+  padding: 12px 16px;
+  gap: 18px;
+  border-radius: 4px;
+  background: #213a31;
+  color: #d7ddc4;
+  border: 1px solid #74826180;
+  text-align: left;
+  white-space: normal;
+}
+.moment-ribbon:hover {
+  background: #2b4639;
+}
+.moment-seal {
+  font: 12px var(--serif);
+  color: #e2bd78;
+  border-right: 1px solid #6c7d5b;
+  padding-right: 16px;
+  white-space: nowrap;
+}
+.moment-ribbon > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.moment-ribbon strong {
+  font-size: 12px;
+  display: block;
+  font-weight: 500;
+}
+.moment-ribbon small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: #aebda4;
+  margin-top: 5px;
+}
+.moment-count {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #e1c48c;
+}
+.game-stage .interaction-card {
+  max-width: 960px;
+  margin: 16px auto 0;
+  color: #4e5841;
+  background: #f1e7cb;
+  border-color: #b6a177;
+}
+.game-stage .modal {
+  color: #4e5841;
+}
+.map-note {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.map-note span {
+  color: #9e5c36;
+  display: block;
+}
+.town-map {
+  height: 430px;
+  position: relative;
+  overflow: hidden;
+  background: #c8d4ab;
+  border: 3px solid #a3986b;
+  border-radius: 5px;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, #80996b15 24px),
+    repeating-linear-gradient(90deg, transparent, transparent 23px, #80996b15 24px);
+}
+.town-map > svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.map-river {
+  fill: none;
+  stroke: #8bb9b4;
+  stroke-width: 30;
+}
+.map-roads {
+  fill: none;
+  stroke: #e6d8ac;
+  stroke-width: 13;
+  stroke-linejoin: round;
+}
+.map-compass {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  font: 12px monospace;
+  color: #667655;
+  text-align: center;
+}
+.map-place {
+  position: absolute;
+  transform: translate(-50%, -30%);
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 4px;
+  background: transparent;
+  border: 0;
+  color: #435c42;
+}
+.map-place:hover {
+  background: #f6efd580;
+}
+.map-place:active {
+  transform: translate(-50%, -30%);
+}
+.map-place strong {
+  font-size: 11px;
+  background: #f3edcce8;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+.map-place small {
+  font-size: 9px;
+  min-height: 11px;
+}
+.map-building {
+  width: 36px;
+  height: 30px;
+  color: #6c5235;
+  background: #e5bd85;
+  border: 2px solid #886e49;
+  border-top: 7px solid #a56e51;
+  display: grid;
+  place-items: center;
+  box-shadow: 3px 3px #52674550;
+}
+.building-park,
+.building-greenhouse,
+.building-riverside {
+  background: #8db48e;
+  border-top-color: #527c59;
+}
+.building-observatory,
+.building-night {
+  background: #9cb6bc;
+  border-top-color: #567e89;
+}
+.map-place.is-here .map-building {
+  outline: 3px solid #c27a3b;
+  outline-offset: 3px;
+}
+.map-place.is-here small {
+  color: #8f4c25;
+  font-weight: 700;
+}
+.game-shell button:focus-visible {
+  outline: 3px solid #e0a455;
+  outline-offset: 3px;
+}
+/* Character creation keeps the existing form, with a more tactile title screen. */
+.creation {
+  background: #f5edd9;
+}
+.creation-art {
+  background: #304a3e;
+  border-right: 5px solid #b2a17d;
+}
+.creation-art h1 {
+  color: #f2deb1;
+}
+.creation-art h1 > span,
+.creation-art > p,
+.creation-note,
+.creation-art > .eyebrow {
+  color: #c3cfb0;
+}
+.creation-art canvas {
+  border: 4px solid #b7a176;
+  border-radius: 3px;
+  box-shadow: 0 6px 0 #1c332a;
+}
+.creation-form {
+  color: #4b5842;
+}
+.creation-form .primary {
+  background: #597455;
+  color: #fff1cb;
+  border-color: #3d553b;
+  box-shadow: 0 3px 0 #3b5239;
+}
+@media (max-width: 800px) {
+  .game-shell .workspace,
+  .game-shell.compact .workspace {
+    margin-left: 0;
+    width: 100%;
+  }
+  .game-shell.at-home .workspace main {
+    padding: 15px 16px 115px;
+  }
+  .game-shell .stage-surface {
+    min-width: 0;
+    width: 100%;
+    max-width: 680px;
+  }
+  .game-hud {
+    gap: 12px;
+    grid-template-columns: 1fr auto;
+  }
+  .game-needs {
+    width: 100%;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+  .game-calendar strong {
+    font-size: 27px;
+  }
+  .resident-badge strong {
+    font-size: 21px;
+  }
+  .stage-controls {
+    flex-direction: column;
+  }
+  .game-stage .time-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+  }
+  .stage-tools {
+    width: 100%;
+    justify-content: center;
+  }
+  .stage-tools button {
+    flex: 1;
+    min-width: 0;
+  }
+  .game-shell .sidebar nav button {
+    width: 61px;
+  }
+  .game-shell .workspace main {
+    padding: 22px 18px 115px;
+  }
+}
+@media (max-width: 560px) {
+  .game-shell .sidebar {
+    width: calc(100% - 16px);
+    max-width: none;
+    bottom: max(6px, env(safe-area-inset-bottom));
+    padding: 5px;
+  }
+  .game-shell .sidebar nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+  .game-shell .sidebar nav button {
+    width: 100%;
+    min-height: 39px;
+    flex-direction: row;
+    padding: 6px 3px;
+    gap: 5px;
+  }
+  .game-shell .sidebar nav button svg {
+    width: 15px;
+  }
+  .game-shell .sidebar nav button span {
+    font-size: 10px;
+  }
+  .game-shell .topbar {
+    height: 42px;
+    padding: 0 12px;
+  }
+  .game-shell .breadcrumb {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .game-shell .top-actions {
+    gap: 8px;
+  }
+  .game-shell .save-state {
+    font-size: 9px;
+  }
+  .game-shell.at-home .workspace main {
+    padding: 13px 12px 118px;
+  }
+  .game-calendar {
+    min-width: 115px;
+  }
+  .game-calendar > small {
+    font-size: 9px;
+  }
+  .resident-badge small {
+    font-size: 10px;
+  }
+  .stage-location > span {
+    flex-wrap: wrap;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .stage-location small {
+    font-size: 9px;
+  }
+  .stage-location .follow-button {
+    padding: 6px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .game-shell .stage-surface {
+    border-width: 3px;
+  }
+  .stage-context {
+    font-size: 10px;
+    gap: 6px 12px;
+    padding: 6px 0;
+  }
+  .stage-tools {
+    gap: 5px;
+  }
+  .stage-tools button {
+    padding: 8px 4px;
+  }
+  .stage-tools span {
+    font-size: 9px;
+  }
+  .moment-ribbon {
+    gap: 10px;
+    padding: 11px;
+    margin-top: 17px;
+  }
+  .moment-count {
+    display: none;
+  }
+  .moment-seal {
+    padding-right: 10px;
+    font-size: 11px;
+  }
+  .room-hotspot {
+    line-height: 1.4;
+    gap: 2px;
+    padding: 3px;
+    min-height: 27px;
+    font-size: 9px;
+  }
+  .room-hotspot svg {
+    width: 10px;
+  }
+  .town-map {
+    height: 390px;
+  }
+  .map-place strong {
+    font-size: 9px;
+    padding: 2px;
+  }
+  .map-place small {
+    font-size: 8px;
+  }
+  .map-building {
+    width: 29px;
+    height: 25px;
+  }
+  .creation-form {
+    padding: 64px 24px 28px;
+    background: #f5edd9;
+  }
+  .creation-form .muted {
+    color: #69745b;
+  }
+}
+.game-shell.compact .workspace main {
+  padding: 8px 12px;
+  display: block;
+  overflow: auto;
+}
+.game-shell.compact .game-hud {
+  margin-bottom: 7px;
+  gap: 6px;
+}
+.game-shell.compact .game-needs,
+.game-shell.compact .game-calendar > small {
+  display: none;
+}
+.game-shell.compact .resident-badge .avatar {
+  width: 34px;
+  height: 34px;
+}
+.game-shell.compact .resident-badge strong {
+  font-size: 16px;
+}
+.game-shell.compact .game-calendar strong {
+  font-size: 21px;
+}
+.game-shell.compact .game-calendar > span {
+  font-size: 10px;
+}
+.game-shell.compact .stage-surface {
+  min-width: 0;
+  width: min(100%, calc((100dvh - 310px) * 480 / 310));
+}
+.game-shell.compact .stage-surface canvas {
+  width: 100%;
+  height: auto;
+}
+.game-shell.compact .stage-context {
+  min-height: 26px;
+  margin-top: 3px;
+}
+.game-shell.compact .stage-context button,
+.game-shell.compact .stage-context small {
+  display: none;
+}
+.game-shell.compact .stage-controls {
+  gap: 7px;
+  flex-direction: column;
+}
+.game-shell.compact .stage-tools {
+  width: 100%;
+}
+.game-shell.compact .stage-tools button {
+  flex: 1;
+  flex-direction: row;
+  padding: 7px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-tools button:hover {
+    transform: none;
+  }
+}
+@media (min-width: 1000px) {
+  .game-stage {
+    position: relative;
+  }
+  .game-shell .stage-surface {
+    width: min(calc(100% - 330px), calc((100dvh - 350px) * 480 / 310));
+    min-width: 0;
+  }
+  .stage-controls {
+    position: absolute;
+    top: 175px;
+    right: 0;
+    width: 145px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .stage-tools {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stage-tools button {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 13px;
+    gap: 12px;
+  }
+  .stage-tools span {
+    font-size: 11px;
+  }
+  .game-stage .time-controls {
+    margin-bottom: 8px;
+  }
+  .moment-ribbon {
+    position: absolute;
+    left: 0;
+    top: 175px;
+    width: 145px;
+    margin: 0;
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+  }
+  .moment-seal {
+    border: 0;
+    border-bottom: 1px solid #6c7d5b;
+    padding: 0 0 10px;
+  }
+  .moment-ribbon strong {
+    line-height: 1.7;
+  }
+  .moment-ribbon small {
+    white-space: normal;
+    line-height: 1.8;
+    font-size: 11px;
+  }
+  .moment-count {
+    font-size: 9px;
+  }
+  .game-stage .interaction-card {
+    margin-top: 12px;
+  }
+}
+
+.gift-drawer .page-heading,
+.gift-drawer .living-tabs {
+  display: none;
+}
+.gift-catalog {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  max-height: 290px;
+  overflow: auto;
+  padding: 5px 5px 10px;
+  margin: 15px 0;
+}
+.gift-catalog button {
+  flex-direction: column;
+  white-space: normal;
+  padding: 10px 4px;
+  min-width: 0;
+  gap: 7px;
+  background: #ebe3cd;
+  border: 2px solid #cbbd9d;
+  border-radius: 4px;
+  box-shadow: 0 2px #ad9a77;
+  color: #8b6949;
+}
+.gift-catalog button[aria-pressed='true'] {
+  border-color: #658064;
+  background: #dce5ca;
+  box-shadow: 0 2px #465e43;
+}
+.gift-catalog strong {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #545943;
+}
+.gift-catalog small {
+  font-size: 9px;
+  color: #766e58;
+}
+.gift-catalog button[data-category='植物'] svg {
+  color: #5c8759;
+}
+.gift-catalog button[data-category='艺术用品'] svg {
+  color: #ab795f;
+}
+.gift-catalog button[data-category='收藏品'] svg {
+  color: #64899b;
+}
+/* Compact windows allocate only the remaining height to the scene. */
+.game-shell.compact .game-stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.game-shell.compact .stage-landscape {
+  flex: 1;
+  min-height: 0;
+}
+.game-shell.compact .stage-surface {
+  flex: 0 1 auto;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+.game-shell.compact .stage-surface canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.game-shell.compact .game-hud,
+.game-shell.compact .stage-location,
+.game-shell.compact .stage-context,
+.game-shell.compact .stage-controls {
+  flex-shrink: 0;
+}
+.game-shell.compact .notice,
+.game-shell.compact .focus-notice {
+  width: calc(100% - 24px);
+}

@@ -181,3 +181,68 @@ test('outskirts visits, suggestions, keepsakes and six distinct scenes work with
   await expect(page.getByRole('button', { name: '收起公寓里的展示', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('scene controls explore actual places and give gifts without moving the character', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  const original = await saved();
+  await page.getByRole('button', { name: '看看屋里的东西' }).click();
+  await page.getByRole('button', { name: '查看书架' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: '小镇地图', exact: true }).click();
+  const map = page.getByRole('dialog');
+  await expect(map.locator('.map-place')).toHaveCount(14);
+  const mapWidth = await map.locator('.town-map').boundingBox();
+  expect(mapWidth!.width).toBeLessThan(page.viewportSize()!.width);
+  await page.getByRole('button', { name: '看看芦苇河岸', exact: true }).click();
+  await expect(page.locator('.stage-surface')).toHaveAttribute('data-scene', 'riverside');
+  await expect(page.getByText('正在浏览 · TA 不在这里')).toBeVisible();
+  expect((await saved()).activity).toEqual(original.activity);
+  expect((await saved()).living.exploration.visits).toEqual(original.living.exploration.visits);
+  await page.getByRole('button', { name: '建议有空去看看', exact: true }).click();
+  await expect
+    .poll(async () => (await saved()).living.exploration.suggestion?.scene)
+    .toBe('riverside');
+  await page.getByRole('button', { name: '跟随 TA', exact: true }).click();
+  await expect(page.locator('.stage-surface')).toHaveAttribute(
+    'data-scene',
+    original.activity.scene,
+  );
+  await page.getByRole('button', { name: '送份礼物', exact: true }).click();
+  await page.getByRole('button', { name: '选择礼物 便携画具', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: '选择礼物 便携画具', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: '送给 TA', exact: true }).click();
+  await expect.poll(async () => (await saved()).living.gifts.length).toBe(1);
+  await page.getByRole('dialog').getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: /^小镇来信/ }).click();
+  await expect(page.getByRole('dialog')).toContainText(original.events[0].title);
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.reload();
+  expect((await saved()).living.gifts).toHaveLength(1);
+  expect((await saved()).character.name).toBe(original.character.name);
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  if (test.info().project.name === 'desktop') {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    const dock = await page.locator('.sidebar').boundingBox();
+    const tools = await page.locator('.stage-tools').boundingBox();
+    const context = await page.locator('.stage-context').boundingBox();
+    expect(tools!.y + tools!.height).toBeLessThanOrEqual(dock!.y);
+    expect(context!.y + context!.height).toBeLessThanOrEqual(dock!.y);
+  } else {
+    await page.setViewportSize({ width: 320, height: 740 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      320,
+    );
+  }
+  await page.screenshot({ path: test.info().outputPath('scene-game.png'), fullPage: true });
+});
