@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "desktop": "npm run build && electron .",
-    "build": "tsc --noEmit && vite build && node scripts/build-electron.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/build-pwa.mjs && node scripts/build-electron.mjs",
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",
     "pack": "npm run build && electron-builder --dir",
@@ -22,7 +22,7 @@
     "format": "prettier --write src electron scripts tests *.ts *.json *.html",
     "format:check": "prettier --check src electron scripts tests *.ts *.json *.html",
     "test:packaged": "node scripts/smoke-packaged.mjs",
-    "build:web": "tsc --noEmit && vite build",
+    "build:web": "tsc --noEmit && vite build && node scripts/build-pwa.mjs",
     "test:web": "npm run build:web && playwright test --config playwright.web.config.ts",
     "audit:living": "esbuild scripts/living-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/living-audit.mjs && node dist-electron/living-audit.mjs"
   },

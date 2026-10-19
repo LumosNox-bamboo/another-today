@@ -1,4 +1,5 @@
 import { LivingWorld, LivingSettings, InteractionCard, CausalityView } from './LivingWorld';
+import { InstallApp } from './InstallApp';
 import { lifePrompts } from '../engine/LifeInteractionEngine';
 import { confirmShared } from '../engine/SharedActivityEngine';
 import { useEffect, useState } from 'react';
@@ -1543,6 +1544,7 @@ function SettingsView({
         text="没有必须完成的任务，也没有必须赶上的今天。"
       />
       <div className="settings-grid">
+        <InstallApp />
         <LivingSettings world={w} />
         <section className="card">
           <h2>时间与自主生活</h2>

@@ -27,8 +27,9 @@ jobs:
       - run: npm test
       - run: npm run audit:living
       - run: npm run build:web
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npx playwright test --config playwright.web.config.ts
+      - run: npx playwright test --config playwright.ios.config.ts
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

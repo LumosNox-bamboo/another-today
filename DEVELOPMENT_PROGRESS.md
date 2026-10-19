@@ -64,3 +64,11 @@
 - 严格 TypeScript、未使用符号、构建、格式和空白检查通过。旧报告和截图未覆盖。
 - 玩法、边界与证据：`docs/OUTSKIRTS.md`；原始结果：`docs/OUTSKIRTS_AUDIT.json`。
 - 发布仍使用原公开仓库与原 GitHub Pages 地址，由 CI 再次运行单元测试、审计、构建与网页验收后部署。
+
+# 手机安装 · PWA（2026-10-19）
+
+- 保留现有架构和存档，接入相对子目录 manifest、安卓 / Apple 图标、独立窗口显示以及设置中的安装说明。浏览器提供安装事件时才展示直接安装按钮。
+- 新增完整构建缓存；首次资源加载完成后支持断网启动。更新等待旧窗口关闭，下载失败保持旧版本；缓存清理仅作用于本游戏资源，玩家数据仍由原存档系统管理。
+- 新增真实 service worker 测试，覆盖冷启动读档、离线游玩再保存、安装按钮、失败更新恢复、多窗口等待和缓存隔离。原 133 项测试、Chromium 电脑 / 手机 12 项、iPhone 尺寸 WebKit 5 项、Electron 6 项全部通过。WebKit 仅跳过 Playwright 不提供的 worker 生命周期检查，该项已在 Chromium 验证。
+- 构建、TypeScript 与格式检查通过；手机安装界面截图保存在 `docs/screenshots/mobile-pwa/`，旧截图保持原样。发布流程增加 WebKit 验收，继续部署到同一网址。真机系统安装仍需实际手机确认。
+- 文档：`docs/MOBILE.md`；未制作或声称发布原生 APK / iOS 包 / 微信小游戏。
