@@ -1,3 +1,4 @@
+import { grantTaskReward } from './TaskEngine';
 import { resident } from './HouseholdEngine';
 import { type World, type Activity, MINUTE, uid, activityNames } from './model';
 import { sharedKinds } from './livingSchema';
@@ -50,6 +51,7 @@ export function confirmShared(
   if (completed && minutes >= 1 && a.returned - a.start >= MINUTE) {
     w.focusRewards ??= { completed: 0, placed: [] };
     w.focusRewards.completed++;
+    grantTaskReward(w);
     a.rewardGranted = true;
   }
   a.note = note.trim().slice(0, 2000);

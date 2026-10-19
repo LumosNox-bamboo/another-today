@@ -393,7 +393,8 @@ test('real-time pomodoro earns wearable clothes and visible furniture only after
   const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
   const initialGameTime = (await saved()).time;
   for (let i = 0; i < 2; i++) {
-    await page.getByRole('button', { name: '一起专注', exact: true }).click();
+    await page.getByRole('button', { name: '任务与计划', exact: true }).click();
+    await page.getByRole('button', { name: '番茄钟（可选）', exact: true }).click();
     const modal = page.getByRole('dialog', { name: '一起专注，各自生活' });
     await modal.getByLabel('准备做什么').selectOption(i === 0 ? '收拾房间' : '自定义事项');
     if (i === 1) await modal.getByLabel('事项名称').fill('练习手写字');
@@ -407,8 +408,7 @@ test('real-time pomodoro earns wearable clothes and visible furniture only after
     await modal.getByRole('checkbox', { name: '我确认完成了这次现实任务' }).check();
     await modal.getByRole('button', { name: '确认保存', exact: true }).click();
   }
-  await page.getByRole('button', { name: '家庭与行动' }).click();
-  await page.getByText('专注奖励 · 已完成 2 个任务', { exact: true }).click();
+  await page.getByRole('button', { name: '我的奖励', exact: true }).click();
   await page.getByRole('button', { name: '使用鼠尾草绿衬衫', exact: true }).click();
   await page.getByRole('button', { name: '使用向日葵地毯', exact: true }).click();
   await expect(page.getByRole('button', { name: '已使用向日葵地毯', exact: true })).toHaveAttribute(
@@ -429,4 +429,46 @@ test('real-time pomodoro earns wearable clothes and visible furniture only after
     path: test.info().outputPath('focus-rewards-scene.png'),
     fullPage: true,
   });
+});
+
+test('untimed plans persist and award only once through a separate rewards entrance', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '任务与计划', exact: true }).click();
+  await page.getByLabel('我的计划', { exact: true }).fill('周末整理衣柜');
+  await page.getByRole('button', { name: '添加计划' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: '任务与计划', exact: true }).click();
+  await page.screenshot({ path: test.info().outputPath('task-plan.png'), fullPage: true });
+  await page.getByRole('button', { name: '完成：周末整理衣柜', exact: true }).click();
+  await page.getByRole('button', { name: '还没完成', exact: true }).click();
+  let w = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(w.focusRewards).toBeUndefined();
+  await page.getByRole('button', { name: '完成：周末整理衣柜', exact: true }).click();
+  await page.getByRole('button', { name: '确认完成并领奖', exact: true }).click();
+  await expect(page.getByRole('button', { name: '完成：周末整理衣柜', exact: true })).toHaveCount(
+    0,
+  );
+  await page.getByRole('button', { name: '打开我的奖励', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '我的奖励', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '礼物与道具' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: '我的奖励', exact: true }).click();
+  w = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(w.tasks[0].reward).toBeTruthy();
+  expect(w.focusRewards.completed).toBe(1);
+  expect(w.playerActivities).toHaveLength(0);
+  expect(
+    w.taskRewards.owned.length +
+      w.taskRewards.bag.reduce((n: number, r: { count: number }) => n + r.count, 0),
+  ).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+  await page.screenshot({ path: test.info().outputPath('task-rewards.png'), fullPage: true });
 });

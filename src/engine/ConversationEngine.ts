@@ -40,7 +40,7 @@ export function reply(w: World, input: string): string {
   if (/你好|早安|晚安|回来/.test(s))
     return `${intro} 我正在${activityNames[w.activity.kind]}。你可以说说自己的今天，也可以看看我刚发生的小事。`;
   if (/学|读书|阅读/.test(s))
-    return '听到你的学习计划了。需要的话，可以打开「一起专注」记下预计时间；回来后，再由你确认实际做了什么。';
+    return '听到你的学习计划了。需要的话，可以打开「任务与计划」记录待办或使用番茄钟；回来后，再由你确认实际做了什么。';
   return [
     `${intro} 我听到了你的分享。你愿意再讲讲其中的一点吗？`,
     `谢谢你把这些告诉我。我现在在${activityNames[w.activity.kind]}，我们可以慢慢聊。`,

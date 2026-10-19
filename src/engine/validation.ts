@@ -1,3 +1,4 @@
+import { hasReward, taskItems } from './TaskEngine';
 import { walletGroups } from './WalletEngine';
 import { focusRewards } from '../content/focusRewards';
 import { resident, validBond } from './HouseholdEngine';
@@ -80,12 +81,29 @@ export function validateWorld(input: unknown): World {
     (new Set(w.focusRewards.placed).size !== w.focusRewards.placed.length ||
       w.focusRewards.placed.some(
         (id) =>
-          !focusRewards.some(
-            (r) => r.id === id && r.kind === 'furniture' && w.focusRewards!.completed >= r.at,
-          ),
+          !focusRewards.some((r) => r.id === id && r.kind === 'furniture' && hasReward(w, r.id)),
       ))
   )
     throw new Error('专注奖励状态无效');
+  if (
+    w.tasks &&
+    (new Set(w.tasks.map((t) => t.id)).size !== w.tasks.length ||
+      w.tasks.some(
+        (t) =>
+          !!t.completedAt !== !!t.reward ||
+          (t.completedAt !== undefined && t.completedAt < t.createdAt) ||
+          (t.reward && ![...focusRewards, ...taskItems].some((r) => r.id === t.reward)),
+      ))
+  )
+    throw new Error('任务记录无效');
+  if (
+    w.taskRewards &&
+    (new Set(w.taskRewards.owned).size !== w.taskRewards.owned.length ||
+      w.taskRewards.owned.some((id) => !focusRewards.some((r) => r.id === id)) ||
+      new Set(w.taskRewards.bag.map((r) => r.id)).size !== w.taskRewards.bag.length ||
+      w.taskRewards.bag.some((r) => !taskItems.some((d) => d.id === r.id)))
+  )
+    throw new Error('任务奖励无效');
   for (const m of h.members)
     if (m.state) {
       // Reuse the full world's checks without recursively storing another household.

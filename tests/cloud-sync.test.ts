@@ -255,6 +255,10 @@ test('hands off household wallets, focus rewards, private histories and queued c
   const id = addResident(w, '小禾', 6, '亲子');
   commandResident(w, id, 'read', 'apartment');
   selectResident(w, id);
+  const { addTask, completeTask } = await import('../src/engine/TaskEngine');
+  const task = addTask(w, '收拾房间', Date.now());
+  completeTask(w, task.id, Date.now());
+  addTask(w, '下周读完这本书', Date.now());
   const a = device(DEVICE_A, w);
   await a.controller.connect();
   await a.controller.choose('local');
@@ -263,8 +267,10 @@ test('hands off household wallets, focus rewards, private histories and queued c
   await b.controller.connect();
   await b.controller.choose('cloud');
   expect(b.controller.state.mode).toBe('ready');
+  expect(b.state.world!.tasks).toEqual(a.state.world!.tasks);
+  expect(b.state.world!.taskRewards).toEqual(a.state.world!.taskRewards);
   expect(b.state.world!.household).toEqual(a.state.world!.household);
-  expect(b.state.world!.focusRewards).toEqual({ completed: 1, placed: [] });
+  expect(b.state.world!.focusRewards).toEqual({ completed: 2, placed: [] });
   expect(b.state.world!.household.wallets).toHaveLength(2);
   expect(b.state.world!.character.name).toBe('小禾');
   selectResident(b.state.world!, 'resident-0');

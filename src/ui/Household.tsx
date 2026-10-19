@@ -1,5 +1,4 @@
 import { walletLabel } from '../engine/WalletEngine';
-import { FocusRewards } from './FocusRewards';
 import { useState } from 'react';
 import {
   type World,
@@ -101,7 +100,6 @@ export function Household({ world: w }: { world: World }) {
         夫妻与其未成年孩子共用钱包；其他成员各自存款。公共住房费用按人数分摊，关系拆分时原钱包按新钱包单位均分。
       </p>
       <PersonalityEditor key={w.household.active} world={w} />
-      <FocusRewards world={w} />
       <div className="household-actions">
         {actions
           .filter(([kind]) => canCommand(w.character, kind))

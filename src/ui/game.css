@@ -813,12 +813,12 @@
   }
   .stage-tools {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
   .stage-tools button {
     flex-direction: row;
     justify-content: flex-start;
-    padding: 13px;
+    padding: 11px;
     gap: 12px;
   }
   .stage-tools span {
@@ -1114,4 +1114,34 @@
 .game-calendar small {
   display: block;
   white-space: normal;
+}
+
+.task-board form {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+.task-row {
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.task-row > strong,
+.task-row > small {
+  display: block;
+  margin-bottom: 8px;
+}
+.task-row select {
+  max-width: 100%;
+}
+.game-shell.compact .stage-tools {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 600px) {
+  .stage-tools {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }

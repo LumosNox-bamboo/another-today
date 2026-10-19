@@ -415,6 +415,24 @@ export const householdSchema = z
   .default({});
 export const stateSchema = baseStateSchema.extend({
   household: householdSchema,
+  tasks: z
+    .array(
+      z.object({
+        id: short,
+        title: z.string().min(1).max(120),
+        createdAt: time,
+        completedAt: time.optional(),
+        reward: short.optional(),
+      }),
+    )
+    .max(200)
+    .optional(),
+  taskRewards: z
+    .object({
+      owned: z.array(short).max(8),
+      bag: z.array(z.object({ id: short, count: z.number().int().min(0) })).max(3),
+    })
+    .optional(),
   focusRewards: z
     .object({ completed: z.number().int().min(0), placed: z.array(short).max(4) })
     .optional(),

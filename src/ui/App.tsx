@@ -1,3 +1,4 @@
+import { Tasks } from './Tasks';
 import { useRealClock } from './RealClock';
 import { FocusRewards } from './FocusRewards';
 import { clockText, focusRemaining } from '../engine/FocusRewardEngine';
@@ -119,7 +120,9 @@ export function App() {
     w = s.world;
   const [tab, setTab] = useState<Tab>('life'),
     [cloudOpen, setCloudOpen] = useState(false),
-    [modal, setModal] = useState<'chat' | 'focus' | 'items' | 'new' | null>(null),
+    [modal, setModal] = useState<'chat' | 'tasks' | 'rewards' | 'focus' | 'items' | 'new' | null>(
+      null,
+    ),
     [selectedAnchor, setSelectedAnchor] = useState(''),
     [messages, setMessages] = useState<ChatMessage[]>([]),
     [chatText, setChatText] = useState(''),
@@ -384,7 +387,8 @@ export function App() {
                 setModal('chat');
                 if (text) setMessages((m) => [...m, { role: 'character', text }]);
               }}
-              onFocus={openFocus}
+              onFocus={() => setModal('tasks')}
+              onRewards={() => setModal('rewards')}
               onDiary={() => setTab('diary')}
               onPerson={() => setTab('person')}
             />
@@ -784,6 +788,16 @@ export function App() {
           </small>
         </Modal>
       )}
+      {modal === 'tasks' && (
+        <Modal title="任务与计划" onClose={() => setModal(null)}>
+          <Tasks world={w} onTimer={openFocus} onRewards={() => setModal('rewards')} />
+        </Modal>
+      )}
+      {modal === 'rewards' && (
+        <Modal title="我的奖励" onClose={() => setModal(null)}>
+          <FocusRewards world={w} />
+        </Modal>
+      )}
       {modal === 'focus' && <FocusModal world={w} onClose={() => setModal(null)} />}
       {modal === 'items' && (
         <Modal title="物件也有自己的记忆" onClose={() => setModal(null)}>
@@ -1033,7 +1047,7 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
                 mutate((x) => {
                   confirmShared(x, last.id, Number(actual), note, completed);
                   if (x.playerActivities.find((a) => a.id === last.id)?.rewardGranted)
-                    notify('完成记录 +1，可以在专注奖励中查看解锁进度。');
+                    notify('完成记录 +1，随机奖励已放入首页的「我的奖励」。');
                 });
                 onClose();
               }}
@@ -1115,7 +1129,6 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
           </button>
         </>
       )}
-      <FocusRewards world={w} />
     </Modal>
   );
 }

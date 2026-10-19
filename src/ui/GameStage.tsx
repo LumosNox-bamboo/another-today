@@ -90,6 +90,7 @@ export function GameStage({
   world: w,
   onChat,
   onFocus,
+  onRewards,
   onObject,
   onDiary,
   onPerson,
@@ -98,6 +99,7 @@ export function GameStage({
   world: World;
   onChat: (text?: string) => void;
   onFocus: () => void;
+  onRewards: () => void;
   onObject: (anchor: string) => void;
   onDiary: () => void;
   onPerson: () => void;
@@ -293,9 +295,13 @@ export function GameStage({
               <span>送份礼物</span>
             </button>
           )}
-          <button onClick={onFocus} aria-label={focus ? '正在一起专注' : '一起专注'}>
+          <button onClick={onFocus} aria-label="任务与计划">
             <Focus size={19} />
-            <span>{focus ? `专注 ${clockText(focusRemaining(focus, now))}` : '一起专注'}</span>
+            <span>{focus ? `专注 ${clockText(focusRemaining(focus, now))}` : '任务与计划'}</span>
+          </button>
+          <button onClick={onRewards}>
+            <Sparkles size={19} />
+            <span>我的奖励</span>
           </button>
           {!compact && (
             <button onClick={onDiary}>

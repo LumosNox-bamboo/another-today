@@ -1,19 +1,71 @@
+import { useState } from 'react';
 import { focusRewards } from '../content/focusRewards';
+import { gifts } from '../content/living';
 import { useFocusReward } from '../engine/FocusRewardEngine';
+import { hasReward, taskItems, useTaskItem } from '../engine/TaskEngine';
 import type { World } from '../engine/model';
-import { mutate } from '../store';
+import { mutate, notify } from '../store';
 export function FocusRewards({ world: w }: { world: World }) {
   const total = w.focusRewards?.completed || 0;
+  const [giftId, setGiftId] = useState('');
+  const available = gifts.filter((g) => !w.living.gifts.some((x) => x.definition === g.id));
   return (
-    <details className="focus-rewards">
-      <summary>专注奖励 · 已完成 {total} 个任务</summary>
-      <p className="muted">
-        确认完成任务且实际经过至少 1 分钟，获得 1
-        次完成记录。累计解锁，不扣分、不清零。衣服给当前人物穿，家具布置在共同住处。
+    <div className="focus-rewards">
+      <p>
+        已完成 {total} 个任务。计划完成或番茄钟任务确认后，都会获得一次随机奖励。累计解锁也会保留。
       </p>
+      <h3>礼物与道具</h3>
+      <p className="muted">使用对象：{w.character.name}。购物卡兑换到 TA 所属的钱包。</p>
+      <div className="reward-grid">
+        {taskItems.map((r) => {
+          const count = w.taskRewards?.bag.find((x) => x.id === r.id)?.count || 0;
+          return (
+            <article className="task-row" key={r.id}>
+              <strong>
+                {r.name} × {count}
+              </strong>
+              <p>{r.description}</p>
+              {r.id === 'gift-box' && (
+                <label>
+                  礼盒里的礼物
+                  <select
+                    aria-label="礼盒里的礼物"
+                    value={giftId}
+                    onChange={(e) => setGiftId(e.target.value)}
+                  >
+                    <option value="">请选择礼物</option>
+                    {available.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <button
+                disabled={
+                  !count || (r.id === 'gift-box' && !available.some((g) => g.id === giftId))
+                }
+                onClick={() => {
+                  try {
+                    mutate((x) => useTaskItem(x, r.id, giftId));
+                    notify(`已使用${r.name}`);
+                  } catch (e) {
+                    notify((e as Error).message);
+                  }
+                }}
+              >
+                使用{r.name}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      <h3>衣柜与家具</h3>
+      <p className="muted">随机获得或累计解锁后都能使用。衣服给当前人物穿，家具放在共同住处。</p>
       <div className="reward-grid">
         {focusRewards.map((r) => {
-          const unlocked = total >= r.at,
+          const unlocked = hasReward(w, r.id),
             used =
               r.kind === 'outfit'
                 ? w.character.outfit === r.color
@@ -34,13 +86,13 @@ export function FocusRewards({ world: w }: { world: World }) {
                     ? r.kind === 'furniture'
                       ? '已摆放 · 点击收起'
                       : '正在穿着'
-                    : '已解锁 · 点击使用'
-                  : `完成 ${r.at} 个任务解锁`}
+                    : '已获得 · 点击使用'
+                  : `随机奖励或完成 ${r.at} 个任务解锁`}
               </small>
             </button>
           );
         })}
       </div>
-    </details>
+    </div>
   );
 }

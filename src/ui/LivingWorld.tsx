@@ -376,7 +376,7 @@ export function LivingWorld({
                   </article>
                 ))
             ) : (
-              <Empty>在“今天”选择“一起专注”，可以学习、休息或一起迎接一天结束。</Empty>
+              <Empty>在“今天”选择“任务与计划”中的番茄钟，可以学习、休息或一起迎接一天结束。</Empty>
             )}
           </section>
         </div>
