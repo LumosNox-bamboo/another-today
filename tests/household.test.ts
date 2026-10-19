@@ -35,7 +35,8 @@ describe('one household in one persistent world', () => {
       town = w.living.town;
     selectResident(w, id);
     expect(w.character.name).toBe('小禾');
-    expect(w.events).toHaveLength(0);
+    expect(w.events.map((e) => e.definition)).toEqual(['resident-arrival']);
+    expect(w.memories.some((m) => m.source === w.events[0].id)).toBe(true);
     expect(w.npcs[0].relation.trust).toBe(15);
     w.money -= 10;
     w.needs.energy = 49;

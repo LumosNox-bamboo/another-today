@@ -75,3 +75,13 @@ export function chargeRent(w: World, select: (w: World, id: string) => void) {
   select(w, selected);
   w.lastRentDay = date;
 }
+
+export function residentWallet(w: World, id: string) {
+  const account = w.household.wallets?.find((a) => a.members.includes(id));
+  const members = account?.members || [id];
+  return {
+    members,
+    balance: members.includes(w.household.active) ? w.money : account?.balance || 0,
+    label: members.length > 1 ? '核心家庭存款' : '个人存款',
+  };
+}

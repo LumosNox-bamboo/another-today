@@ -362,20 +362,24 @@ test('roommate wallets, marriage and edited personality persist', async ({ page 
   await dialog.getByLabel('成员初始存款').fill('500');
   await dialog.getByRole('button', { name: '加入这个家' }).click();
   await dialog.getByRole('button', { name: '切换到青禾' }).click();
-  await expect(dialog.getByText(/个人存款 ¥500.00/)).toBeVisible();
+  await expect(dialog.locator('.household-current').getByText(/个人存款 ¥500.00/)).toBeVisible();
   await dialog.getByText('调整青禾的性格', { exact: true }).click();
   await dialog.getByRole('slider', { name: '外向程度' }).press('End');
   await expect(dialog.getByRole('slider', { name: '外向程度' })).toHaveValue('100');
   await dialog.getByRole('button', { name: '保存性格' }).click();
   await dialog.getByLabel('与小满的关系').selectOption('夫妻');
-  await expect(dialog.getByText(/核心家庭存款 ¥3500.00/)).toBeVisible();
+  await expect(
+    dialog.locator('.household-current').getByText(/核心家庭存款 ¥3500.00/),
+  ).toBeVisible();
   await page.reload();
   await page.getByRole('button', { name: '家庭与行动' }).click();
-  await expect(dialog.getByText(/核心家庭存款 ¥3500.00/)).toBeVisible();
+  await expect(
+    dialog.locator('.household-current').getByText(/核心家庭存款 ¥3500.00/),
+  ).toBeVisible();
   await dialog.getByText('调整青禾的性格', { exact: true }).click();
   await expect(dialog.getByRole('slider', { name: '外向程度' })).toHaveValue('100');
   await dialog.getByLabel('与小满的关系').selectOption('室友');
-  await expect(dialog.getByText(/个人存款 ¥1750.00/)).toBeVisible();
+  await expect(dialog.locator('.household-current').getByText(/个人存款 ¥1750.00/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
     page.viewportSize()!.width,
   );
@@ -471,4 +475,50 @@ test('untimed plans persist and award only once through a separate rewards entra
     page.viewportSize()!.width,
   );
   await page.screenshot({ path: test.info().outputPath('task-rewards.png'), fullPage: true });
+});
+
+test('new roommate has direct personal panels, private memories and visibly separate savings', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await page.getByLabel('成员名字').fill('青禾');
+  await page.getByLabel('成员年龄').fill('25');
+  await page.getByLabel('成员初始存款').fill('500');
+  await page.getByRole('button', { name: '加入这个家' }).click();
+  await expect(page.getByRole('button', { name: '切换到小满', exact: true })).toContainText(
+    '个人存款 ¥3000.00',
+  );
+  await expect(page.getByRole('button', { name: '切换到青禾', exact: true })).toContainText(
+    '个人存款 ¥500.00',
+  );
+  await page.getByRole('button', { name: '切换到青禾', exact: true }).click();
+  await page.getByRole('button', { name: '查看青禾的个人面板', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '青禾的人物小笺' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
+    '青禾的个人存款 · ¥500.00',
+  );
+  await page.getByRole('button', { name: '记忆', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '青禾的记忆小抽屉' })).toBeVisible();
+  await expect(page.getByText(/青禾搬进.*开始和小满一起生活/)).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('roommate-memory.png'), fullPage: true });
+  await page.getByLabel('查看人物', { exact: true }).selectOption({ label: '小满' });
+  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
+    '小满的个人存款 · ¥3000.00',
+  );
+  await expect(page.getByText(/青禾搬进.*开始和小满一起生活/)).toHaveCount(0);
+  await page.getByLabel('查看人物', { exact: true }).selectOption({ label: '青禾' });
+  await page.reload();
+  await page.getByRole('button', { name: '记忆', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '青禾的记忆小抽屉' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
+    '青禾的个人存款 · ¥500.00',
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
 });

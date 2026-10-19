@@ -1,4 +1,4 @@
-import { walletLabel } from '../engine/WalletEngine';
+import { walletLabel, residentWallet } from '../engine/WalletEngine';
 import { useState } from 'react';
 import {
   type World,
@@ -39,7 +39,13 @@ const actions: [Activity, Scene, string, string][] = [
   ['rest', 'apartment', '☕', '坐下来休息'],
 ];
 const bondTypes = ['室友', '伴侣', '夫妻', '手足', '亲子', '祖孙'] as const;
-export function Household({ world: w }: { world: World }) {
+export function Household({
+  world: w,
+  onView,
+}: {
+  world: World;
+  onView: (page: 'person' | 'memory' | 'history') => void;
+}) {
   const [name, setName] = useState(''),
     [age, setAge] = useState(10),
     [savings, setSavings] = useState(0),
@@ -66,6 +72,7 @@ export function Household({ world: w }: { world: World }) {
       <div className="household-roster" aria-label="家庭成员">
         {members.map((m) => {
           const p = resident(w, m.id)!;
+          const wallet = residentWallet(w, m.id);
           return (
             <button
               key={m.id}
@@ -75,6 +82,9 @@ export function Household({ world: w }: { world: World }) {
             >
               <Avatar world={{ ...w, character: p.character }} />
               <strong>{p.character.name}</strong>
+              <small>
+                {wallet.label} ¥{wallet.balance.toFixed(2)}
+              </small>
               <small>
                 {p.character.age} 岁 · {lifeStage(p.character.age)}
               </small>
@@ -99,6 +109,11 @@ export function Household({ world: w }: { world: World }) {
       <p className="muted">
         夫妻与其未成年孩子共用钱包；其他成员各自存款。公共住房费用按人数分摊，关系拆分时原钱包按新钱包单位均分。
       </p>
+      <div className="button-row">
+        <button onClick={() => onView('person')}>查看{w.character.name}的个人面板</button>
+        <button onClick={() => onView('memory')}>查看{w.character.name}的记忆</button>
+        <button onClick={() => onView('history')}>查看{w.character.name}的账本</button>
+      </div>
       <PersonalityEditor key={w.household.active} world={w} />
       <div className="household-actions">
         {actions

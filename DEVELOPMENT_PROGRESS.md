@@ -141,3 +141,13 @@
 - 192 项逻辑测试通过，另复验 13 项云交接测试通过；Chromium 23 项首轮通过、1 项布局失败修复后电脑/手机专项通过；真实 Electron 7 项通过。构建、严格 TypeScript、格式检查通过。新版截图单独保存在 docs/screenshots/tasks-v07/。
 
 - iPhone WebKit: 11 passed, 1 existing worker lifecycle skip; task and reward screenshots reviewed.
+
+# 成员个人入口、初始记忆与钱包归属（2026-10-20）
+
+- 修复新增成员只有原人物接收到到来事件、本人没有搬入经历与记忆的问题；现在分别记录两个视角，使用全局唯一 ID，不复制对方的私人记忆，也不虚构回填旧档经历。
+- 家庭面板增加当前成员的个人面板/记忆/账本直达入口；人物、记忆、日记、关系和人生档案页加入成员切换器，显示当前姓名、余额与共享账户的实际持有人。记忆标题明确所属人物，小窗点入口会展开完整模式。
+- 未复现室友收支实际共用；原独立钱包逻辑保留。每张成员卡现在同时显示本人所属钱包余额；迁移前无归属的共享账单独立折叠，不再混入当前账户账本。新增回归验证两个旧档等额钱包在一人消费、一人收入、切换及重载后仍独立。
+- 194 项单元/集成测试通过；新增真实浏览器流程覆盖成员直达、私有搬入记忆、面板切换、500/3000 两份余额与重载。实际 Electron 7 项通过。旧“新成员无事件”的断言更新为真实搬入事件；旧钱包 UI 断言限定到当前账户区域，避免同时展示多个余额导致定位歧义。
+- 文档更新至 docs/HOUSEHOLD.md；截图保存到 docs/screenshots/resident-wallet-v08/，未覆盖旧截图。
+
+- Final local verification: Chromium 24 passed plus 2 corrected locator checks passed; iOS WebKit 12 passed with 1 existing lifecycle skip; strict TypeScript, formatting and diff checks passed.

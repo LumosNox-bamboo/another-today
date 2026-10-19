@@ -189,7 +189,9 @@ export function addResident(
   syncWallet(w);
   w.household.wallets!.push({ members: [id], balance: Math.round(savings * 100) / 100 });
   setBond(w, w.household.active, id, type);
-  record(
+  const host = w.household.active;
+  const hostName = w.character.name;
+  const arrival = record(
     w,
     '家里多了一位成员',
     `${c.name}加入了家庭，与${w.character.name}的关系是${type}。`,
@@ -197,6 +199,18 @@ export function addResident(
     true,
     'family-arrival',
   );
+  rememberEvent(w, arrival, 80);
+  selectResident(w, id);
+  const ownArrival = record(
+    w,
+    '搬入新的家',
+    `${c.name}搬进${c.housing}，开始和${hostName}一起生活，两人的关系是${type}。`,
+    '家庭',
+    true,
+    'resident-arrival',
+  );
+  rememberEvent(w, ownArrival, 80);
+  selectResident(w, host);
   return id;
 }
 export function canCommand(c: Character, kind: Activity) {

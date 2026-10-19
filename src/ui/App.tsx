@@ -1,3 +1,4 @@
+import { ResidentSwitcher } from './ResidentSwitcher';
 import { Tasks } from './Tasks';
 import { useRealClock } from './RealClock';
 import { FocusRewards } from './FocusRewards';
@@ -371,6 +372,9 @@ export function App() {
           </div>
         )}
         <main>
+          {!s.compact && ['person', 'memory', 'history', 'diary', 'relations'].includes(tab) && (
+            <ResidentSwitcher world={w} />
+          )}
           {s.cloudPaused && (
             <div className="notice" role="status">
               云存档正在交接，本机生活已暂时停下。
@@ -391,6 +395,10 @@ export function App() {
               onRewards={() => setModal('rewards')}
               onDiary={() => setTab('diary')}
               onPerson={() => setTab('person')}
+              onResidentPage={async (page) => {
+                if (s.compact) await compact(false);
+                setTab(page);
+              }}
             />
           )}
           {tab === 'person' && !s.compact && (
@@ -551,7 +559,7 @@ export function App() {
             <>
               <PageTitle
                 eyebrow="THINGS WORTH KEEPING"
-                title="记忆的小抽屉"
+                title={`${w.character.name}的记忆小抽屉`}
                 text="小人的生活由事件留下痕迹。关于你的记忆，只来自你明确授权的分享。"
               />
               <div className="profile-grid">
@@ -660,10 +668,26 @@ export function App() {
                     )}
                   </section>
                   <section className="card">
-                    <h2>{walletLabel(w)} · 收支小本</h2>
+                    {w.ledger.some((l) => !l.payerId) && (
+                      <details>
+                        <summary>迁移前的旧共享账单（不计入当前个人账本）</summary>
+                        {w.ledger
+                          .filter((l) => !l.payerId)
+                          .slice(-15)
+                          .reverse()
+                          .map((l) => (
+                            <p key={l.id}>
+                              {l.reason} · {money(l.amount)} · {dayKey(l.time)}
+                            </p>
+                          ))}
+                      </details>
+                    )}
+                    <h2>
+                      {w.character.name}的{walletLabel(w)} · 收支小本
+                    </h2>
                     <div className="ledger-total">¥ {money(w.money)}</div>
                     {w.ledger
-                      .filter((l) => !l.payerId || walletMembers(w).includes(l.payerId))
+                      .filter((l) => !!l.payerId && walletMembers(w).includes(l.payerId))
                       .slice(-15)
                       .reverse()
                       .map((l) => (

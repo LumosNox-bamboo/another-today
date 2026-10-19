@@ -94,6 +94,7 @@ export function GameStage({
   onObject,
   onDiary,
   onPerson,
+  onResidentPage,
   compact = false,
 }: {
   world: World;
@@ -103,6 +104,7 @@ export function GameStage({
   onObject: (anchor: string) => void;
   onDiary: () => void;
   onPerson: () => void;
+  onResidentPage: (page: 'person' | 'memory' | 'history') => void;
   compact?: boolean;
 }) {
   const now = useRealClock();
@@ -330,7 +332,13 @@ export function GameStage({
       )}
       {panel === 'household' && (
         <Modal title="我们的家" wide onClose={() => setPanel(null)}>
-          <Household world={w} />
+          <Household
+            world={w}
+            onView={(page) => {
+              setPanel(null);
+              onResidentPage(page);
+            }}
+          />
         </Modal>
       )}
       {compact && w.decisions.length > 0 && (

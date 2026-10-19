@@ -173,3 +173,40 @@ describe('wall-clock focus and earned items', () => {
     expect(w.focusRewards!.placed).toEqual([]);
   });
 });
+
+describe('resident profiles, memories and wallet ownership', () => {
+  it('records the newcomer arrival in their own memory without sharing private memories', () => {
+    const w = fresh();
+    const id = addResident(w, '青禾', 25, '室友', 500);
+    const hostMemory = w.memories.find((m) => m.content.includes('青禾加入了家庭'))!;
+    expect(hostMemory).toBeTruthy();
+    selectResident(w, id);
+    expect(w.memories.some((m) => m.content.includes('青禾搬进'))).toBe(true);
+    expect(w.memories.some((m) => m.id === hostMemory.id)).toBe(false);
+    const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+    expect(loaded.character.name).toBe('青禾');
+    expect(loaded.memories.some((m) => m.content.includes('青禾搬进'))).toBe(true);
+    selectResident(loaded, 'resident-0');
+    expect(loaded.memories.some((m) => m.id === hostMemory.id)).toBe(true);
+    expect(loaded.memories.some((m) => m.content.includes('青禾搬进'))).toBe(false);
+  });
+  it('keeps equal legacy balances independent after spending, income, save and reload', () => {
+    const w = fresh();
+    const id = addResident(w, '青禾', 25, '室友', 0);
+    delete w.household.wallets;
+    w.money = 4000;
+    initHousehold(w);
+    expect(w.money).toBe(2000);
+    transact(w, -150, '原人物消费');
+    selectResident(w, id);
+    expect(w.money).toBe(2000);
+    transact(w, 300, '室友收入');
+    const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+    expect(loaded.money).toBe(2300);
+    selectResident(loaded, 'resident-0');
+    expect(loaded.money).toBe(1850);
+    expect(loaded.household.wallets).toHaveLength(2);
+    expect(loaded.ledger.find((l) => l.reason === '室友收入')!.payerId).toBe(id);
+    expect(loaded.ledger.find((l) => l.reason === '原人物消费')!.payerId).toBe('resident-0');
+  });
+});
