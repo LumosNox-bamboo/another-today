@@ -81,7 +81,7 @@ export function Empty({ children }: { children: ReactNode }) {
 export function Tag({ children }: { children: ReactNode }) {
   return <span className="tag">{children}</span>;
 }
-export function Avatar({ world, size = '' }: { world: World; size?: string }) {
+export function Avatar({ world, size = '' }: { world: Pick<World, 'character'>; size?: string }) {
   return (
     <div
       className={`avatar ${size}`}

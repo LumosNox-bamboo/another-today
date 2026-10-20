@@ -437,11 +437,18 @@ export const stateSchema = baseStateSchema.extend({
       tickets: z
         .array(
           z.object({
-            id: z.enum(['walk-ticket', 'create-ticket']),
+            id: z.enum([
+              'walk-ticket',
+              'create-ticket',
+              'read-ticket',
+              'garden-ticket',
+              'study-ticket',
+              'rest-ticket',
+            ]),
             count: z.number().int().min(0),
           }),
         )
-        .max(2),
+        .max(6),
       lastGiftDay: short,
     })
     .optional(),
@@ -477,12 +484,12 @@ export const stateSchema = baseStateSchema.extend({
     .optional(),
   taskRewards: z
     .object({
-      owned: z.array(short).max(8),
-      bag: z.array(z.object({ id: short, count: z.number().int().min(0) })).max(3),
+      owned: z.array(short).max(14),
+      bag: z.array(z.object({ id: short, count: z.number().int().min(0) })).max(6),
     })
     .optional(),
   focusRewards: z
-    .object({ completed: z.number().int().min(0), placed: z.array(short).max(4) })
+    .object({ completed: z.number().int().min(0), placed: z.array(short).max(6) })
     .optional(),
 });
 export type World = z.infer<typeof stateSchema>;

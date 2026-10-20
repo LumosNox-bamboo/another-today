@@ -7,4 +7,10 @@ export const focusRewards = [
   { id: 'patchwork-sofa', name: '拼色沙发套', kind: 'furniture', at: 12, color: '#819da3' },
   { id: 'sunset-coat', name: '落日橙风衣', kind: 'outfit', at: 18, color: '#cf936a' },
   { id: 'star-print', name: '星光挂画', kind: 'furniture', at: 25, color: '#7485ae' },
+  { id: 'lavender-shirt', name: '薰衣草上衣', kind: 'outfit', at: 32, color: '#a395bf' },
+  { id: 'sea-coat', name: '海盐蓝外套', kind: 'outfit', at: 40, color: '#527c98' },
+  { id: 'cream-knit', name: '奶油针织衫', kind: 'outfit', at: 48, color: '#dfcea4' },
+  { id: 'berry-jacket', name: '莓果夹克', kind: 'outfit', at: 56, color: '#9f566c' },
+  { id: 'fern-shelf', name: '蕨叶小花架', kind: 'furniture', at: 64, color: '#71966d' },
+  { id: 'record-corner', name: '木质唱片机', kind: 'furniture', at: 72, color: '#9a7156' },
 ] as const;

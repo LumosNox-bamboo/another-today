@@ -284,7 +284,7 @@ export function Household({
   );
 }
 
-function PersonalityEditor({ world: w }: { world: World }) {
+export function PersonalityEditor({ world: w }: { world: World }) {
   const [traits, setTraits] = useState<Traits>({ ...w.character.traits });
   const [saved, setSaved] = useState(false);
   return (

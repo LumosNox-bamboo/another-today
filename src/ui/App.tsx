@@ -1,7 +1,8 @@
 import { usePwa } from '../pwa';
 import { FocusCompanion } from './FocusCompanion';
 import { Notes } from './Notes';
-import { ResidentSwitcher } from './ResidentSwitcher';
+import { ResidentRail } from './ResidentRail';
+import { CharacterEditor } from './CharacterEditor';
 import { Tasks } from './Tasks';
 import { useRealClock } from './RealClock';
 import { FocusRewards } from './FocusRewards';
@@ -307,12 +308,18 @@ export function App() {
           </div>
         </aside>
       )}
+      <ResidentRail
+        world={w}
+        onEdit={async () => {
+          if (s.compact) await compact(false);
+          setTab('person');
+        }}
+      />
       <div className="workspace">
         <header className="topbar">
           <div className="breadcrumb">
             梧桐街 <span>/</span> {nav.find((n) => n[0] === tab)?.[1]}
           </div>
-          <ResidentSwitcher world={w} />
           <button className="notes-entry" onClick={() => setModal('notes')}>
             小纸条
             {(w.notes || []).filter((n) => n.residentId === w.household.active && !n.read).length >
@@ -423,6 +430,7 @@ export function App() {
                 title={`${w.character.name}的人物小笺`}
                 text="起点不是终点，性格会在日常里慢慢改变。"
               />
+              <CharacterEditor key={w.household.active} world={w} />
               <div className="profile-grid">
                 <section className="card">
                   <div className="profile-heading">

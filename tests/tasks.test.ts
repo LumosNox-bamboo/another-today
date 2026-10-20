@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createWorld } from '../src/content/people';
 import {
+  taskItems,
   addTask,
   completeTask,
   removeTask,
@@ -46,7 +47,7 @@ describe('untimed real-life plans and reward inventory', () => {
     const w = createWorld();
     w.focusRewards = { completed: 1, placed: [] };
     const drawn = Array.from({ length: 250 }, () => grantTaskReward(w));
-    expect(new Set(drawn).size).toBe(10);
+    expect(new Set(drawn).size).toBe(focusRewards.length - 1 + taskItems.length);
     expect(drawn).not.toContain('sage-shirt');
     for (const r of focusRewards.filter((r) => r.id !== 'sage-shirt'))
       expect(drawn.filter((id) => id === r.id)).toHaveLength(1);

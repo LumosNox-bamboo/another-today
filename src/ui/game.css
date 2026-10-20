@@ -1175,26 +1175,6 @@
   height: auto;
   min-height: 56px;
 }
-.topbar .resident-switcher {
-  margin: 0;
-  padding: 4px 8px;
-  gap: 8px;
-  flex: 1;
-  color: #39483d;
-}
-.topbar .resident-switcher label {
-  min-width: 100px;
-  font-size: 11px;
-}
-.topbar .resident-switcher small {
-  display: none;
-}
-.topbar .resident-switcher strong {
-  font-size: 11px;
-}
-.topbar .resident-switcher select {
-  padding: 3px;
-}
 .modal > .resident-switcher {
   padding: 8px;
   margin: 12px 0;
@@ -1222,12 +1202,6 @@
   .topbar .save-state {
     display: none;
   }
-  .topbar .resident-switcher {
-    min-width: 0;
-  }
-  .topbar .resident-switcher > div {
-    display: none;
-  }
 }
 .topbar .notes-entry {
   color: #39483d;
@@ -1250,4 +1224,119 @@
 }
 .focus-companion .soft-note {
   margin-top: 10px;
+}
+
+/* Household portraits stay beside the world, separate from the page navigation. */
+.game-shell .workspace {
+  padding-left: 88px;
+  box-sizing: border-box;
+}
+.resident-rail {
+  position: fixed;
+  left: 8px;
+  top: 65px;
+  bottom: 120px;
+  width: 72px;
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #eee3cb;
+}
+.rail-title {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.resident-portraits {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.resident-portraits button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 3px;
+  border: 2px solid #7d8d76;
+  background: #344c42;
+  color: #eee3cb;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.resident-portraits button[aria-pressed='true'] {
+  border-color: #f2d080;
+  background: #5b6e50;
+  box-shadow: inset 0 -3px #273c37;
+}
+.resident-portraits button span {
+  font-size: 11px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resident-edit {
+  background: #eee3cb;
+  color: #514632;
+  font-size: 11px;
+  padding: 6px;
+  flex-shrink: 0;
+}
+.character-editor {
+  margin-bottom: 20px;
+}
+.appearance-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.appearance-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.appearance-controls input[type='color'] {
+  width: 64px;
+  height: 38px;
+  padding: 3px;
+}
+@media (max-width: 600px) {
+  .game-shell .workspace {
+    padding-left: 60px;
+  }
+  .resident-rail {
+    width: 48px;
+    left: 5px;
+    top: 64px;
+  }
+  .resident-portraits .avatar {
+    width: 38px;
+    height: 48px;
+  }
+  .resident-portraits button {
+    padding: 3px 1px;
+  }
+  .resident-portraits button span {
+    font-size: 10px;
+  }
+  .rail-title {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+  .game-shell.at-home .workspace main {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .game-shell .workspace main {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+.game-shell.compact .resident-rail {
+  bottom: 8px;
 }

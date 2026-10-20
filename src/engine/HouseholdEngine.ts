@@ -340,3 +340,18 @@ export function editPersonality(w: World, traits: Traits) {
   w.character.traits = parsed;
   w.evolution = w.evolution.slice(-100);
 }
+
+export function editAppearance(
+  w: World,
+  appearance: Pick<World['character'], 'hair' | 'skin' | 'outfit'>,
+) {
+  if (
+    ![appearance.hair, appearance.skin, appearance.outfit].every((c) => /^#[0-9a-fA-F]{6}$/.test(c))
+  )
+    throw new Error('请选择有效的颜色');
+  Object.assign(w.character, {
+    hair: appearance.hair,
+    skin: appearance.skin,
+    outfit: appearance.outfit,
+  });
+}

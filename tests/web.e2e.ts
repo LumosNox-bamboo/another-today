@@ -499,24 +499,27 @@ test('new roommate has direct personal panels, private memories and visibly sepa
   await page.getByRole('button', { name: '切换到青禾', exact: true }).click();
   await page.getByRole('button', { name: '查看青禾的个人面板', exact: true }).click();
   await expect(page.getByRole('heading', { name: '青禾的人物小笺' })).toBeVisible();
-  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
-    '青禾的个人存款 · ¥500.00',
+  await expect(page.getByRole('button', { name: '主控：青禾', exact: true })).toHaveAttribute(
+    'title',
+    '青禾 · 个人存款 ¥500.00',
   );
   await page.getByRole('button', { name: '记忆', exact: true }).click();
   await expect(page.getByRole('heading', { name: '青禾的记忆小抽屉' })).toBeVisible();
   await expect(page.getByText(/青禾搬进.*开始和小满一起生活/)).toBeVisible();
   await page.screenshot({ path: test.info().outputPath('roommate-memory.png'), fullPage: true });
-  await page.getByLabel('主控人物', { exact: true }).selectOption({ label: '小满' });
-  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
-    '小满的个人存款 · ¥3000.00',
+  await page.getByRole('button', { name: '主控：小满', exact: true }).click();
+  await expect(page.getByRole('button', { name: '主控：小满', exact: true })).toHaveAttribute(
+    'title',
+    '小满 · 个人存款 ¥3000.00',
   );
   await expect(page.getByText(/青禾搬进.*开始和小满一起生活/)).toHaveCount(0);
-  await page.getByLabel('主控人物', { exact: true }).selectOption({ label: '青禾' });
+  await page.getByRole('button', { name: '主控：青禾', exact: true }).click();
   await page.reload();
   await page.getByRole('button', { name: '记忆', exact: true }).click();
   await expect(page.getByRole('heading', { name: '青禾的记忆小抽屉' })).toBeVisible();
-  await expect(page.getByRole('region', { name: '当前人物与账户' })).toContainText(
-    '青禾的个人存款 · ¥500.00',
+  await expect(page.getByRole('button', { name: '主控：青禾', exact: true })).toHaveAttribute(
+    'title',
+    '青禾 · 个人存款 ¥500.00',
   );
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
     page.viewportSize()!.width,
@@ -538,11 +541,12 @@ test('global control switches across pages and dialogs; task points redeem real 
   await page.getByRole('button', { name: '关闭', exact: true }).click();
   for (const name of ['今天', '人物', '关系', '双人日记', '记忆', '人生档案', '世界', '设置']) {
     await page.getByRole('button', { name, exact: true }).click();
-    await page.getByLabel('主控人物', { exact: true }).selectOption({ label: '青禾' });
-    await expect(page.getByLabel('主控人物', { exact: true }).locator('option:checked')).toHaveText(
-      '青禾',
+    await page.getByRole('button', { name: '主控：青禾', exact: true }).click();
+    await expect(page.getByRole('button', { name: '主控：青禾', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
     );
-    await page.getByLabel('主控人物', { exact: true }).selectOption({ label: '小满' });
+    await page.getByRole('button', { name: '主控：小满', exact: true }).click();
   }
   await page.getByRole('button', { name: '今天', exact: true }).click();
   await page.getByRole('button', { name: '任务与计划', exact: true }).click();
@@ -556,7 +560,10 @@ test('global control switches across pages and dialogs; task points redeem real 
   await page.getByRole('button', { name: '兑换野餐点心', exact: true }).click();
   await expect(page.getByRole('heading', { name: '积分兑换 · 0 分' })).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel('主控人物').locator('option:checked')).toHaveText('青禾');
+  await expect(page.getByRole('button', { name: '主控：青禾', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   const w = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
   expect(w.exchange.balance).toBe(0);
   expect(
@@ -604,4 +611,46 @@ test('focus keeps a live scene and invites independent residents without ending 
   expect(w.playerActivities[0].returned).toBeUndefined();
   expect(w.playerActivities[0].invitations).toHaveLength(2);
   expect(w.household.members.every((m: { queue: unknown[] }) => m.queue.length === 1)).toBe(true);
+});
+
+test('portrait rail edits each resident independently and offers usable expanded rewards', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await page.getByLabel('成员名字').fill('青禾');
+  await page.getByRole('button', { name: '加入这个家' }).click();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: '主控：青禾', exact: true }).click();
+  await page.getByRole('button', { name: '编辑青禾的形象与性格' }).click();
+  await page.getByLabel('发色', { exact: true }).fill('#123456');
+  await page.getByRole('button', { name: '保存形象' }).click();
+  await page.getByText('调整青禾的性格', { exact: true }).click();
+  await page.getByRole('slider', { name: '外向程度' }).press('End');
+  await page.getByRole('button', { name: '保存性格' }).click();
+  await page.getByRole('button', { name: '主控：小满', exact: true }).click();
+  await expect(page.getByLabel('发色', { exact: true })).not.toHaveValue('#123456');
+  await page.getByRole('button', { name: '主控：青禾', exact: true }).click();
+  await expect(page.getByLabel('发色', { exact: true })).toHaveValue('#123456');
+  await page.reload();
+  await page.getByRole('button', { name: '编辑青禾的形象与性格' }).click();
+  await expect(page.getByLabel('发色', { exact: true })).toHaveValue('#123456');
+  await page.getByText('调整青禾的性格', { exact: true }).click();
+  await expect(page.getByRole('slider', { name: '外向程度' })).toHaveValue('100');
+  await page.screenshot({ path: test.info().outputPath('portrait-editor.png'), fullPage: true });
+  await page.getByRole('button', { name: '今天', exact: true }).click();
+  await page.screenshot({ path: test.info().outputPath('portrait-world.png'), fullPage: true });
+  await page.getByRole('button', { name: '我的奖励', exact: true }).click();
+  await page.getByLabel('兑换分类').selectOption('gift');
+  await expect(page.getByRole('button', { name: '兑换薄荷盆栽', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '兑换花草茶', exact: true })).toHaveCount(0);
+  await page.getByLabel('兑换分类').selectOption('item');
+  await expect(page.getByRole('button', { name: '兑换花草茶', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
 });

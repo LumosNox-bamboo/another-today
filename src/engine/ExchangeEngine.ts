@@ -1,8 +1,67 @@
-import { type World, uid, dayKey, random, record } from './model';
+import { gifts } from '../content/living';
+import { giveGift } from './GiftEngine';
+import { type Activity, type Scene, type World, uid, dayKey, random, record } from './model';
 import { focusRewards } from '../content/focusRewards';
 import { hasReward } from './TaskEngine';
 import { commandResident } from './HouseholdEngine';
 import { rememberEvent } from './MemoryEngine';
+export const actionTickets: {
+  id: string;
+  name: string;
+  cost: number;
+  kind: 'action';
+  activity: Activity;
+  scene: Scene;
+}[] = [
+  {
+    id: 'walk-ticket',
+    name: '慢游公园券',
+    cost: 15,
+    kind: 'action',
+    activity: 'walk',
+    scene: 'park',
+  },
+  {
+    id: 'create-ticket',
+    name: '午后创作券',
+    cost: 15,
+    kind: 'action',
+    activity: 'create',
+    scene: 'apartment',
+  },
+  {
+    id: 'read-ticket',
+    name: '图书馆阅读券',
+    cost: 15,
+    kind: 'action',
+    activity: 'read',
+    scene: 'library',
+  },
+  {
+    id: 'garden-ticket',
+    name: '居家园艺券',
+    cost: 15,
+    kind: 'action',
+    activity: 'garden',
+    scene: 'apartment',
+  },
+  {
+    id: 'study-ticket',
+    name: '安静自习券',
+    cost: 15,
+    kind: 'action',
+    activity: 'study',
+    scene: 'library',
+  },
+  {
+    id: 'rest-ticket',
+    name: '悠闲休息券',
+    cost: 15,
+    kind: 'action',
+    activity: 'rest',
+    scene: 'apartment',
+  },
+];
 export const exchangeItems = [
   ...focusRewards.map((r) => ({
     id: r.id,
@@ -12,8 +71,14 @@ export const exchangeItems = [
   })),
   { id: 'gift-box', name: '心意礼盒', cost: 20, kind: 'item' as const },
   { id: 'picnic-snack', name: '野餐点心', cost: 10, kind: 'item' as const },
-  { id: 'walk-ticket', name: '慢游公园券', cost: 15, kind: 'action' as const },
-  { id: 'create-ticket', name: '午后创作券', cost: 15, kind: 'action' as const },
+  { id: 'shopping-card', name: '100 元购物卡', cost: 25, kind: 'item' as const },
+  { id: 'herbal-tea', name: '花草茶', cost: 10, kind: 'item' as const },
+  { id: 'fruit-basket', name: '时令水果篮', cost: 10, kind: 'item' as const },
+  { id: 'warm-pack', name: '暖暖休息包', cost: 15, kind: 'item' as const },
+  ...actionTickets,
+  ...gifts
+    .filter((g) => g.id.endsWith('-0'))
+    .map((g) => ({ id: g.id, name: g.name, cost: 20, kind: 'gift' as const })),
 ];
 export function points(w: World) {
   return (w.exchange ??= { balance: 0, ledger: [], tickets: [], lastGiftDay: '' });
@@ -29,6 +94,11 @@ export function redeem(w: World, id: string) {
   if (!r) throw new Error('找不到这件兑换物品');
   if (r.kind === 'permanent' && hasReward(w, id)) throw new Error('已经拥有，无需重复兑换');
   if ((w.exchange?.balance || 0) < r.cost) throw new Error('积分还不够，慢慢积累就好');
+  if (r.kind === 'gift') {
+    giveGift(w, id);
+    creditPoints(w, -r.cost, `送给${w.character.name}：${r.name}`);
+    return;
+  }
   w.taskRewards ??= { owned: [], bag: [] };
   if (r.kind === 'permanent') w.taskRewards.owned.push(id);
   else {
@@ -41,14 +111,9 @@ export function redeem(w: World, id: string) {
 }
 export function useActionTicket(w: World, id: string) {
   const ticket = w.exchange?.tickets.find((t) => t.id === id && t.count > 0);
-  if (!ticket || !['walk-ticket', 'create-ticket'].includes(id)) throw new Error('没有这张行动券');
-  commandResident(
-    w,
-    w.household.active,
-    id === 'walk-ticket' ? 'walk' : 'create',
-    id === 'walk-ticket' ? 'park' : 'apartment',
-    60,
-  );
+  const action = actionTickets.find((t) => t.id === id);
+  if (!ticket || !action) throw new Error('没有这张行动券');
+  commandResident(w, w.household.active, action.activity, action.scene, 60);
   ticket.count--;
 }
 export function maybeNPCGift(w: World, n: World['npcs'][number]) {

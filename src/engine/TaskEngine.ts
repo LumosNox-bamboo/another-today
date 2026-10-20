@@ -16,6 +16,17 @@ export const taskItems = [
     name: '野餐点心',
     description: '给当前人物吃，减少 25 点饥饿并恢复 10 点精力。',
   },
+  { id: 'herbal-tea', name: '花草茶', description: '给当前人物泡茶，压力减少 15，心情恢复 5。' },
+  {
+    id: 'fruit-basket',
+    name: '时令水果篮',
+    description: '给当前人物补充水果，饥饿减少 20，健康恢复 5。',
+  },
+  {
+    id: 'warm-pack',
+    name: '暖暖休息包',
+    description: '给当前人物放松，精力恢复 20，压力减少 10。',
+  },
 ] as const;
 export function hasReward(w: World, id: string) {
   const r = focusRewards.find((r) => r.id === id);
@@ -76,6 +87,15 @@ export function useTaskItem(w: World, id: string, giftId?: string) {
   } else if (id === 'picnic-snack') {
     w.needs.hunger = clamp(w.needs.hunger - 25);
     w.needs.energy = clamp(w.needs.energy + 10);
+  } else if (id === 'herbal-tea') {
+    w.needs.stress = clamp(w.needs.stress - 15);
+    w.needs.mood = clamp(w.needs.mood + 5);
+  } else if (id === 'fruit-basket') {
+    w.needs.hunger = clamp(w.needs.hunger - 20);
+    w.needs.health = clamp(w.needs.health + 5);
+  } else if (id === 'warm-pack') {
+    w.needs.energy = clamp(w.needs.energy + 20);
+    w.needs.stress = clamp(w.needs.stress - 10);
   } else throw new Error('不存在的道具');
   item.count--;
 }

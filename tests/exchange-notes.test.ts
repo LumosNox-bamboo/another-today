@@ -1,7 +1,9 @@
+import { editAppearance, editPersonality, resident } from '../src/engine/HouseholdEngine';
+import { useFocusReward } from '../src/engine/FocusRewardEngine';
 import { it, expect } from 'vitest';
 import { createWorld } from '../src/content/people';
 import { addResident, selectResident, commandResident } from '../src/engine/HouseholdEngine';
-import { addTask, completeTask } from '../src/engine/TaskEngine';
+import { addTask, completeTask, useTaskItem } from '../src/engine/TaskEngine';
 import { startShared, returnShared, confirmShared } from '../src/engine/SharedActivityEngine';
 import { creditPoints, redeem, useActionTicket, maybeNPCGift } from '../src/engine/ExchangeEngine';
 import { scheduleNote } from '../src/engine/NoteEngine';
@@ -85,4 +87,66 @@ it('keeps signed factual notes separate, bounded, and suppressed during focus an
   expect(w.notes).toHaveLength(2);
   selectResident(w, 'resident-0');
   expect(validateWorld(w).notes![0].residentId).toBe(id);
+});
+
+it('keeps appearance and personality edits private through selection and save restoration', () => {
+  const w = createWorld();
+  const original = structuredClone(w.character);
+  const id = addResident(w, '青禾', 25, '室友');
+  selectResident(w, id);
+  editAppearance(w, { hair: '#123456', skin: '#abcdef', outfit: '#987654' });
+  editPersonality(w, { ...w.character.traits, extraversion: 100 });
+  const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+  selectResident(loaded, 'resident-0');
+  expect(loaded.character).toEqual(original);
+  expect(resident(loaded, id)!.character.hair).toBe('#123456');
+  expect(resident(loaded, id)!.character.traits.extraversion).toBe(100);
+  expect(() =>
+    editAppearance(loaded, { hair: 'invalid', skin: '#abcdef', outfit: '#987654' }),
+  ).toThrow();
+  expect(loaded.character).toEqual(original);
+});
+it('expanded rewards deliver gifts, clothes, furniture, consumables and queued activities without double spending', () => {
+  const w = createWorld();
+  creditPoints(w, 500, '测试');
+  redeem(w, 'gift-1-0');
+  expect(w.living.gifts.some((g) => g.definition === 'gift-1-0')).toBe(true);
+  expect(w.memories.some((m) => m.content.includes('薄荷盆栽'))).toBe(true);
+  const balance = w.exchange!.balance;
+  expect(() => redeem(w, 'gift-1-0')).toThrow();
+  expect(w.exchange!.balance).toBe(balance);
+  redeem(w, 'lavender-shirt');
+  useFocusReward(w, 'lavender-shirt');
+  expect(w.character.outfit).toBe('#a395bf');
+  redeem(w, 'fern-shelf');
+  useFocusReward(w, 'fern-shelf');
+  expect(w.focusRewards!.placed).toContain('fern-shelf');
+  redeem(w, 'record-corner');
+  useFocusReward(w, 'record-corner');
+  for (const id of ['herbal-tea', 'fruit-basket', 'warm-pack']) {
+    w.needs.stress = 80;
+    w.needs.energy = 20;
+    w.needs.hunger = 80;
+    w.needs.health = 50;
+    redeem(w, id);
+    useTaskItem(w, id);
+    expect(w.taskRewards!.bag.find((i) => i.id === id)!.count).toBe(0);
+    expect(() => useTaskItem(w, id)).toThrow();
+    if (id === 'herbal-tea') expect(w.needs.stress).toBe(65);
+    if (id === 'fruit-basket') expect(w.needs.hunger).toBe(60);
+    if (id === 'warm-pack') expect(w.needs.energy).toBe(40);
+  }
+  for (const id of ['read-ticket', 'garden-ticket', 'study-ticket', 'rest-ticket']) {
+    redeem(w, id);
+    useActionTicket(w, id);
+  }
+  expect(w.household.members[0].queue.map((q) => q.kind)).toEqual([
+    'read',
+    'garden',
+    'study',
+    'rest',
+  ]);
+  expect(validateWorld(JSON.parse(JSON.stringify(w))).focusRewards!.placed).toContain(
+    'record-corner',
+  );
 });
