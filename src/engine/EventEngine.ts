@@ -55,6 +55,20 @@ export function eligibleEvent(w: World, e: EventDefinition) {
     (!w.cooldowns[e.eventId] || w.time >= w.cooldowns[e.eventId])
   );
 }
+export function eventWeight(w: World, d: EventDefinition) {
+  const trait = d.affinity || d.branch?.trait;
+  const preference = trait ? 0.7 + w.character.traits[trait] / 125 : 1;
+  return (d.weight * preference) / (1 + (w.living.stats.definitions[d.eventId] || 0) * 0.3);
+}
+export function eventOutcome(w: World, d: EventDefinition) {
+  if (!d.outcomes?.length) return undefined;
+  const weights = d.outcomes.map((o) => {
+    const trait = w.character.traits[o.trait] / 100;
+    return 0.35 + 2.5 * (o.high ? trait : 1 - trait) ** 2;
+  });
+  let pick = random(w) * weights.reduce((sum, n) => sum + n, 0);
+  return d.outcomes.find((_, i) => (pick -= weights[i]) <= 0) || d.outcomes[d.outcomes.length - 1];
+}
 export function sampleEvent(w: World) {
   if (random(w) > 0.38) return;
   const eligible = events.filter((e) => eligibleEvent(w, e));
@@ -62,8 +76,7 @@ export function sampleEvent(w: World) {
   // A place's own stories should be heard among the general everyday templates.
   const local = eligible.filter((e) => e.scenes?.includes(w.activity.scene));
   const list = local.length && random(w) < 0.7 ? local : eligible;
-  const weight = (d: EventDefinition) =>
-    d.weight / (1 + (w.living.stats.definitions[d.eventId] || 0) * 0.3);
+  const weight = (d: EventDefinition) => eventWeight(w, d);
   let pick = random(w) * list.reduce((sum, d) => sum + weight(d), 0);
   const d = list.find((d) => (pick -= weight(d)) <= 0) || list[list.length - 1],
     npc =
@@ -76,11 +89,21 @@ export function sampleEvent(w: World) {
                 : n.relation.familiarity > 0),
           )
         : undefined;
+  const outcome = eventOutcome(w, d);
+  // A trait changes the odds; even strongly patterned people can react differently.
+  const branch =
+    d.branch &&
+    random(w) <
+      clamp(50 + (w.character.traits[d.branch.trait] - d.branch.threshold) * 0.6, 15, 85) / 100
+      ? d.branch
+      : undefined;
   const e = record(
     w,
     d.title,
-    d.description.replaceAll('{npc}', npc?.name || '朋友') +
-      (d.branch && w.character.traits[d.branch.trait] >= d.branch.threshold ? d.branch.text : ''),
+    [d.description, outcome?.text, branch?.text]
+      .filter(Boolean)
+      .join(' ')
+      .replaceAll('{npc}', npc?.name || '朋友'),
     d.category,
     false,
     d.eventId,
@@ -97,12 +120,8 @@ export function sampleEvent(w: World) {
     );
   w.cooldowns[d.eventId] =
     d.repeatPolicy === 'once' ? Number.MAX_SAFE_INTEGER : w.time + d.cooldown * MINUTE;
-  w.needs.mood = clamp(
-    w.needs.mood +
-      d.effects.mood +
-      (d.branch && w.character.traits[d.branch.trait] >= d.branch.threshold ? d.branch.mood : 0),
-  );
-  w.needs.stress = clamp(w.needs.stress + d.effects.stress);
+  w.needs.mood = clamp(w.needs.mood + d.effects.mood + (outcome?.mood || 0) + (branch?.mood || 0));
+  w.needs.stress = clamp(w.needs.stress + d.effects.stress + (outcome?.stress || 0));
   if (d.effects.money) transact(w, d.effects.money, d.title);
   if (d.rarity === 'uncommon') rememberEvent(w, e, 50);
   maybeStartChain(w);

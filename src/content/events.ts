@@ -1,3 +1,4 @@
+import { chanceEvents } from './chanceEvents';
 import { everydayEvents } from './everydayEvents';
 import { outskirtsEvents } from './outskirtsEvents';
 import type { Activity, Scene, World } from '../engine/model';
@@ -12,6 +13,13 @@ export type Gate =
   | 'plant'
   | 'single'
   | 'weekend';
+export interface EventOutcome {
+  text: string;
+  trait: keyof World['character']['traits'];
+  high: boolean;
+  mood: number;
+  stress: number;
+}
 export interface EventDefinition {
   eventId: string;
   category: string;
@@ -30,6 +38,8 @@ export interface EventDefinition {
   rarity: 'common' | 'uncommon';
   scenes?: Scene[];
   careerTrack?: string;
+  affinity?: keyof World['character']['traits'];
+  outcomes?: EventOutcome[];
   requiredState?: 'gift' | 'habit' | 'npc-change' | 'news' | 'creation';
   season?: '春' | '夏' | '秋' | '冬';
   branch?: {
@@ -746,3 +756,5 @@ export const chains: ChainDefinition[] = [
 events.push(...outskirtsEvents);
 
 events.push(...everydayEvents);
+
+events.push(...chanceEvents);

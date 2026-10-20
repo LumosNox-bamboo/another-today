@@ -1,3 +1,4 @@
+import { spendOnActivity } from './SpendingEngine';
 import {
   careerOnDuty,
   careerTrack,
@@ -204,10 +205,10 @@ function completeActivity(w: World) {
   if (a.kind === 'garden') w.flags.lastGarden = w.time;
   if (a.kind === 'eat') {
     w.needs.hunger = clamp(w.needs.hunger - 65);
-    transact(w, -Math.min(w.money, 8), '一餐饭');
+    spendOnActivity(w, 'eat');
   }
-  if (a.kind === 'coffee') transact(w, -Math.min(w.money, 12), '一杯咖啡');
-  if (a.kind === 'shop') transact(w, -Math.min(w.money, 18), '生活用品');
+  if (a.kind === 'coffee') spendOnActivity(w, 'coffee');
+  if (a.kind === 'shop') spendOnActivity(w, 'shop');
   if (['socialize', 'coffee', 'walk'].includes(a.kind)) encounter(w);
   else if (
     destinations.some((d) => d.scene === a.scene) &&

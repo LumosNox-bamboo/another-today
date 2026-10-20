@@ -25,6 +25,7 @@
     "build:web": "tsc --noEmit && vite build && node scripts/build-pwa.mjs",
     "test:web": "npm run build:web && playwright test --config playwright.web.config.ts",
     "audit:living": "esbuild scripts/living-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/living-audit.mjs && node dist-electron/living-audit.mjs",
+    "audit:randomness": "esbuild scripts/random-life-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/random-life-audit.mjs && node dist-electron/random-life-audit.mjs",
     "audit:careers": "esbuild scripts/career-audit.ts --bundle --platform=node --format=esm --outfile=dist-electron/career-audit.mjs && node dist-electron/career-audit.mjs"
   },
   "dependencies": {

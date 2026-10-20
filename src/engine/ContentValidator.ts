@@ -84,6 +84,22 @@ export function validateContent(definitions: EventDefinition[] = events) {
   const ids = new Set(definitions.map((e) => e.eventId));
   for (const e of definitions) {
     const fail = (s: string) => errors.push(`${e.eventId}: ${s}`);
+    if (e.affinity && !(e.affinity in traitNames)) fail('性格偏好非法');
+    if (
+      e.outcomes &&
+      (e.outcomes.length < 2 ||
+        e.outcomes.some(
+          (o) =>
+            !o.text ||
+            !(o.trait in traitNames) ||
+            typeof o.high !== 'boolean' ||
+            !Number.isFinite(o.mood) ||
+            Math.abs(o.mood) > 10 ||
+            !Number.isFinite(o.stress) ||
+            Math.abs(o.stress) > 10,
+        ))
+    )
+      fail('随机结果或效果非法');
     if (e.careerTrack) {
       const track = careerTracks.find((t) => t.id === e.careerTrack);
       if (

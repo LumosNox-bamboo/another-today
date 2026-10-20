@@ -34,6 +34,9 @@ test('friends can create, play, export and resume their own browser world', asyn
   for (let i = 0; i < 4; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
   await expect.poll(async () => (await saved()).diaries.length).toBeGreaterThan(0);
   const advanced = await saved();
+  expect(
+    advanced.ledger.some((l: { reason: string }) => l.reason.startsWith('日常消费 · 吃饭')),
+  ).toBe(true);
   expect(advanced.time).toBe(before.time + 24 * 60 * 60 * 1000);
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: '导出存档', exact: true }).click();
