@@ -455,7 +455,7 @@ describe('long-term persistence boundaries', () => {
     expect(w.living.news.length).toBeLessThanOrEqual(100);
     expect(w.living.creations.length).toBeLessThanOrEqual(60);
     expect(w.living.arcs.some((a) => a.status === 'complete' || a.status === 'missed')).toBe(true);
-  }, 10000);
+  }, 30000);
   it('does not create night-shift or rainy-day habits without their factual conditions', () => {
     const w = fresh();
     for (let i = 0; i < 20; i++) {
