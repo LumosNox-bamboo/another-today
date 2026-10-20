@@ -1,3 +1,4 @@
+import { careerActivityLabel } from '../engine/CareerEngine';
 import { useState } from 'react';
 import { type World, type Activity, activityNames, sceneNames } from '../engine/model';
 import { inviteShared, sharedActions } from '../engine/SharedActivityEngine';
@@ -13,7 +14,7 @@ export function FocusCompanion({ world: w }: { world: World }) {
     <section className="focus-companion" aria-label="专注陪伴现场">
       <h3>
         {w.character.name}此刻在{sceneNames[w.activity.scene]}
-        {activityNames[w.activity.kind]}
+        {careerActivityLabel(w)}
       </h3>
       <PixelWorld world={w} scene={w.activity.scene} />
       <p>

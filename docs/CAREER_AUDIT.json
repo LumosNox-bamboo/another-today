@@ -1,0 +1,2299 @@
+{
+  "summary": {
+    "seeds": 100,
+    "gameDays": 30,
+    "tracks": 29,
+    "duties": 132,
+    "minPractice": 1715,
+    "minVariety": 4,
+    "stages": [
+      {
+        "stage": 0,
+        "worlds": 0
+      },
+      {
+        "stage": 1,
+        "worlds": 15
+      },
+      {
+        "stage": 2,
+        "worlds": 85
+      },
+      {
+        "stage": 3,
+        "worlds": 0
+      },
+      {
+        "stage": 4,
+        "worlds": 0
+      }
+    ],
+    "abnormalWorlds": 0
+  },
+  "runs": [
+    {
+      "seed": 1,
+      "track": "office",
+      "name": "办公室职员",
+      "minutes": 6570,
+      "stage": 2,
+      "skills": [
+        30.299999999999986,
+        24.59999999999999,
+        22.199999999999992
+      ],
+      "dutyCounts": {
+        "office-3": 14,
+        "office-0": 15,
+        "office-1": 11,
+        "office-2": 11,
+        "office-5": 10,
+        "office-4": 12
+      },
+      "income": 4400,
+      "diaries": 30,
+      "npcChanges": 49,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 2,
+      "track": "software",
+      "name": "程序员",
+      "minutes": 6840,
+      "stage": 2,
+      "skills": [
+        29.799999999999986,
+        26.69999999999999,
+        22.699999999999992
+      ],
+      "dutyCounts": {
+        "software-3": 14,
+        "software-0": 15,
+        "software-5": 10,
+        "software-4": 12,
+        "software-1": 14,
+        "software-2": 11
+      },
+      "income": 4475,
+      "diaries": 30,
+      "npcChanges": 75,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 3,
+      "track": "barista",
+      "name": "咖啡师",
+      "minutes": 5490,
+      "stage": 1,
+      "skills": [
+        23.79999999999999,
+        18.199999999999996,
+        22.199999999999992
+      ],
+      "dutyCounts": {
+        "barista-0": 9,
+        "barista-1": 10,
+        "barista-3": 15,
+        "barista-5": 11,
+        "barista-2": 10,
+        "barista-4": 6
+      },
+      "income": 3900,
+      "diaries": 30,
+      "npcChanges": 50,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 4,
+      "track": "retail",
+      "name": "便利店店员",
+      "minutes": 6390,
+      "stage": 2,
+      "skills": [
+        26.99999999999999,
+        23.99999999999999,
+        21.199999999999992
+      ],
+      "dutyCounts": {
+        "retail-0": 14,
+        "retail-2": 19,
+        "retail-1": 21,
+        "retail-3": 11,
+        "retail-4": 4,
+        "retail-5": 2
+      },
+      "income": 3950,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 5,
+      "track": "freelance",
+      "name": "自由职业者",
+      "minutes": 6480,
+      "stage": 2,
+      "skills": [
+        28.899999999999988,
+        23.39999999999999,
+        23.09999999999999
+      ],
+      "dutyCounts": {
+        "freelance-1": 13,
+        "freelance-0": 16,
+        "freelance-3": 11,
+        "freelance-2": 11,
+        "freelance-5": 12,
+        "freelance-4": 9
+      },
+      "income": 4350,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 6,
+      "track": "illustration",
+      "name": "插画师",
+      "minutes": 6210,
+      "stage": 2,
+      "skills": [
+        25.79999999999999,
+        23.199999999999992,
+        25.79999999999999
+      ],
+      "dutyCounts": {
+        "illustration-1": 13,
+        "illustration-4": 8,
+        "illustration-5": 13,
+        "illustration-3": 11,
+        "illustration-2": 11,
+        "illustration-0": 13
+      },
+      "income": 4300,
+      "diaries": 30,
+      "npcChanges": 76,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 7,
+      "track": "writing",
+      "name": "作家",
+      "minutes": 5670,
+      "stage": 1,
+      "skills": [
+        27.899999999999988,
+        21.999999999999993,
+        17.699999999999996
+      ],
+      "dutyCounts": {
+        "writing-3": 14,
+        "writing-0": 13,
+        "writing-5": 9,
+        "writing-1": 10,
+        "writing-4": 10,
+        "writing-2": 7
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 72,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 8,
+      "track": "teaching",
+      "name": "教师",
+      "minutes": 6840,
+      "stage": 2,
+      "skills": [
+        31.199999999999985,
+        22.89999999999999,
+        21.59999999999999
+      ],
+      "dutyCounts": {
+        "teaching-4": 11,
+        "teaching-0": 17,
+        "teaching-3": 14,
+        "teaching-1": 11,
+        "teaching-5": 9,
+        "teaching-2": 14
+      },
+      "income": 4400,
+      "diaries": 30,
+      "npcChanges": 69,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 9,
+      "track": "student-general",
+      "name": "通识探索学生",
+      "minutes": 7570,
+      "stage": 2,
+      "skills": [
+        47.7111111111111,
+        22.544444444444455,
+        19.816666666666666
+      ],
+      "dutyCounts": {
+        "student-general-0": 44,
+        "student-general-3": 38,
+        "student-general-1": 42,
+        "student-general-2": 38
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 10,
+      "track": "student-cs",
+      "name": "计算机科学学生",
+      "minutes": 7945,
+      "stage": 2,
+      "skills": [
+        51.26111111111111,
+        21.855555555555565,
+        22.12222222222223
+      ],
+      "dutyCounts": {
+        "student-cs-0": 48,
+        "student-cs-1": 44,
+        "student-cs-2": 41,
+        "student-cs-3": 48
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 11,
+      "track": "student-medicine",
+      "name": "医学学生",
+      "minutes": 7675,
+      "stage": 2,
+      "skills": [
+        47.638888888888886,
+        20.222222222222225,
+        21.44444444444445
+      ],
+      "dutyCounts": {
+        "student-medicine-0": 44,
+        "student-medicine-2": 41,
+        "student-medicine-3": 45,
+        "student-medicine-1": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 58,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 12,
+      "track": "student-nursing",
+      "name": "护理学生",
+      "minutes": 7720,
+      "stage": 2,
+      "skills": [
+        48.99444444444443,
+        20.122222222222224,
+        19.872222222222216
+      ],
+      "dutyCounts": {
+        "student-nursing-0": 46,
+        "student-nursing-1": 41,
+        "student-nursing-2": 39,
+        "student-nursing-3": 45
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 82,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 13,
+      "track": "student-law",
+      "name": "法学学生",
+      "minutes": 7585,
+      "stage": 2,
+      "skills": [
+        47.78333333333333,
+        20.327777777777776,
+        20.522222222222222
+      ],
+      "dutyCounts": {
+        "student-law-2": 41,
+        "student-law-3": 46,
+        "student-law-0": 46,
+        "student-law-1": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 75,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 14,
+      "track": "student-economics",
+      "name": "经济金融学生",
+      "minutes": 8115,
+      "stage": 2,
+      "skills": [
+        49.99999999999997,
+        22.911111111111115,
+        22.65
+      ],
+      "dutyCounts": {
+        "student-economics-1": 45,
+        "student-economics-2": 43,
+        "student-economics-0": 45,
+        "student-economics-3": 47
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 69,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 15,
+      "track": "student-business",
+      "name": "工商管理学生",
+      "minutes": 7580,
+      "stage": 2,
+      "skills": [
+        46.377777777777766,
+        19.749999999999996,
+        23.74444444444445
+      ],
+      "dutyCounts": {
+        "student-business-0": 45,
+        "student-business-1": 36,
+        "student-business-2": 42,
+        "student-business-3": 45
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 67,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 16,
+      "track": "student-literature",
+      "name": "汉语言文学学生",
+      "minutes": 8155,
+      "stage": 2,
+      "skills": [
+        51.55,
+        21.844444444444438,
+        21.78333333333333
+      ],
+      "dutyCounts": {
+        "student-literature-0": 50,
+        "student-literature-3": 48,
+        "student-literature-2": 42,
+        "student-literature-1": 43
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 58,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 17,
+      "track": "student-languages",
+      "name": "外语学生",
+      "minutes": 7625,
+      "stage": 2,
+      "skills": [
+        47.03333333333334,
+        21.18333333333334,
+        21.144444444444442
+      ],
+      "dutyCounts": {
+        "student-languages-1": 40,
+        "student-languages-3": 45,
+        "student-languages-0": 47,
+        "student-languages-2": 43
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 63,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 18,
+      "track": "student-journalism",
+      "name": "新闻传播学生",
+      "minutes": 8090,
+      "stage": 2,
+      "skills": [
+        54.672222222222224,
+        20.51666666666667,
+        21.28888888888888
+      ],
+      "dutyCounts": {
+        "student-journalism-2": 43,
+        "student-journalism-1": 39,
+        "student-journalism-0": 47,
+        "student-journalism-3": 51
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 19,
+      "track": "student-education",
+      "name": "教育学学生",
+      "minutes": 7515,
+      "stage": 2,
+      "skills": [
+        45.37222222222223,
+        20.944444444444446,
+        22.022222222222233
+      ],
+      "dutyCounts": {
+        "student-education-2": 39,
+        "student-education-0": 42,
+        "student-education-3": 43,
+        "student-education-1": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 53,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 20,
+      "track": "student-psychology",
+      "name": "心理学学生",
+      "minutes": 7990,
+      "stage": 2,
+      "skills": [
+        51.18888888888888,
+        24.816666666666666,
+        19.638888888888893
+      ],
+      "dutyCounts": {
+        "student-psychology-0": 46,
+        "student-psychology-2": 40,
+        "student-psychology-3": 48,
+        "student-psychology-1": 43
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 72,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 21,
+      "track": "student-architecture",
+      "name": "建筑学学生",
+      "minutes": 7045,
+      "stage": 2,
+      "skills": [
+        43.95555555555554,
+        20.244444444444447,
+        19.48333333333334
+      ],
+      "dutyCounts": {
+        "student-architecture-0": 44,
+        "student-architecture-1": 37,
+        "student-architecture-2": 37,
+        "student-architecture-3": 40
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 57,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 22,
+      "track": "student-mechanical",
+      "name": "机械工程学生",
+      "minutes": 7375,
+      "stage": 2,
+      "skills": [
+        43.77222222222222,
+        19.250000000000004,
+        21.838888888888896
+      ],
+      "dutyCounts": {
+        "student-mechanical-2": 40,
+        "student-mechanical-3": 43,
+        "student-mechanical-0": 43,
+        "student-mechanical-1": 38
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 70,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 23,
+      "track": "student-biology",
+      "name": "生命科学学生",
+      "minutes": 7590,
+      "stage": 2,
+      "skills": [
+        47.42777777777776,
+        19.077777777777783,
+        23.750000000000007
+      ],
+      "dutyCounts": {
+        "student-biology-3": 45,
+        "student-biology-1": 40,
+        "student-biology-2": 43,
+        "student-biology-0": 47
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 24,
+      "track": "student-design",
+      "name": "艺术设计学生",
+      "minutes": 7730,
+      "stage": 2,
+      "skills": [
+        49.67222222222221,
+        20.605555555555558,
+        23.37222222222223
+      ],
+      "dutyCounts": {
+        "student-design-2": 39,
+        "student-design-1": 41,
+        "student-design-0": 43,
+        "student-design-3": 44
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 25,
+      "track": "student-music",
+      "name": "音乐学生",
+      "minutes": 7785,
+      "stage": 2,
+      "skills": [
+        47.655555555555544,
+        22.272222222222222,
+        21.705555555555563
+      ],
+      "dutyCounts": {
+        "student-music-2": 40,
+        "student-music-3": 43,
+        "student-music-1": 44,
+        "student-music-0": 49
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 54,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 26,
+      "track": "school-primary",
+      "name": "小学生活",
+      "minutes": 9490,
+      "stage": 2,
+      "skills": [
+        57.766666666666595,
+        29.111111111111114,
+        26.600000000000012
+      ],
+      "dutyCounts": {
+        "school-primary-3": 40,
+        "school-primary-2": 38,
+        "school-primary-0": 40,
+        "school-primary-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 27,
+      "track": "school-secondary",
+      "name": "中学生活",
+      "minutes": 9770,
+      "stage": 2,
+      "skills": [
+        59.59999999999992,
+        30.027777777777786,
+        27.333333333333343
+      ],
+      "dutyCounts": {
+        "school-secondary-3": 43,
+        "school-secondary-2": 38,
+        "school-secondary-1": 43,
+        "school-secondary-0": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 71,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 28,
+      "track": "between-jobs",
+      "name": "待业与探索",
+      "minutes": 2030,
+      "stage": 1,
+      "skills": [
+        14.511111111111115,
+        5.261111111111111,
+        4.766666666666667
+      ],
+      "dutyCounts": {
+        "between-jobs-2": 9,
+        "between-jobs-1": 11,
+        "between-jobs-3": 13,
+        "between-jobs-0": 13
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 54,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 29,
+      "track": "retired",
+      "name": "退休生活",
+      "minutes": 1715,
+      "stage": 1,
+      "skills": [
+        10.038888888888888,
+        4.2555555555555555,
+        4.766666666666667
+      ],
+      "dutyCounts": {
+        "retired-2": 9,
+        "retired-0": 9,
+        "retired-3": 10,
+        "retired-1": 8
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 52,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 30,
+      "track": "office",
+      "name": "办公室职员",
+      "minutes": 5940,
+      "stage": 1,
+      "skills": [
+        23.79999999999999,
+        23.39999999999999,
+        19.999999999999993
+      ],
+      "dutyCounts": {
+        "office-4": 10,
+        "office-3": 13,
+        "office-0": 11,
+        "office-5": 11,
+        "office-2": 9,
+        "office-1": 12
+      },
+      "income": 4300,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 31,
+      "track": "software",
+      "name": "程序员",
+      "minutes": 6750,
+      "stage": 2,
+      "skills": [
+        28.69999999999999,
+        23.59999999999999,
+        26.69999999999999
+      ],
+      "dutyCounts": {
+        "software-2": 12,
+        "software-0": 13,
+        "software-3": 13,
+        "software-4": 9,
+        "software-1": 14,
+        "software-5": 14
+      },
+      "income": 4450,
+      "diaries": 30,
+      "npcChanges": 51,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 32,
+      "track": "barista",
+      "name": "咖啡师",
+      "minutes": 5490,
+      "stage": 1,
+      "skills": [
+        24.09999999999999,
+        16.899999999999995,
+        21.199999999999992
+      ],
+      "dutyCounts": {
+        "barista-1": 12,
+        "barista-0": 8,
+        "barista-3": 15,
+        "barista-2": 12,
+        "barista-4": 5,
+        "barista-5": 9
+      },
+      "income": 3875,
+      "diaries": 30,
+      "npcChanges": 58,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 33,
+      "track": "retail",
+      "name": "便利店店员",
+      "minutes": 6210,
+      "stage": 2,
+      "skills": [
+        28.399999999999988,
+        24.09999999999999,
+        20.799999999999994
+      ],
+      "dutyCounts": {
+        "retail-2": 17,
+        "retail-1": 17,
+        "retail-3": 12,
+        "retail-4": 6,
+        "retail-0": 15,
+        "retail-5": 2
+      },
+      "income": 3950,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 34,
+      "track": "freelance",
+      "name": "自由职业者",
+      "minutes": 6390,
+      "stage": 2,
+      "skills": [
+        25.29999999999999,
+        26.99999999999999,
+        21.89999999999999
+      ],
+      "dutyCounts": {
+        "freelance-0": 13,
+        "freelance-3": 11,
+        "freelance-4": 15,
+        "freelance-2": 11,
+        "freelance-5": 11,
+        "freelance-1": 10
+      },
+      "income": 4350,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 35,
+      "track": "illustration",
+      "name": "插画师",
+      "minutes": 6030,
+      "stage": 2,
+      "skills": [
+        30.399999999999988,
+        18.899999999999995,
+        25.09999999999999
+      ],
+      "dutyCounts": {
+        "illustration-0": 13,
+        "illustration-1": 8,
+        "illustration-2": 11,
+        "illustration-4": 9,
+        "illustration-5": 12,
+        "illustration-3": 14
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 36,
+      "track": "writing",
+      "name": "作家",
+      "minutes": 5940,
+      "stage": 1,
+      "skills": [
+        29.399999999999988,
+        20.999999999999993,
+        18.799999999999994
+      ],
+      "dutyCounts": {
+        "writing-0": 15,
+        "writing-5": 10,
+        "writing-2": 9,
+        "writing-1": 12,
+        "writing-4": 8,
+        "writing-3": 12
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 37,
+      "track": "teaching",
+      "name": "教师",
+      "minutes": 6210,
+      "stage": 2,
+      "skills": [
+        25.29999999999999,
+        24.89999999999999,
+        22.59999999999999
+      ],
+      "dutyCounts": {
+        "teaching-2": 11,
+        "teaching-3": 11,
+        "teaching-4": 11,
+        "teaching-5": 12,
+        "teaching-0": 13,
+        "teaching-1": 11
+      },
+      "income": 4350,
+      "diaries": 30,
+      "npcChanges": 68,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 38,
+      "track": "student-general",
+      "name": "通识探索学生",
+      "minutes": 7990,
+      "stage": 2,
+      "skills": [
+        54.64999999999998,
+        21.7888888888889,
+        21.927777777777788
+      ],
+      "dutyCounts": {
+        "student-general-1": 39,
+        "student-general-3": 46,
+        "student-general-0": 46,
+        "student-general-2": 40
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 67,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 39,
+      "track": "student-cs",
+      "name": "计算机科学学生",
+      "minutes": 7950,
+      "stage": 2,
+      "skills": [
+        51.377777777777766,
+        23.35555555555557,
+        21.04444444444444
+      ],
+      "dutyCounts": {
+        "student-cs-3": 48,
+        "student-cs-0": 47,
+        "student-cs-1": 45,
+        "student-cs-2": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 40,
+      "track": "student-medicine",
+      "name": "医学学生",
+      "minutes": 7830,
+      "stage": 2,
+      "skills": [
+        46.838888888888896,
+        22.166666666666657,
+        21.894444444444446
+      ],
+      "dutyCounts": {
+        "student-medicine-1": 44,
+        "student-medicine-3": 45,
+        "student-medicine-0": 47,
+        "student-medicine-2": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 41,
+      "track": "student-nursing",
+      "name": "护理学生",
+      "minutes": 7680,
+      "stage": 2,
+      "skills": [
+        47.22222222222223,
+        24.10000000000001,
+        18.71666666666666
+      ],
+      "dutyCounts": {
+        "student-nursing-0": 46,
+        "student-nursing-1": 42,
+        "student-nursing-3": 49,
+        "student-nursing-2": 40
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 75,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 42,
+      "track": "student-law",
+      "name": "法学学生",
+      "minutes": 7935,
+      "stage": 2,
+      "skills": [
+        51.01111111111112,
+        22.677777777777784,
+        22.277777777777775
+      ],
+      "dutyCounts": {
+        "student-law-3": 46,
+        "student-law-2": 41,
+        "student-law-0": 48,
+        "student-law-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 56,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 43,
+      "track": "student-economics",
+      "name": "经济金融学生",
+      "minutes": 7325,
+      "stage": 2,
+      "skills": [
+        44.78888888888889,
+        20.461111111111116,
+        20.25
+      ],
+      "dutyCounts": {
+        "student-economics-0": 48,
+        "student-economics-1": 38,
+        "student-economics-3": 40,
+        "student-economics-2": 37
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 59,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 44,
+      "track": "student-business",
+      "name": "工商管理学生",
+      "minutes": 7875,
+      "stage": 2,
+      "skills": [
+        50.388888888888886,
+        21.89444444444445,
+        22.02222222222223
+      ],
+      "dutyCounts": {
+        "student-business-2": 41,
+        "student-business-3": 45,
+        "student-business-1": 40,
+        "student-business-0": 47
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 70,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 45,
+      "track": "student-literature",
+      "name": "汉语言文学学生",
+      "minutes": 7660,
+      "stage": 2,
+      "skills": [
+        48.01666666666666,
+        19.91666666666666,
+        21.338888888888885
+      ],
+      "dutyCounts": {
+        "student-literature-1": 40,
+        "student-literature-3": 43,
+        "student-literature-2": 41,
+        "student-literature-0": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 65,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 46,
+      "track": "student-languages",
+      "name": "外语学生",
+      "minutes": 6950,
+      "stage": 2,
+      "skills": [
+        44.333333333333336,
+        19.36111111111111,
+        19.05555555555556
+      ],
+      "dutyCounts": {
+        "student-languages-2": 35,
+        "student-languages-0": 40,
+        "student-languages-3": 42,
+        "student-languages-1": 36
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 47,
+      "track": "student-journalism",
+      "name": "新闻传播学生",
+      "minutes": 7890,
+      "stage": 2,
+      "skills": [
+        53.4388888888889,
+        19.11666666666667,
+        22.061111111111106
+      ],
+      "dutyCounts": {
+        "student-journalism-0": 51,
+        "student-journalism-3": 46,
+        "student-journalism-1": 41,
+        "student-journalism-2": 40
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 75,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 48,
+      "track": "student-education",
+      "name": "教育学学生",
+      "minutes": 7730,
+      "stage": 2,
+      "skills": [
+        52.4,
+        19.933333333333334,
+        22.233333333333338
+      ],
+      "dutyCounts": {
+        "student-education-3": 46,
+        "student-education-1": 40,
+        "student-education-2": 39,
+        "student-education-0": 46
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 49,
+      "track": "student-psychology",
+      "name": "心理学学生",
+      "minutes": 7595,
+      "stage": 2,
+      "skills": [
+        47.87222222222219,
+        20.716666666666665,
+        19.983333333333338
+      ],
+      "dutyCounts": {
+        "student-psychology-0": 46,
+        "student-psychology-1": 40,
+        "student-psychology-2": 40,
+        "student-psychology-3": 47
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 72,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 50,
+      "track": "student-architecture",
+      "name": "建筑学学生",
+      "minutes": 7500,
+      "stage": 2,
+      "skills": [
+        46.411111111111104,
+        20.494444444444447,
+        21.455555555555556
+      ],
+      "dutyCounts": {
+        "student-architecture-2": 40,
+        "student-architecture-1": 39,
+        "student-architecture-3": 47,
+        "student-architecture-0": 45
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 65,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 51,
+      "track": "student-mechanical",
+      "name": "机械工程学生",
+      "minutes": 6810,
+      "stage": 2,
+      "skills": [
+        42.99444444444444,
+        20.23333333333334,
+        18.35000000000001
+      ],
+      "dutyCounts": {
+        "student-mechanical-3": 42,
+        "student-mechanical-1": 34,
+        "student-mechanical-2": 35,
+        "student-mechanical-0": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 63,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 52,
+      "track": "student-biology",
+      "name": "生命科学学生",
+      "minutes": 7470,
+      "stage": 2,
+      "skills": [
+        44.99444444444444,
+        23.33333333333334,
+        18.63333333333334
+      ],
+      "dutyCounts": {
+        "student-biology-0": 45,
+        "student-biology-2": 38,
+        "student-biology-1": 43,
+        "student-biology-3": 43
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 53,
+      "track": "student-design",
+      "name": "艺术设计学生",
+      "minutes": 7450,
+      "stage": 2,
+      "skills": [
+        47.12777777777779,
+        21.911111111111115,
+        18.822222222222223
+      ],
+      "dutyCounts": {
+        "student-design-3": 42,
+        "student-design-1": 42,
+        "student-design-2": 37,
+        "student-design-0": 45
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 69,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 54,
+      "track": "student-music",
+      "name": "音乐学生",
+      "minutes": 8120,
+      "stage": 2,
+      "skills": [
+        50.75555555555554,
+        20.455555555555563,
+        25.111111111111118
+      ],
+      "dutyCounts": {
+        "student-music-0": 48,
+        "student-music-2": 44,
+        "student-music-1": 41,
+        "student-music-3": 46
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 48,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 55,
+      "track": "school-primary",
+      "name": "小学生活",
+      "minutes": 8845,
+      "stage": 2,
+      "skills": [
+        53.98333333333328,
+        25.466666666666672,
+        24.400000000000002
+      ],
+      "dutyCounts": {
+        "school-primary-0": 39,
+        "school-primary-1": 36,
+        "school-primary-3": 40,
+        "school-primary-2": 35
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 65,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 56,
+      "track": "school-secondary",
+      "name": "中学生活",
+      "minutes": 9775,
+      "stage": 2,
+      "skills": [
+        60.79999999999992,
+        28.266666666666676,
+        29.65555555555557
+      ],
+      "dutyCounts": {
+        "school-secondary-0": 40,
+        "school-secondary-1": 39,
+        "school-secondary-3": 44,
+        "school-secondary-2": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 68,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 57,
+      "track": "between-jobs",
+      "name": "待业与探索",
+      "minutes": 2075,
+      "stage": 1,
+      "skills": [
+        13.966666666666663,
+        5.177777777777778,
+        6.077777777777778
+      ],
+      "dutyCounts": {
+        "between-jobs-3": 13,
+        "between-jobs-2": 11,
+        "between-jobs-0": 12,
+        "between-jobs-1": 10
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 46,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 58,
+      "track": "retired",
+      "name": "退休生活",
+      "minutes": 1775,
+      "stage": 1,
+      "skills": [
+        11.055555555555555,
+        5.011111111111111,
+        3.988888888888889
+      ],
+      "dutyCounts": {
+        "retired-3": 11,
+        "retired-2": 9,
+        "retired-0": 10,
+        "retired-1": 10
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 65,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 59,
+      "track": "office",
+      "name": "办公室职员",
+      "minutes": 6570,
+      "stage": 2,
+      "skills": [
+        31.299999999999986,
+        18.799999999999994,
+        27.49999999999999
+      ],
+      "dutyCounts": {
+        "office-1": 10,
+        "office-3": 16,
+        "office-4": 9,
+        "office-0": 13,
+        "office-2": 12,
+        "office-5": 13
+      },
+      "income": 4400,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 60,
+      "track": "software",
+      "name": "程序员",
+      "minutes": 5850,
+      "stage": 1,
+      "skills": [
+        30.099999999999987,
+        18.599999999999994,
+        19.799999999999994
+      ],
+      "dutyCounts": {
+        "software-2": 8,
+        "software-1": 11,
+        "software-5": 11,
+        "software-0": 14,
+        "software-3": 14,
+        "software-4": 7
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 61,
+      "track": "barista",
+      "name": "咖啡师",
+      "minutes": 5490,
+      "stage": 1,
+      "skills": [
+        22.59999999999999,
+        20.299999999999994,
+        18.799999999999994
+      ],
+      "dutyCounts": {
+        "barista-0": 11,
+        "barista-5": 10,
+        "barista-4": 7,
+        "barista-3": 12,
+        "barista-2": 9,
+        "barista-1": 12
+      },
+      "income": 3900,
+      "diaries": 30,
+      "npcChanges": 72,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 62,
+      "track": "retail",
+      "name": "便利店店员",
+      "minutes": 6480,
+      "stage": 2,
+      "skills": [
+        23.59999999999999,
+        30.799999999999986,
+        22.499999999999993
+      ],
+      "dutyCounts": {
+        "retail-2": 18,
+        "retail-1": 20,
+        "retail-3": 11,
+        "retail-5": 2,
+        "retail-0": 12,
+        "retail-4": 9
+      },
+      "income": 3950,
+      "diaries": 30,
+      "npcChanges": 68,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 63,
+      "track": "freelance",
+      "name": "自由职业者",
+      "minutes": 6390,
+      "stage": 2,
+      "skills": [
+        24.59999999999999,
+        25.09999999999999,
+        26.49999999999999
+      ],
+      "dutyCounts": {
+        "freelance-0": 11,
+        "freelance-5": 12,
+        "freelance-4": 13,
+        "freelance-1": 10,
+        "freelance-2": 13,
+        "freelance-3": 12
+      },
+      "income": 4375,
+      "diaries": 30,
+      "npcChanges": 84,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 64,
+      "track": "illustration",
+      "name": "插画师",
+      "minutes": 6300,
+      "stage": 2,
+      "skills": [
+        32.69999999999999,
+        21.699999999999992,
+        18.099999999999994
+      ],
+      "dutyCounts": {
+        "illustration-2": 9,
+        "illustration-0": 17,
+        "illustration-1": 13,
+        "illustration-4": 8,
+        "illustration-3": 14,
+        "illustration-5": 9
+      },
+      "income": 4350,
+      "diaries": 30,
+      "npcChanges": 54,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 65,
+      "track": "writing",
+      "name": "作家",
+      "minutes": 5850,
+      "stage": 1,
+      "skills": [
+        25.79999999999999,
+        20.099999999999994,
+        25.59999999999999
+      ],
+      "dutyCounts": {
+        "writing-5": 13,
+        "writing-2": 10,
+        "writing-1": 9,
+        "writing-3": 12,
+        "writing-0": 12,
+        "writing-4": 9
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 71,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 66,
+      "track": "teaching",
+      "name": "教师",
+      "minutes": 6030,
+      "stage": 2,
+      "skills": [
+        29.899999999999988,
+        20.499999999999993,
+        21.999999999999993
+      ],
+      "dutyCounts": {
+        "teaching-2": 10,
+        "teaching-4": 10,
+        "teaching-5": 10,
+        "teaching-3": 14,
+        "teaching-0": 13,
+        "teaching-1": 10
+      },
+      "income": 4300,
+      "diaries": 30,
+      "npcChanges": 57,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 67,
+      "track": "student-general",
+      "name": "通识探索学生",
+      "minutes": 7720,
+      "stage": 2,
+      "skills": [
+        46.07777777777779,
+        22.144444444444456,
+        21.433333333333337
+      ],
+      "dutyCounts": {
+        "student-general-1": 43,
+        "student-general-0": 43,
+        "student-general-3": 46,
+        "student-general-2": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 68,
+      "track": "student-cs",
+      "name": "计算机科学学生",
+      "minutes": 7565,
+      "stage": 2,
+      "skills": [
+        46.37777777777777,
+        21.466666666666665,
+        20.049999999999994
+      ],
+      "dutyCounts": {
+        "student-cs-0": 45,
+        "student-cs-3": 46,
+        "student-cs-2": 38,
+        "student-cs-1": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 69,
+      "track": "student-medicine",
+      "name": "医学学生",
+      "minutes": 8025,
+      "stage": 2,
+      "skills": [
+        48.35,
+        23.45555555555556,
+        22.638888888888893
+      ],
+      "dutyCounts": {
+        "student-medicine-3": 44,
+        "student-medicine-0": 45,
+        "student-medicine-2": 40,
+        "student-medicine-1": 47
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 68,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 70,
+      "track": "student-nursing",
+      "name": "护理学生",
+      "minutes": 7095,
+      "stage": 2,
+      "skills": [
+        43.83888888888889,
+        19.8,
+        19.516666666666673
+      ],
+      "dutyCounts": {
+        "student-nursing-2": 37,
+        "student-nursing-3": 43,
+        "student-nursing-1": 38,
+        "student-nursing-0": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 59,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 71,
+      "track": "student-law",
+      "name": "法学学生",
+      "minutes": 7770,
+      "stage": 2,
+      "skills": [
+        51.838888888888874,
+        20.127777777777776,
+        21.32777777777778
+      ],
+      "dutyCounts": {
+        "student-law-3": 50,
+        "student-law-0": 45,
+        "student-law-1": 40,
+        "student-law-2": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 53,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 72,
+      "track": "student-economics",
+      "name": "经济金融学生",
+      "minutes": 7185,
+      "stage": 2,
+      "skills": [
+        45.105555555555554,
+        21.57777777777778,
+        18.89444444444445
+      ],
+      "dutyCounts": {
+        "student-economics-1": 40,
+        "student-economics-0": 43,
+        "student-economics-2": 36,
+        "student-economics-3": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 67,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 73,
+      "track": "student-business",
+      "name": "工商管理学生",
+      "minutes": 7560,
+      "stage": 2,
+      "skills": [
+        46.18888888888887,
+        21.072222222222223,
+        20.511111111111116
+      ],
+      "dutyCounts": {
+        "student-business-2": 38,
+        "student-business-1": 41,
+        "student-business-0": 43,
+        "student-business-3": 44
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 53,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 74,
+      "track": "student-literature",
+      "name": "汉语言文学学生",
+      "minutes": 7910,
+      "stage": 2,
+      "skills": [
+        50.84444444444446,
+        20.883333333333333,
+        21.961111111111105
+      ],
+      "dutyCounts": {
+        "student-literature-3": 45,
+        "student-literature-2": 42,
+        "student-literature-0": 45,
+        "student-literature-1": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 71,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 75,
+      "track": "student-languages",
+      "name": "外语学生",
+      "minutes": 8025,
+      "stage": 2,
+      "skills": [
+        52.88888888888888,
+        22.18333333333333,
+        21.03888888888889
+      ],
+      "dutyCounts": {
+        "student-languages-0": 49,
+        "student-languages-2": 37,
+        "student-languages-1": 41,
+        "student-languages-3": 48
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 76,
+      "track": "student-journalism",
+      "name": "新闻传播学生",
+      "minutes": 7870,
+      "stage": 2,
+      "skills": [
+        50.76111111111112,
+        20.03333333333333,
+        22.111111111111107
+      ],
+      "dutyCounts": {
+        "student-journalism-2": 42,
+        "student-journalism-3": 47,
+        "student-journalism-0": 43,
+        "student-journalism-1": 40
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 77,
+      "track": "student-education",
+      "name": "教育学学生",
+      "minutes": 7665,
+      "stage": 2,
+      "skills": [
+        49.44444444444444,
+        17.938888888888886,
+        21.038888888888895
+      ],
+      "dutyCounts": {
+        "student-education-2": 43,
+        "student-education-0": 45,
+        "student-education-3": 48,
+        "student-education-1": 36
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 55,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 78,
+      "track": "student-psychology",
+      "name": "心理学学生",
+      "minutes": 7405,
+      "stage": 2,
+      "skills": [
+        45.4888888888889,
+        20.66666666666667,
+        20.63333333333333
+      ],
+      "dutyCounts": {
+        "student-psychology-3": 45,
+        "student-psychology-0": 42,
+        "student-psychology-2": 41,
+        "student-psychology-1": 36
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 74,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 79,
+      "track": "student-architecture",
+      "name": "建筑学学生",
+      "minutes": 7170,
+      "stage": 2,
+      "skills": [
+        41.911111111111126,
+        20.088888888888892,
+        21.877777777777784
+      ],
+      "dutyCounts": {
+        "student-architecture-3": 41,
+        "student-architecture-1": 41,
+        "student-architecture-2": 38,
+        "student-architecture-0": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 80,
+      "track": "student-mechanical",
+      "name": "机械工程学生",
+      "minutes": 7675,
+      "stage": 2,
+      "skills": [
+        48.4888888888889,
+        21.200000000000006,
+        19.311111111111106
+      ],
+      "dutyCounts": {
+        "student-mechanical-0": 46,
+        "student-mechanical-3": 44,
+        "student-mechanical-1": 39,
+        "student-mechanical-2": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 81,
+      "track": "student-biology",
+      "name": "生命科学学生",
+      "minutes": 8050,
+      "stage": 2,
+      "skills": [
+        52.60000000000001,
+        23.116666666666678,
+        21.700000000000006
+      ],
+      "dutyCounts": {
+        "student-biology-3": 49,
+        "student-biology-2": 39,
+        "student-biology-0": 46,
+        "student-biology-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 82,
+      "track": "student-design",
+      "name": "艺术设计学生",
+      "minutes": 7530,
+      "stage": 2,
+      "skills": [
+        45.73888888888889,
+        22.01111111111111,
+        20.983333333333334
+      ],
+      "dutyCounts": {
+        "student-design-3": 40,
+        "student-design-2": 39,
+        "student-design-0": 43,
+        "student-design-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 83,
+      "track": "student-music",
+      "name": "音乐学生",
+      "minutes": 7635,
+      "stage": 2,
+      "skills": [
+        50.14444444444445,
+        20.65,
+        21.644444444444442
+      ],
+      "dutyCounts": {
+        "student-music-0": 45,
+        "student-music-3": 45,
+        "student-music-1": 40,
+        "student-music-2": 41
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 58,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 84,
+      "track": "school-primary",
+      "name": "小学生活",
+      "minutes": 9570,
+      "stage": 2,
+      "skills": [
+        58.27777777777771,
+        30.333333333333346,
+        26.933333333333337
+      ],
+      "dutyCounts": {
+        "school-primary-2": 37,
+        "school-primary-3": 40,
+        "school-primary-1": 43,
+        "school-primary-0": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 59,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 85,
+      "track": "school-secondary",
+      "name": "中学生活",
+      "minutes": 9475,
+      "stage": 2,
+      "skills": [
+        60.33333333333326,
+        24.400000000000002,
+        28.933333333333348
+      ],
+      "dutyCounts": {
+        "school-secondary-2": 39,
+        "school-secondary-3": 44,
+        "school-secondary-0": 39,
+        "school-secondary-1": 38
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 54,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 86,
+      "track": "between-jobs",
+      "name": "待业与探索",
+      "minutes": 2085,
+      "stage": 1,
+      "skills": [
+        14.633333333333333,
+        4.555555555555556,
+        4.888888888888889
+      ],
+      "dutyCounts": {
+        "between-jobs-3": 13,
+        "between-jobs-1": 10,
+        "between-jobs-2": 10,
+        "between-jobs-0": 12
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 65,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 87,
+      "track": "retired",
+      "name": "退休生活",
+      "minutes": 1720,
+      "stage": 1,
+      "skills": [
+        10.649999999999999,
+        4.405555555555556,
+        4.183333333333334
+      ],
+      "dutyCounts": {
+        "retired-3": 10,
+        "retired-2": 8,
+        "retired-0": 11,
+        "retired-1": 9
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 57,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 88,
+      "track": "office",
+      "name": "办公室职员",
+      "minutes": 7380,
+      "stage": 2,
+      "skills": [
+        30.299999999999986,
+        26.19999999999999,
+        29.899999999999988
+      ],
+      "dutyCounts": {
+        "office-2": 16,
+        "office-5": 11,
+        "office-0": 13,
+        "office-3": 16,
+        "office-1": 14,
+        "office-4": 12
+      },
+      "income": 4500,
+      "diaries": 30,
+      "npcChanges": 61,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 89,
+      "track": "software",
+      "name": "程序员",
+      "minutes": 6030,
+      "stage": 2,
+      "skills": [
+        24.59999999999999,
+        21.499999999999993,
+        26.79999999999999
+      ],
+      "dutyCounts": {
+        "software-5": 13,
+        "software-2": 11,
+        "software-1": 11,
+        "software-3": 12,
+        "software-0": 11,
+        "software-4": 9
+      },
+      "income": 4250,
+      "diaries": 30,
+      "npcChanges": 66,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 90,
+      "track": "barista",
+      "name": "咖啡师",
+      "minutes": 5760,
+      "stage": 1,
+      "skills": [
+        22.59999999999999,
+        20.099999999999994,
+        25.09999999999999
+      ],
+      "dutyCounts": {
+        "barista-0": 8,
+        "barista-3": 15,
+        "barista-2": 9,
+        "barista-4": 5,
+        "barista-1": 13,
+        "barista-5": 14
+      },
+      "income": 3900,
+      "diaries": 30,
+      "npcChanges": 71,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 91,
+      "track": "retail",
+      "name": "便利店店员",
+      "minutes": 6030,
+      "stage": 2,
+      "skills": [
+        26.99999999999999,
+        22.89999999999999,
+        22.499999999999993
+      ],
+      "dutyCounts": {
+        "retail-0": 16,
+        "retail-2": 19,
+        "retail-3": 9,
+        "retail-1": 17,
+        "retail-4": 5,
+        "retail-5": 1
+      },
+      "income": 3900,
+      "diaries": 30,
+      "npcChanges": 63,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 92,
+      "track": "freelance",
+      "name": "自由职业者",
+      "minutes": 6120,
+      "stage": 2,
+      "skills": [
+        27.19999999999999,
+        23.09999999999999,
+        21.299999999999994
+      ],
+      "dutyCounts": {
+        "freelance-2": 9,
+        "freelance-4": 12,
+        "freelance-5": 10,
+        "freelance-0": 14,
+        "freelance-3": 12,
+        "freelance-1": 11
+      },
+      "income": 4300,
+      "diaries": 30,
+      "npcChanges": 64,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 93,
+      "track": "illustration",
+      "name": "插画师",
+      "minutes": 6300,
+      "stage": 2,
+      "skills": [
+        30.499999999999986,
+        17.599999999999994,
+        22.89999999999999
+      ],
+      "dutyCounts": {
+        "illustration-1": 10,
+        "illustration-0": 15,
+        "illustration-5": 11,
+        "illustration-2": 11,
+        "illustration-3": 15,
+        "illustration-4": 8
+      },
+      "income": 4350,
+      "diaries": 30,
+      "npcChanges": 58,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 94,
+      "track": "writing",
+      "name": "作家",
+      "minutes": 6120,
+      "stage": 2,
+      "skills": [
+        23.89999999999999,
+        24.99999999999999,
+        21.199999999999992
+      ],
+      "dutyCounts": {
+        "writing-3": 11,
+        "writing-4": 15,
+        "writing-1": 10,
+        "writing-5": 10,
+        "writing-2": 11,
+        "writing-0": 11
+      },
+      "income": 4275,
+      "diaries": 30,
+      "npcChanges": 55,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 95,
+      "track": "teaching",
+      "name": "教师",
+      "minutes": 6660,
+      "stage": 2,
+      "skills": [
+        28.599999999999987,
+        20.799999999999994,
+        28.399999999999988
+      ],
+      "dutyCounts": {
+        "teaching-0": 16,
+        "teaching-1": 9,
+        "teaching-5": 14,
+        "teaching-2": 13,
+        "teaching-4": 10,
+        "teaching-3": 12
+      },
+      "income": 4450,
+      "diaries": 30,
+      "npcChanges": 62,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 96,
+      "track": "student-general",
+      "name": "通识探索学生",
+      "minutes": 7305,
+      "stage": 2,
+      "skills": [
+        45.66666666666666,
+        20.772222222222222,
+        20.98888888888888
+      ],
+      "dutyCounts": {
+        "student-general-3": 41,
+        "student-general-2": 42,
+        "student-general-0": 42,
+        "student-general-1": 38
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 69,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 97,
+      "track": "student-cs",
+      "name": "计算机科学学生",
+      "minutes": 7155,
+      "stage": 2,
+      "skills": [
+        44.261111111111106,
+        17.566666666666666,
+        22.350000000000005
+      ],
+      "dutyCounts": {
+        "student-cs-0": 41,
+        "student-cs-2": 42,
+        "student-cs-3": 42,
+        "student-cs-1": 34
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 63,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 98,
+      "track": "student-medicine",
+      "name": "医学学生",
+      "minutes": 8250,
+      "stage": 2,
+      "skills": [
+        50.80555555555556,
+        23.19444444444445,
+        23.055555555555554
+      ],
+      "dutyCounts": {
+        "student-medicine-3": 50,
+        "student-medicine-2": 43,
+        "student-medicine-0": 47,
+        "student-medicine-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 60,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 99,
+      "track": "student-nursing",
+      "name": "护理学生",
+      "minutes": 7310,
+      "stage": 2,
+      "skills": [
+        43.37777777777778,
+        19.894444444444442,
+        19.97222222222222
+      ],
+      "dutyCounts": {
+        "student-nursing-3": 39,
+        "student-nursing-0": 42,
+        "student-nursing-2": 39,
+        "student-nursing-1": 39
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 54,
+      "lowMoodDays": 0
+    },
+    {
+      "seed": 100,
+      "track": "student-law",
+      "name": "法学学生",
+      "minutes": 7835,
+      "stage": 2,
+      "skills": [
+        48.238888888888894,
+        19.422222222222224,
+        22.61111111111112
+      ],
+      "dutyCounts": {
+        "student-law-3": 47,
+        "student-law-0": 46,
+        "student-law-2": 40,
+        "student-law-1": 42
+      },
+      "income": 0,
+      "diaries": 30,
+      "npcChanges": 59,
+      "lowMoodDays": 0
+    }
+  ]
+}

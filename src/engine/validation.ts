@@ -1,3 +1,4 @@
+import { validateCareerState } from './CareerValidator';
 import { hasReward, taskItems } from './TaskEngine';
 import { walletGroups } from './WalletEngine';
 import { focusRewards } from '../content/focusRewards';
@@ -121,6 +122,7 @@ export function validateWorld(input: unknown): World {
       validateWorld({
         ...w,
         ...m.state,
+        career: m.state.career,
         living: { ...w.living, ...m.state.living },
         household: undefined,
         npcs: w.npcs.map((n) => ({
@@ -147,6 +149,7 @@ export function validateWorld(input: unknown): World {
     )
   )
     throw new Error('共同活动邀请人物无效');
+  validateCareerState(w);
   validateLiving(w);
   return w;
 }

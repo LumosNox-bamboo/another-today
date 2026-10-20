@@ -75,6 +75,7 @@ export function selectResident(w: World, id: string) {
   current.relations = Object.fromEntries(w.npcs.map((n) => [n.id, n.relation]));
   const shared = Object.fromEntries(sharedLiving.map((k) => [k, w.living[k]]));
   Object.assign(w, next.state);
+  w.career = next.state.career;
   Object.assign(w.living, shared);
   for (const n of w.npcs)
     n.relation = next.relations[n.id] || {

@@ -150,9 +150,16 @@ describe('daily routines, economy and consent', () => {
       .map((e) => e.eventId);
     expect(w.events.some((e) => gatedIds.includes(e.definition))).toBe(false);
   });
-  it('major life decisions wait through offline simulation without blocking life', () => {
+  it('legacy career decisions and new major life decisions wait without blocking life', () => {
     const w = fresh();
     w.character.skill = 40;
+    w.decisions.push({
+      id: 'career-first',
+      kind: 'career',
+      title: '想试试另一种工作',
+      text: '旧存档中的自由职业提议',
+      created: w.time,
+    });
     w.money = 14000;
     advance(w, 2 * DAY);
     expect(w.decisions.some((d) => d.kind === 'career')).toBe(true);

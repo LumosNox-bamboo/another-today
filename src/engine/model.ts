@@ -1,3 +1,4 @@
+import { majors } from '../content/careers';
 import { z } from 'zod';
 import { linkCause } from './EventCausalityGraph';
 import { livingSchema } from './livingSchema';
@@ -180,6 +181,7 @@ const baseStateSchema = z.object({
     age: z.number().int().min(6).max(100),
     gender: short,
     job: z.enum(jobs),
+    major: z.enum(majors).optional(),
     education: short,
     family: short,
     housing: short,
@@ -204,7 +206,33 @@ const baseStateSchema = z.object({
     health: bounded,
   }),
   money: z.number().finite().min(0).max(6000000),
-  activity: z.object({ kind: activitySchema, start: time, end: time, scene: sceneSchema }),
+  activity: z.object({
+    kind: activitySchema,
+    start: time,
+    end: time,
+    scene: sceneSchema,
+    career: z.object({ track: short, duty: short }).optional(),
+  }),
+  career: z
+    .object({
+      tracks: z
+        .array(
+          z.object({
+            id: short,
+            minutes: z.number().finite().min(0),
+            stage: z.number().int().min(0).max(4),
+            baselineLevel: z.number().int().min(1).max(10),
+            skills: z.tuple([bounded, bounded, bounded]),
+            counts: z.record(z.number().int().nonnegative()),
+            recent: z.array(short).max(3),
+            focus: z.union([z.literal(0), z.literal(1)]),
+            lastEnd: time.optional(),
+            lastEvent: short.optional(),
+          }),
+        )
+        .max(40),
+    })
+    .optional(),
   recentActivities: z.array(activitySchema).max(12),
   npcs: z
     .array(
@@ -347,6 +375,7 @@ const baseStateSchema = z.object({
 export const personalSchema = baseStateSchema
   .pick({
     character: true,
+    career: true,
     needs: true,
     activity: true,
     recentActivities: true,

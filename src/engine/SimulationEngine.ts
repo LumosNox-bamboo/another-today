@@ -1,3 +1,12 @@
+import {
+  careerOnDuty,
+  careerTrack,
+  careerBias,
+  bindCareerActivity,
+  completeCareerActivity,
+  careerActivityLabel,
+  setOccupation,
+} from './CareerEngine';
 import { chargeRent } from './WalletEngine';
 import {
   initHousehold,
@@ -31,7 +40,6 @@ import {
   random,
   record,
   transact,
-  activityNames,
 } from './model';
 import { closeDay } from './DiaryEngine';
 import { npcTick, encounter } from './NPCSimulationEngine';
@@ -40,12 +48,7 @@ import { advanceChains, resolveChain } from './EventChainEngine';
 import { evolve } from './TraitEvolutionEngine';
 import { rememberEvent } from './MemoryEngine';
 export function isWorking(w: World) {
-  const h = hour(w.time),
-    job = w.character.job;
-  if (job === '无业者' || w.character.age < 18 || w.character.age >= 65) return false;
-  if (job === '便利店店员') return h >= 22 || h < 6;
-  if ([0, 6].includes(new Date(w.time).getUTCDay())) return false;
-  return h >= 9 && h < 17;
+  return careerTrack(w.character).activity === 'work' && careerOnDuty(w.character, w.time);
 }
 function sleepHours(w: World) {
   if (w.character.age < 13) return { start: 21, end: 7 };
@@ -61,7 +64,10 @@ function sleepHours(w: World) {
         : { start: 23, end: 7 };
 }
 export function chooseActivity(w: World) {
-  if (startCommand(w)) return;
+  if (startCommand(w)) {
+    bindCareerActivity(w);
+    return;
+  }
   const n = w.needs,
     t = w.character.traits,
     h = hour(w.time),
@@ -84,6 +90,7 @@ export function chooseActivity(w: World) {
     rest: (100 - n.energy) * 0.65 + n.stress * 0.4,
     coffee: 15 + t.extraversion * 0.3,
   };
+  careerBias(w, scores);
   if (w.character.age < 18) {
     const school = ![0, 6].includes(new Date(w.time).getUTCDay()) && h >= 8 && h < 15;
     scores.study += school ? 170 : 20;
@@ -163,17 +170,7 @@ export function chooseActivity(w: World) {
   if (best === 'work') duration = 90;
   if (best === 'eat') duration = 30;
   let scene: Scene = 'apartment';
-  if (best === 'work')
-    scene =
-      w.character.job === '咖啡师'
-        ? 'cafe'
-        : w.character.job === '便利店店员'
-          ? 'shop'
-          : ['自由职业者', '插画师', '作家'].includes(w.character.job)
-            ? 'apartment'
-            : w.character.job === '学生'
-              ? 'library'
-              : 'office';
+  if (best === 'work') scene = careerTrack(w.character).scene;
   if (best === 'read' || best === 'study') scene = random(w) < 0.55 ? 'library' : 'apartment';
   if (best === 'read' && h >= 8 && h < 19 && Math.floor(w.time / DAY) % 4 !== 0 && random(w) < 0.16)
     scene = 'park';
@@ -186,12 +183,15 @@ export function chooseActivity(w: World) {
   if (best === 'socialize' && h >= 9 && h < 20 && random(w) < 0.15) scene = 'library';
   if (best === 'shop') scene = 'shop';
   if (best === 'rest' && h >= 19 && h < 23 && random(w) < 0.35) scene = 'night';
-  scene = openScene(w, chooseDestination(w, best, scene));
+  const career = careerTrack(w.character);
+  const scheduled = best === career.activity && careerOnDuty(w.character, w.time);
+  scene = openScene(w, scheduled ? career.scene : chooseDestination(w, best, scene));
   w.activity = { kind: best, start: w.time, end: w.time + duration * MINUTE, scene };
+  bindCareerActivity(w);
   record(
     w,
-    `${activityNames[best]}的时间`,
-    `${w.character.name}开始${activityNames[best]}。`,
+    `${careerActivityLabel(w)}的时间`,
+    `${w.character.name}开始${careerActivityLabel(w)}。`,
     '日常',
     false,
     'activity',
@@ -252,18 +252,8 @@ function completeActivity(w: World) {
       transact(w, pay, '当日职业收入');
       record(w, '收到今天的收入', `完成工作，收到 ¥${pay} 的收入。`, '经济', true, 'salary');
     }
-    if (w.character.skill > w.character.careerLevel * 18 && w.character.careerLevel < 10) {
-      w.character.careerLevel++;
-      record(
-        w,
-        '职业成长',
-        `持续练习后，职业水平提升到了第 ${w.character.careerLevel} 阶段。`,
-        '职业',
-        true,
-        'promotion',
-      );
-    }
   }
+  completeCareerActivity(w);
   if (a.kind === 'sleep' && random(w) < 0.3) {
     record(
       w,
@@ -304,22 +294,6 @@ function completeActivity(w: World) {
   }
   w.recentActivities.push(a.kind);
   w.recentActivities = w.recentActivities.slice(-12);
-  if (
-    w.character.age >= 18 &&
-    w.character.age < 65 &&
-    !w.flags.careerQuestion &&
-    w.character.skill >= 25 &&
-    w.character.job !== '学生'
-  ) {
-    w.flags.careerQuestion = true;
-    w.decisions.push({
-      id: 'career-first',
-      kind: 'career',
-      title: '想试试另一种工作',
-      text: `${w.character.name}积累了一些经验，正在考虑转为自由职业者。这会改变工作地点和作息。`,
-      created: w.time,
-    });
-  }
   if (w.character.age >= 18 && !w.flags.housingQuestion && w.money >= 12000) {
     w.flags.housingQuestion = true;
     w.decisions.push({
@@ -422,7 +396,7 @@ export function resolveDecision(w: World, id: string, choice: 'yes' | 'no' | 'se
   let text = '';
   if (d.kind === 'career') {
     if (yes) {
-      w.character.job = '自由职业者';
+      setOccupation(w, '自由职业者');
       text = '认真考虑后，决定开始自由职业的生活。';
     } else text = '决定先保留现在的工作，等准备更充分再改变。';
   }

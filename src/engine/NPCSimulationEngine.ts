@@ -1,3 +1,4 @@
+import { careerTrack, careerOnDuty, availableCareerDuties } from './CareerEngine';
 import { maybeNPCGift } from './ExchangeEngine';
 import { npcHasOtherPartner } from './HouseholdEngine';
 import { destinations } from '../content/places';
@@ -19,20 +20,13 @@ import { rememberEvent } from './MemoryEngine';
 export function npcTick(w: World) {
   npcLifeTick(w);
   const h = hour(w.time),
-    day = dayKey(w.time),
-    weekend = [0, 6].includes(new Date(w.time).getUTCDay());
+    day = dayKey(w.time);
   for (const [i, n] of w.npcs.entries()) {
-    if (n.job === '便利店店员' && (h >= 22 || h < 6)) n.scene = 'shop';
-    else if (h < 7 || h >= 23) n.scene = 'apartment';
-    else if (h >= 9 && h < 17 && !weekend && n.job !== '无业者')
-      n.scene =
-        n.job === '咖啡师'
-          ? 'cafe'
-          : n.job === '学生'
-            ? 'library'
-            : n.job === '便利店店员'
-              ? 'shop'
-              : 'office';
+    const track = careerTrack(n),
+      onDuty = careerOnDuty(n, w.time);
+    if (onDuty) n.scene = track.scene;
+    else if (h < 7 || h >= 23 || (n.job === '便利店店员' && h >= 8 && h < 15))
+      n.scene = 'apartment';
     else
       n.scene = (['park', 'cafe', 'library', 'street', 'apartment'] as const)[
         (Math.floor(h / 2) + i + Math.floor(w.time / DAY)) % 5
@@ -40,8 +34,8 @@ export function npcTick(w: World) {
     if (
       h >= 7 &&
       h < 23 &&
-      (weekend || h < 9 || h >= 17 || n.job === '无业者') &&
-      !(n.job === '便利店店员' && h >= 22)
+      !onDuty &&
+      !(n.job === '便利店店员' && (h >= 22 || (h >= 8 && h < 15)))
     ) {
       const places = destinations.filter((d) => destinationOpen(w, d));
       const choice = Math.floor(h / 2) + i + Math.floor(w.time / DAY);
@@ -56,14 +50,17 @@ export function npcTick(w: World) {
       if (!d || destinationOpen(w, d)) n.scene = gathering.scene as typeof n.scene;
     }
     n.scene = openScene(w, n.scene);
+    const duties = availableCareerDuties(track, w.time);
     n.plan =
-      n.scene === 'apartment'
-        ? '在家休息'
-        : n.scene === 'office'
-          ? '处理自己的工作'
-          : n.scene === 'library'
-            ? '阅读和学习'
-            : `在${sceneNames[n.scene]}度过自己的时间`;
+      onDuty && n.scene === track.scene
+        ? duties[(Math.floor(h) + i + Math.floor(w.time / DAY)) % duties.length].title
+        : n.scene === 'apartment'
+          ? '在家休息'
+          : n.scene === 'office'
+            ? '处理自己的工作'
+            : n.scene === 'library'
+              ? '阅读和学习'
+              : `在${sceneNames[n.scene]}度过自己的时间`;
     if (w.flags[`npc-day-${n.id}`] !== day) {
       w.flags[`npc-day-${n.id}`] = day;
       if (random(w) < 0.16) {

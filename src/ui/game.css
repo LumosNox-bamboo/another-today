@@ -1340,3 +1340,33 @@
 .game-shell.compact .resident-rail {
   bottom: 8px;
 }
+.career-panel {
+  margin-bottom: 20px;
+}
+.career-panel select {
+  max-width: 100%;
+}
+.career-panel details {
+  margin-top: 16px;
+}
+.career-panel article {
+  margin: 12px 0;
+  padding: 10px;
+  border-left: 3px solid #a8b391;
+  background: #f6f1e6;
+}
+.career-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-left: 24px;
+}
+.career-stages .achieved {
+  color: #4c7147;
+  font-weight: bold;
+}
+@media (max-width: 600px) {
+  .career-stages {
+    grid-template-columns: 1fr;
+  }
+}

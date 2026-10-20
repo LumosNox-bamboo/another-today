@@ -654,3 +654,55 @@ test('portrait rail edits each resident independently and offers usable expanded
     page.viewportSize()!.width,
   );
 });
+
+test('student major and professional practice persist with separate household career panels', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByLabel('最初的职业').selectOption('学生');
+  await page.getByLabel('所学专业').selectOption('建筑学');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  for (let i = 0; i < 12; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
+  await page.getByRole('button', { name: '人物', exact: true }).click();
+  const panel = page.getByRole('region', { name: '职业与学业路线' });
+  await expect(panel.getByRole('heading', { name: '建筑学学生 · 小满' })).toBeVisible();
+  await panel.getByText('这条路线的日常内容', { exact: true }).click();
+  await expect(panel.getByText('分析场地条件', { exact: true })).toBeVisible();
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(
+    before.career.tracks.find((t: { id: string }) => t.id === 'student-architecture').minutes,
+  ).toBeGreaterThan(60);
+  await panel.getByLabel('发展方向').selectOption('1');
+  await panel.screenshot({ path: test.info().outputPath('career-panel.png') });
+  await page.getByRole('button', { name: '今天', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await page.getByLabel('成员名字').fill('青禾');
+  await page.getByLabel('成员年龄').fill('26');
+  await page.getByRole('button', { name: '加入这个家' }).click();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: '主控：青禾', exact: true }).click();
+  await page.getByRole('button', { name: '人物', exact: true }).click();
+  await panel.getByText('调整职业或专业', { exact: true }).click();
+  await panel.getByLabel('人物职业').selectOption('程序员');
+  await panel.getByRole('button', { name: '保存职业与专业' }).click();
+  await expect(panel.getByRole('heading', { name: '程序员 · 青禾' })).toBeVisible();
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  for (let i = 0; i < 8; i++) await page.getByRole('button', { name: '快进 6 小时' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: '人物', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: '程序员 · 青禾' })).toBeVisible();
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(
+    after.career.tracks.find((t: { id: string }) => t.id === 'software').minutes,
+  ).toBeGreaterThan(0);
+  await page.getByRole('button', { name: '主控：小满', exact: true }).click();
+  await expect(panel.getByRole('heading', { name: '建筑学学生 · 小满' })).toBeVisible();
+  await expect(panel.getByLabel('发展方向')).toHaveValue('1');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+});

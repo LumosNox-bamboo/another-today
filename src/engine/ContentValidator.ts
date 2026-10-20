@@ -1,3 +1,4 @@
+import { validateCareerContent } from './CareerValidator';
 import { destinations, discoveries } from '../content/places';
 import { events, chains, type EventDefinition } from '../content/events';
 import { gifts, habits, secrets, newsTemplates } from '../content/living';
@@ -16,7 +17,7 @@ const gates = [
   'weekend',
 ];
 export function validateContent(definitions: EventDefinition[] = events) {
-  const errors: string[] = [];
+  const errors: string[] = validateCareerContent();
   function unique(label: string, ids: string[]) {
     if (new Set(ids).size !== ids.length) errors.push(`${label}: ID 重复`);
   }

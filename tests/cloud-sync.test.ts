@@ -282,3 +282,36 @@ test('hands off household wallets, focus rewards, private histories and queued c
   expect(b.state.world!.character.outfit).toBe('#7f9d85');
   expect(b.state.world!.events.some((e) => e.definition === 'family-arrival')).toBe(true);
 });
+
+test('cloud handoff retains individual majors and completed career practice', async () => {
+  const { addResident, selectResident, resident } = await import('../src/engine/HouseholdEngine');
+  const { setOccupation, careerTrack, bindCareerActivity, completeCareerActivity } =
+    await import('../src/engine/CareerEngine');
+  const w = createWorld();
+  w.settings.speed = 0;
+  const practice = () => {
+    const t = careerTrack(w.character);
+    w.activity = { kind: t.activity, scene: t.scene, start: w.time, end: w.time + 3600000 };
+    bindCareerActivity(w);
+    w.time = w.activity.end;
+    w.simulatedUntil = w.time;
+    completeCareerActivity(w);
+  };
+  setOccupation(w, '程序员');
+  practice();
+  const id = addResident(w, '同学', 23, '室友');
+  selectResident(w, id);
+  setOccupation(w, '学生', '护理');
+  practice();
+  const a = device(DEVICE_A, w);
+  await a.controller.connect();
+  await a.controller.choose('local');
+  await a.controller.handoff();
+  const b = device(DEVICE_B, null);
+  await b.controller.connect();
+  await b.controller.choose('cloud');
+  expect(b.controller.state.mode).toBe('ready');
+  expect(b.state.world!.character.major).toBe('护理');
+  expect(b.state.world!.career).toEqual(w.career);
+  expect(resident(b.state.world!, 'resident-0')!.career).toEqual(resident(w, 'resident-0')!.career);
+});

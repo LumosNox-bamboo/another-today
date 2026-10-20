@@ -26,6 +26,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm test
       - run: npm run audit:living
+      - run: npm run audit:careers
       - run: npm run build:web
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}

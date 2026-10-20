@@ -3,7 +3,14 @@ import { type World, dayKey, sceneNames, realDate } from './model';
 export function closeDay(w: World, date: string) {
   if (w.diaries.some((d) => d.date === date)) return;
   const es = w.events.filter((e) => dayKey(e.time) === date);
-  const selected = [...es.filter((e) => e.important), ...es.filter((e) => !e.important)]
+  const practice = es
+    .filter((e) => e.category === '职业日常' || e.category === '学习与生活')
+    .slice(-2);
+  const selected = [
+    ...practice,
+    ...es.filter((e) => e.important),
+    ...es.filter((e) => !e.important),
+  ]
     .filter((e, i, a) => a.findIndex((x) => x.title === e.title) === i)
     .slice(0, 8)
     .sort((a, b) => a.time - b.time);

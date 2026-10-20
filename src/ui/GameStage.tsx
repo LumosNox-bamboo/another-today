@@ -1,3 +1,4 @@
+import { careerActivityLabel } from '../engine/CareerEngine';
 import { useRealClock } from './RealClock';
 import { clockText, focusRemaining } from '../engine/FocusRewardEngine';
 import { Household } from './Household';
@@ -27,15 +28,7 @@ import {
   ChevronRight,
   Moon,
 } from 'lucide-react';
-import {
-  type World,
-  type Scene,
-  sceneNames,
-  activityNames,
-  gameTime,
-  hour,
-  dayKey,
-} from '../engine/model';
+import { type World, type Scene, sceneNames, gameTime, hour, dayKey } from '../engine/model';
 import { setSpeed } from '../engine/SimulationClock';
 import { resolveDecision } from '../engine/SimulationEngine';
 import { suggestDestination, destinationOpen } from '../engine/ExplorationEngine';
@@ -139,7 +132,7 @@ export function GameStage({
           <span>
             <strong>{w.character.name}</strong>
             <small>
-              {lifeRole(w.character)} · {activityNames[w.activity.kind]}
+              {lifeRole(w.character)} · {careerActivityLabel(w)}
             </small>
           </span>
         </button>
@@ -228,8 +221,8 @@ export function GameStage({
       <div className="stage-context">
         <span>
           {away
-            ? `${w.character.name}正在${sceneNames[w.activity.scene]}${activityNames[w.activity.kind]}`
-            : `${w.character.name}正在${activityNames[w.activity.kind]}`}
+            ? `${w.character.name}正在${sceneNames[w.activity.scene]}${careerActivityLabel(w)}`
+            : `${w.character.name}正在${careerActivityLabel(w)}`}
         </span>
         {scene === 'apartment' ? (
           <button onClick={() => setInspect(!inspect)} aria-pressed={inspect}>

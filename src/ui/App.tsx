@@ -1,3 +1,6 @@
+import { careerTracks } from '../content/careers';
+import { CareerPanel } from './CareerPanel';
+import { careerActivityLabel } from '../engine/CareerEngine';
 import { usePwa } from '../pwa';
 import { FocusCompanion } from './FocusCompanion';
 import { Notes } from './Notes';
@@ -48,7 +51,6 @@ import {
   type LifeEvent,
   sceneNames,
   traitNames,
-  activityNames,
   labels,
   dayKey,
   gameTime,
@@ -431,6 +433,7 @@ export function App() {
                 text="起点不是终点，性格会在日常里慢慢改变。"
               />
               <CharacterEditor key={w.household.active} world={w} />
+              <CareerPanel key={`career-${w.household.active}`} world={w} />
               <div className="profile-grid">
                 <section className="card">
                   <div className="profile-heading">
@@ -771,7 +774,7 @@ export function App() {
             }}
           >
             <div className="message character">
-              你回来啦。我正在{activityNames[w.activity.kind]}，今天也有自己的小小进度。你想聊什么？
+              你回来啦。我正在{careerActivityLabel(w)}，今天也有自己的小小进度。你想聊什么？
             </div>
             {messages.map((m, i) => (
               <div className={`message ${m.role}`} key={i}>
@@ -1547,6 +1550,8 @@ function SettingsView({
           <p>Another Today 0.2 · 持续变化的像素生活模拟。</p>
           <div className="tags">
             <Tag>{events.length} 个结构化日常事件</Tag>
+            <Tag>{careerTracks.length} 条职业与学业路线</Tag>
+            <Tag>{careerTracks.reduce((n, t) => n + t.duties.length, 0)} 项职业与课程任务</Tag>
             <Tag>{chains.length} 条分支故事链</Tag>
             <Tag>{w.npcs.length} 位独立居民</Tag>
             <Tag>14 个微缩场景</Tag>

@@ -1,3 +1,4 @@
+import { majors } from '../content/careers';
 import { ResidentSwitcher } from './ResidentSwitcher';
 import { type ReactNode, useState } from 'react';
 import { X, ChevronRight, Check } from 'lucide-react';
@@ -172,6 +173,20 @@ export function CreateCharacter({ onCancel }: { onCancel?: () => void }) {
                 ))}
               </select>
             </label>
+            {c.job === '学生' && c.age >= 18 && (
+              <label>
+                所学专业
+                <select
+                  aria-label="所学专业"
+                  value={c.major || '通识探索'}
+                  onChange={(e) => change('major', e.target.value as Character['major'])}
+                >
+                  {majors.map((m) => (
+                    <option key={m}>{m}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label>
               教育背景
               <select value={c.education} onChange={(e) => change('education', e.target.value)}>
