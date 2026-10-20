@@ -1229,3 +1229,9 @@
     display: none;
   }
 }
+.topbar .notes-entry {
+  color: #39483d;
+  background: #e9ddbc;
+  border-color: #c5ac7c;
+  white-space: nowrap;
+}
