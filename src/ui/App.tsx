@@ -1,3 +1,5 @@
+import { usePwa } from '../pwa';
+import { FocusCompanion } from './FocusCompanion';
 import { Notes } from './Notes';
 import { ResidentSwitcher } from './ResidentSwitcher';
 import { Tasks } from './Tasks';
@@ -117,6 +119,7 @@ function Timeline({
   );
 }
 export function App() {
+  const pwa = usePwa();
   const realNow = useRealClock();
   const s = useGame(),
     w = s.world;
@@ -354,6 +357,12 @@ export function App() {
             </button>
           </div>
         </header>
+        {pwa.updateReady && (
+          <div className="notice" role="status">
+            新版已下载：请等待显示“已保存在本地”，然后关闭所有游戏标签页和主屏幕
+            App，再重新打开。只刷新可能仍是旧版。
+          </div>
+        )}
         {(s.notice || s.error) && (
           <div className={`notice ${s.error ? 'warning' : ''}`}>
             <span>{s.error || s.notice}</span>
@@ -1021,10 +1030,10 @@ function FocusModal({ world: w, onClose }: { world: World; onClose: () => void }
           <p className="center">
             原计划{active.label} {active.expectedMinutes} 分钟。实际完成情况由你回来后确认。
           </p>
-          <div className="soft-note">
-            {w.character.name}正在{activityNames[w.activity.kind]}。你专注的时候，TA
-            也有自己的安排。
-          </div>
+          <button className="full-button" onClick={onClose}>
+            收起窗口，边看边专注
+          </button>
+          <FocusCompanion world={w} />
           <button
             className="primary full-button"
             onClick={() => mutate((x) => returnFocus(x, Date.now()))}

@@ -27,7 +27,7 @@ async function state() {
 test.describe.serial('real Electron desktop', () => {
   test.beforeAll(async () => {
     data = await mkdtemp(join(tmpdir(), 'another-today-e2e-'));
-    await mkdir('docs/screenshots/exchange-notes-v09', { recursive: true });
+    await mkdir('docs/screenshots/focus-together-v10', { recursive: true });
     await launch();
   });
   test.afterAll(async () => {
@@ -39,7 +39,7 @@ test.describe.serial('real Electron desktop', () => {
     await page.getByLabel('名字', { exact: true }).fill('小满');
     await expect(page.getByLabel('名字', { exact: true })).toHaveValue('小满');
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/01-create.png',
+      path: 'docs/screenshots/focus-together-v10/01-create.png',
       fullPage: true,
     });
     await page.getByRole('button', { name: '继续认识 TA' }).click();
@@ -59,7 +59,7 @@ test.describe.serial('real Electron desktop', () => {
     await page.getByRole('button', { name: '暂停', exact: true }).click();
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/02-life.png',
+      path: 'docs/screenshots/focus-together-v10/02-life.png',
       fullPage: true,
     });
     for (const name of [
@@ -75,7 +75,7 @@ test.describe.serial('real Electron desktop', () => {
       await expect(page.locator('.stage-location')).toContainText(name);
       await page
         .locator('.scene-view')
-        .screenshot({ path: `docs/screenshots/exchange-notes-v09/scene-${name}.png` });
+        .screenshot({ path: `docs/screenshots/focus-together-v10/scene-${name}.png` });
     }
     await page.getByRole('button', { name: '跟随 TA', exact: true }).click();
   });
@@ -101,7 +101,7 @@ test.describe.serial('real Electron desktop', () => {
     await page.getByLabel('小人日记日期').selectOption({ index: 1 });
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/03-diary.png',
+      path: 'docs/screenshots/focus-together-v10/03-diary.png',
       fullPage: true,
     });
   });
@@ -120,7 +120,7 @@ test.describe.serial('real Electron desktop', () => {
     await page.getByRole('button', { name: '你记得我什么？' }).click();
     await expect(page.locator('.message.character').last()).toContainText('我正在学习德语');
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/04-chat.png',
+      path: 'docs/screenshots/focus-together-v10/04-chat.png',
       fullPage: true,
     });
     await page.getByRole('button', { name: '关闭', exact: true }).click();
@@ -153,7 +153,7 @@ test.describe.serial('real Electron desktop', () => {
     const controls = await page.locator('.stage-tools').boundingBox();
     const viewportHeight = await page.evaluate(() => window.innerHeight);
     expect(controls!.y + controls!.height).toBeLessThanOrEqual(viewportHeight);
-    await page.screenshot({ path: 'docs/screenshots/exchange-notes-v09/05-compact.png' });
+    await page.screenshot({ path: 'docs/screenshots/focus-together-v10/05-compact.png' });
     await page.getByRole('button', { name: '完整观察模式', exact: true }).click();
     await expect(page.locator('.app.compact')).toHaveCount(0);
   });
@@ -169,7 +169,7 @@ test.describe.serial('real Electron desktop', () => {
     await expect(page.getByRole('dialog', { name: '你不在的这段时间' })).toBeVisible();
     await expect(page.getByText(/现实经过 30 分钟/)).toBeVisible();
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/06-return.png',
+      path: 'docs/screenshots/focus-together-v10/06-return.png',
       fullPage: true,
     });
     await page.getByRole('button', { name: '继续观察', exact: true }).click();
@@ -229,7 +229,7 @@ test.describe.serial('real Electron desktop', () => {
     );
     expect((await state()).household.members).toHaveLength(2);
     await page.screenshot({
-      path: 'docs/screenshots/exchange-notes-v09/desktop-family.png',
+      path: 'docs/screenshots/focus-together-v10/desktop-family.png',
       fullPage: true,
     });
     expect(errors).toEqual([]);

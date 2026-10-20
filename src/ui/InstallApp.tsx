@@ -1,7 +1,9 @@
-import { installApp, usePwa } from '../pwa';
+import { useState } from 'react';
+import { installApp, usePwa, checkForUpdates } from '../pwa';
 
 export function InstallApp() {
   const pwa = usePwa();
+  const [status, setStatus] = useState('');
   if (window.desktop) return null;
   const standalone =
     matchMedia('(display-mode: standalone)').matches ||
@@ -33,6 +35,20 @@ export function InstallApp() {
           <p className="muted">在微信里打开时，请先从右上角菜单选择在浏览器中打开。</p>
         </>
       )}
+      <button
+        onClick={async () => {
+          setStatus('正在检查更新…');
+          try {
+            await checkForUpdates();
+            setStatus('已检查；新版下载完成后会在首页提示。');
+          } catch {
+            setStatus('更新检查失败，请联网后再试。');
+          }
+        }}
+      >
+        检查游戏更新
+      </button>
+      {status && <p role="status">{status}</p>}
       {pwa.updateReady && (
         <p role="status">
           新版已下载。先保存，再关闭所有游戏标签页和 App 窗口；下次打开会使用新版。

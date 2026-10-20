@@ -132,6 +132,9 @@ test('updates wait for every game window, recover from failed downloads and isol
     const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/another-today/`;
     const first = await context.newPage();
     await first.goto(url);
+    await first.getByRole('button', { name: '继续认识 TA' }).click();
+    await first.getByRole('button', { name: '继续认识 TA' }).click();
+    await first.getByRole('button', { name: '开始另一个今天' }).click();
     await expect.poll(() => first.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
     await first.evaluate(async () => {
       localStorage.setItem('pwa-save-sentinel', 'keep');
@@ -163,6 +166,7 @@ test('updates wait for every game window, recover from failed downloads and isol
     await expect
       .poll(() => first.evaluate(async () => !!(await navigator.serviceWorker.ready).waiting))
       .toBe(true);
+    await expect(first.getByText(/新版已下载：/)).toBeVisible();
     await first.close();
     await second.reload();
     await expect(second.locator('html')).toHaveAttribute('data-release', 'one');

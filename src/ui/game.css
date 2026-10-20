@@ -1235,3 +1235,19 @@
   border-color: #c5ac7c;
   white-space: nowrap;
 }
+.focus-companion {
+  margin: 16px 0;
+}
+.focus-companion canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 480 / 310;
+  image-rendering: pixelated;
+  border-radius: 8px;
+}
+.focus-companion select {
+  max-width: 100%;
+}
+.focus-companion .soft-note {
+  margin-top: 10px;
+}

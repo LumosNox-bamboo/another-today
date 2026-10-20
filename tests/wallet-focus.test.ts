@@ -210,3 +210,38 @@ describe('resident profiles, memories and wallet ownership', () => {
     expect(loaded.ledger.find((l) => l.reason === '原人物消费')!.payerId).toBe('resident-0');
   });
 });
+
+describe('focus invitations are actual independent activities', () => {
+  it('queues multiple invited residents, tracks actual activity separately and persists the session', async () => {
+    const { inviteShared } = await import('../src/engine/SharedActivityEngine');
+    const w = fresh();
+    const id = addResident(w, '青禾', 25, '室友', 500);
+    startShared(w, '学习', 25, w.lastReal);
+    inviteShared(w, 'resident-0', 'study');
+    inviteShared(w, id, 'read');
+    expect(w.playerActivities[0].invitations).toHaveLength(2);
+    expect(w.playerActivities[0].invitations![0].independent).toEqual([]);
+    expect(() => inviteShared(w, id, 'read')).toThrow();
+    expect(w.household.members.find((m) => m.id === id)!.queue).toHaveLength(1);
+    advance(w, 10 * MINUTE);
+    expect(w.playerActivities[0].invitations!.every((i) => i.independent.length > 0)).toBe(true);
+    selectResident(w, id);
+    const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+    expect(loaded.playerActivities[0].residentId).toBe('resident-0');
+    expect(loaded.playerActivities[0].invitations).toEqual(w.playerActivities[0].invitations);
+    expect(loaded.focusRewards).toBeUndefined();
+    returnShared(loaded, loaded.lastReal + 25 * MINUTE);
+    expect(() => inviteShared(loaded, id, 'rest')).toThrow();
+  });
+  it('refuses an invalid age/job or full queue without creating a false invitation', async () => {
+    const { inviteShared } = await import('../src/engine/SharedActivityEngine');
+    const { commandResident } = await import('../src/engine/HouseholdEngine');
+    const w = fresh();
+    const child = addResident(w, '孩子', 8, '室友');
+    startShared(w, '工作', 25, w.lastReal);
+    expect(() => inviteShared(w, child, 'work')).toThrow();
+    for (let i = 0; i < 5; i++) commandResident(w, child, 'read', 'apartment', 30);
+    expect(() => inviteShared(w, child, 'study')).toThrow();
+    expect(w.playerActivities[0].invitations).toBeUndefined();
+  });
+});

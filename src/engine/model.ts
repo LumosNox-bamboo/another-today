@@ -294,6 +294,19 @@ const baseStateSchema = z.object({
           .array(z.object({ kind: activitySchema, minutes: z.number().nonnegative() }))
           .max(14)
           .optional(),
+        invitations: z
+          .array(
+            z.object({
+              residentId: short,
+              kind: activitySchema,
+              minutes: z.number().int().min(15).max(180),
+              independent: z
+                .array(z.object({ kind: activitySchema, minutes: z.number().nonnegative() }))
+                .max(14),
+            }),
+          )
+          .max(6)
+          .optional(),
         exchange: z.string().max(2000).optional(),
         returned: time.optional(),
         completed: z.boolean().optional(),

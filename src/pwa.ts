@@ -68,3 +68,12 @@ export function initializePwa() {
     .then(() => publish({ offlineReady: true, failed: false }))
     .catch(() => publish({ failed: true }));
 }
+
+export async function checkForUpdates() {
+  if (!('serviceWorker' in navigator) || window.desktop) return;
+  const registration = await navigator.serviceWorker.getRegistration();
+  if (registration) {
+    await registration.update();
+    publish({ updateReady: !!registration.waiting });
+  }
+}

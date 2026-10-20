@@ -138,6 +138,15 @@ export function validateWorld(input: unknown): World {
   }
   if (w.playerActivities.some((a) => a.residentId && h.members.length && !ids.has(a.residentId)))
     throw new Error('共同活动指向不存在的家庭成员');
+  if (
+    w.playerActivities.some(
+      (a) =>
+        a.invitations &&
+        (new Set(a.invitations.map((i) => i.residentId)).size !== a.invitations.length ||
+          (ids.size > 0 && a.invitations.some((i) => !ids.has(i.residentId)))),
+    )
+  )
+    throw new Error('共同活动邀请人物无效');
   validateLiving(w);
   return w;
 }

@@ -163,3 +163,13 @@
 - 浏览器新增遍历八个主页面、弹窗切换、完成计划兑点心和读档验证。修复全局主控标签与头像查看按钮重名，以及新增顶栏后矮屏操作栏与底栏碰触；电脑/手机相关六项复测通过。截图独立保存在 docs/screenshots/exchange-notes-v09/。
 
 - iOS WebKit final verification: 13 passed and 1 existing worker lifecycle skip. Build, strict TypeScript, formatting, cloud persistence checks and screenshot review passed.
+
+# 专注现场、多人邀请与更新提示（2026-10-20）
+
+- 在用户实际打开的浏览器中确认仍运行旧离线页面；离开并重新进入后，全局主控和小纸条出现，原两人存档保留。之前的 GitHub Pages 发布已成功，问题在等待激活的离线缓存。
+- 番茄钟运行时显示当前成员的实际像素场景、地点和活动；可收起窗口继续看游戏，现实计时保持。暂停世界时明确说明人物等待、番茄钟继续。
+- 支持切换成员分别邀请学习、阅读、工作、休息和运动，接入实际行动队列和未成年人/紧急需求规则。每次专注每人一次，分别记录模拟经历；邀请不发奖，不推断玩家现实经历。
+- version 1 活动记录新增可选 invitations，保留原参与人物和已有记录；校验成员存在与邀请唯一性。
+- 主界面新增已下载更新提示，设置新增手动检查。保留等待所有窗口关闭的安全更新流程，不强制激活或清除存档。
+- 新增邀请归属、队列失败、未成年限制、重载和收起窗口后计时持续的测试；真实 PWA 更新测试验证首页提示。
+- 验证通过：200 项单元/集成测试、30 项 Chromium 电脑/手机测试、14 项 iPhone 尺寸 WebKit 测试（沿用 1 项生命周期跳过）、7 项 Electron 测试；构建、严格 TypeScript、格式与差异检查通过。专注手机截图已检查，新截图保存于 docs/screenshots/focus-together-v10/。

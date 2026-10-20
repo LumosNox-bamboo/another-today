@@ -572,3 +572,36 @@ test('global control switches across pages and dialogs; task points redeem real 
     fullPage: true,
   });
 });
+
+test('focus keeps a live scene and invites independent residents without ending the real timer', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '继续认识 TA' }).click();
+  await page.getByRole('button', { name: '开始另一个今天' }).click();
+  await page.getByRole('button', { name: '暂停', exact: true }).click();
+  await page.getByRole('button', { name: '家庭与行动' }).click();
+  await page.getByLabel('成员名字').fill('青禾');
+  await page.getByLabel('成员年龄').fill('25');
+  await page.getByRole('button', { name: '加入这个家' }).click();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: '任务与计划', exact: true }).click();
+  await page.getByRole('button', { name: '番茄钟（可选）' }).click();
+  await page.getByRole('button', { name: '开始一起专注' }).click();
+  await expect(page.getByRole('region', { name: '专注陪伴现场' }).locator('canvas')).toBeVisible();
+  await page.getByRole('button', { name: '邀请小满一起', exact: true }).click();
+  await page.getByLabel('切换主控人物').selectOption({ label: '青禾' });
+  await page.getByLabel('共同活动').selectOption('read');
+  await page.getByRole('button', { name: '邀请青禾一起', exact: true }).click();
+  await expect(page.getByRole('button', { name: '已邀请青禾' })).toBeDisabled();
+  await page.screenshot({ path: test.info().outputPath('focus-invitation.png'), fullPage: true });
+  await page.getByRole('button', { name: '收起窗口，边看边专注' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '任务与计划', exact: true })).toContainText('专注');
+  await page.reload();
+  const w = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+  expect(w.playerActivities[0].returned).toBeUndefined();
+  expect(w.playerActivities[0].invitations).toHaveLength(2);
+  expect(w.household.members.every((m: { queue: unknown[] }) => m.queue.length === 1)).toBe(true);
+});
