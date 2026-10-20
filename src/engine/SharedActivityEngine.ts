@@ -1,3 +1,4 @@
+import { creditPoints } from './ExchangeEngine';
 import { grantTaskReward } from './TaskEngine';
 import { resident } from './HouseholdEngine';
 import { type World, type Activity, MINUTE, uid, activityNames } from './model';
@@ -52,6 +53,7 @@ export function confirmShared(
     w.focusRewards ??= { completed: 0, placed: [] };
     w.focusRewards.completed++;
     grantTaskReward(w);
+    creditPoints(w, 10, `完成专注：${a.label.slice(0, 80)}`);
     a.rewardGranted = true;
   }
   a.note = note.trim().slice(0, 2000);

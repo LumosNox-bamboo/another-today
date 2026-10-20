@@ -1,3 +1,4 @@
+import { Notes } from './Notes';
 import { ResidentSwitcher } from './ResidentSwitcher';
 import { Tasks } from './Tasks';
 import { useRealClock } from './RealClock';
@@ -121,9 +122,9 @@ export function App() {
     w = s.world;
   const [tab, setTab] = useState<Tab>('life'),
     [cloudOpen, setCloudOpen] = useState(false),
-    [modal, setModal] = useState<'chat' | 'tasks' | 'rewards' | 'focus' | 'items' | 'new' | null>(
-      null,
-    ),
+    [modal, setModal] = useState<
+      'chat' | 'notes' | 'tasks' | 'rewards' | 'focus' | 'items' | 'new' | null
+    >(null),
     [selectedAnchor, setSelectedAnchor] = useState(''),
     [messages, setMessages] = useState<ChatMessage[]>([]),
     [chatText, setChatText] = useState(''),
@@ -308,6 +309,14 @@ export function App() {
           <div className="breadcrumb">
             梧桐街 <span>/</span> {nav.find((n) => n[0] === tab)?.[1]}
           </div>
+          <ResidentSwitcher world={w} />
+          <button className="notes-entry" onClick={() => setModal('notes')}>
+            小纸条
+            {(w.notes || []).filter((n) => n.residentId === w.household.active && !n.read).length >
+            0
+              ? ` · ${(w.notes || []).filter((n) => n.residentId === w.household.active && !n.read).length}`
+              : ''}
+          </button>
           <div className="top-actions">
             <span
               className={`save-state ${s.error ? 'error' : ''}`}
@@ -372,9 +381,6 @@ export function App() {
           </div>
         )}
         <main>
-          {!s.compact && ['person', 'memory', 'history', 'diary', 'relations'].includes(tab) && (
-            <ResidentSwitcher world={w} />
-          )}
           {s.cloudPaused && (
             <div className="notice" role="status">
               云存档正在交接，本机生活已暂时停下。
@@ -815,6 +821,11 @@ export function App() {
       {modal === 'tasks' && (
         <Modal title="任务与计划" onClose={() => setModal(null)}>
           <Tasks world={w} onTimer={openFocus} onRewards={() => setModal('rewards')} />
+        </Modal>
+      )}
+      {modal === 'notes' && (
+        <Modal title="小纸条" onClose={() => setModal(null)}>
+          <Notes world={w} />
         </Modal>
       )}
       {modal === 'rewards' && (

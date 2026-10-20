@@ -1,3 +1,4 @@
+import { Exchange } from './Exchange';
 import { useState } from 'react';
 import { focusRewards } from '../content/focusRewards';
 import { gifts } from '../content/living';
@@ -11,6 +12,7 @@ export function FocusRewards({ world: w }: { world: World }) {
   const available = gifts.filter((g) => !w.living.gifts.some((x) => x.definition === g.id));
   return (
     <div className="focus-rewards">
+      <Exchange world={w} />
       <p>
         已完成 {total} 个任务。计划完成或番茄钟任务确认后，都会获得一次随机奖励。累计解锁也会保留。
       </p>

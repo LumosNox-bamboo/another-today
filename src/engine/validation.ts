@@ -104,6 +104,17 @@ export function validateWorld(input: unknown): World {
       w.taskRewards.bag.some((r) => !taskItems.some((d) => d.id === r.id)))
   )
     throw new Error('任务奖励无效');
+  if (w.exchange && new Set(w.exchange.tickets.map((t) => t.id)).size !== w.exchange.tickets.length)
+    throw new Error('重复行动券');
+  for (const entries of [w.notes || [], w.npcGifts || []]) {
+    if (
+      new Set(entries.map((e) => e.id)).size !== entries.length ||
+      (ids.size > 0 && entries.some((e) => !ids.has(e.residentId)))
+    )
+      throw new Error('纸条或礼物所属人物无效');
+  }
+  if (w.npcGifts?.some((g) => !w.npcs.some((n) => n.id === g.npcId)))
+    throw new Error('礼物来源人物不存在');
   for (const m of h.members)
     if (m.state) {
       // Reuse the full world's checks without recursively storing another household.

@@ -800,12 +800,12 @@
     position: relative;
   }
   .game-shell .stage-surface {
-    width: min(calc(100% - 330px), calc((100dvh - 350px) * 480 / 310));
+    width: min(calc(100% - 330px), calc((100dvh - 370px) * 480 / 310));
     min-width: 0;
   }
   .stage-controls {
     position: absolute;
-    top: 175px;
+    top: 150px;
     right: 0;
     width: 145px;
     flex-direction: column;
@@ -830,7 +830,7 @@
   .moment-ribbon {
     position: absolute;
     left: 0;
-    top: 175px;
+    top: 150px;
     width: 145px;
     margin: 0;
     display: grid;
@@ -1167,4 +1167,65 @@
 .resident-switcher > div {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.game-shell .topbar {
+  gap: 10px;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 56px;
+}
+.topbar .resident-switcher {
+  margin: 0;
+  padding: 4px 8px;
+  gap: 8px;
+  flex: 1;
+  color: #39483d;
+}
+.topbar .resident-switcher label {
+  min-width: 100px;
+  font-size: 11px;
+}
+.topbar .resident-switcher small {
+  display: none;
+}
+.topbar .resident-switcher strong {
+  font-size: 11px;
+}
+.topbar .resident-switcher select {
+  padding: 3px;
+}
+.modal > .resident-switcher {
+  padding: 8px;
+  margin: 12px 0;
+  font-size: 12px;
+}
+.modal > .resident-switcher small {
+  display: none;
+}
+.little-note {
+  background: #fff3c7;
+  padding: 20px;
+  margin: 16px 0;
+  border-radius: 4px 16px 4px 4px;
+  color: #514632;
+  box-shadow: 3px 4px #655d4920;
+}
+.little-note small {
+  display: block;
+  margin-top: 6px;
+}
+@media (max-width: 600px) {
+  .topbar .breadcrumb {
+    display: none;
+  }
+  .topbar .save-state {
+    display: none;
+  }
+  .topbar .resident-switcher {
+    min-width: 0;
+  }
+  .topbar .resident-switcher > div {
+    display: none;
+  }
 }

@@ -1,9 +1,10 @@
+import { ResidentSwitcher } from './ResidentSwitcher';
 import { type ReactNode, useState } from 'react';
 import { X, ChevronRight, Check } from 'lucide-react';
 import { type Character, type World, traitNames, jobs, labels } from '../engine/model';
 import { defaultCharacter, createWorld } from '../content/people';
 import { PixelWorld } from './PixelWorld';
-import { begin, mutate } from '../store';
+import { begin, mutate, useGame } from '../store';
 export function Modal({
   title,
   children,
@@ -15,6 +16,7 @@ export function Modal({
   onClose: () => void;
   wide?: boolean;
 }) {
+  const { world } = useGame();
   return (
     <div
       className="modal-backdrop"
@@ -34,6 +36,9 @@ export function Modal({
             <X size={20} />
           </button>
         </header>
+        {world && !['确认操作', '确认一下', '跨设备存档'].includes(title) && (
+          <ResidentSwitcher world={world} inModal />
+        )}
         {children}
       </section>
     </div>

@@ -1,3 +1,4 @@
+import { scheduleNote } from './engine/NoteEngine';
 import { scheduleInteraction } from './engine/InteractionScheduler';
 import { useSyncExternalStore } from 'react';
 import { type World } from './engine/model';
@@ -140,6 +141,7 @@ export async function initialize(holdForCloud = false) {
     if (state.world && !state.cloudPaused) {
       const r = catchUp(state.world);
       scheduleInteraction(state.world, Date.now());
+      scheduleNote(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
       if (r.clockReversed)
         state.notice = '检测到系统时间回拨；将在时钟追上后继续推进，避免重复结算。';
@@ -156,6 +158,7 @@ export async function initialize(holdForCloud = false) {
     if (!state.world || state.cloudPaused) return;
     const r = catchUp(state.world);
     scheduleInteraction(state.world, Date.now());
+    scheduleNote(state.world, Date.now());
     if (shouldWelcome(r)) {
       state.report = r;
       void persist();
@@ -175,6 +178,7 @@ export async function initialize(holdForCloud = false) {
     if (state.world && !state.cloudPaused) {
       const r = catchUp(state.world);
       scheduleInteraction(state.world, Date.now());
+      scheduleNote(state.world, Date.now());
       if (shouldWelcome(r)) state.report = r;
       publish();
       void persist();

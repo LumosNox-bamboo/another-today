@@ -259,6 +259,8 @@ test('hands off household wallets, focus rewards, private histories and queued c
   const task = addTask(w, '收拾房间', Date.now());
   completeTask(w, task.id, Date.now());
   addTask(w, '下周读完这本书', Date.now());
+  const { scheduleNote } = await import('../src/engine/NoteEngine');
+  scheduleNote(w, new Date(2026, 9, 20, 10).getTime());
   const a = device(DEVICE_A, w);
   await a.controller.connect();
   await a.controller.choose('local');
@@ -269,6 +271,8 @@ test('hands off household wallets, focus rewards, private histories and queued c
   expect(b.controller.state.mode).toBe('ready');
   expect(b.state.world!.tasks).toEqual(a.state.world!.tasks);
   expect(b.state.world!.taskRewards).toEqual(a.state.world!.taskRewards);
+  expect(b.state.world!.exchange).toEqual(a.state.world!.exchange);
+  expect(b.state.world!.notes).toEqual(a.state.world!.notes);
   expect(b.state.world!.household).toEqual(a.state.world!.household);
   expect(b.state.world!.focusRewards).toEqual({ completed: 2, placed: [] });
   expect(b.state.world!.household.wallets).toHaveLength(2);

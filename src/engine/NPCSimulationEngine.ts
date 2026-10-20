@@ -1,3 +1,4 @@
+import { maybeNPCGift } from './ExchangeEngine';
 import { npcHasOtherPartner } from './HouseholdEngine';
 import { destinations } from '../content/places';
 import { destinationOpen } from './ExplorationEngine';
@@ -108,6 +109,7 @@ export function encounter(w: World, n?: NPC) {
     'encounter',
     n.id,
   );
+  if (nice && !first) maybeNPCGift(w, n);
   if (first || r.familiarity % 16 < 4) rememberEvent(w, e, first ? 70 : 45);
   if (r.familiarity > 40 && r.affection > 60 && nice) r.dates++;
   if (

@@ -415,6 +415,41 @@ export const householdSchema = z
   .default({});
 export const stateSchema = baseStateSchema.extend({
   household: householdSchema,
+  exchange: z
+    .object({
+      balance: z.number().int().min(0),
+      ledger: z
+        .array(z.object({ id: short, time, amount: z.number().int(), reason: short }))
+        .max(200),
+      tickets: z
+        .array(
+          z.object({
+            id: z.enum(['walk-ticket', 'create-ticket']),
+            count: z.number().int().min(0),
+          }),
+        )
+        .max(2),
+      lastGiftDay: short,
+    })
+    .optional(),
+  npcGifts: z
+    .array(z.object({ id: short, npcId: short, residentId: short, name: short, time }))
+    .max(100)
+    .optional(),
+  notes: z
+    .array(
+      z.object({
+        id: short,
+        residentId: short,
+        author: short,
+        time,
+        text: z.string().max(4000),
+        source: short.optional(),
+        read: z.boolean(),
+      }),
+    )
+    .max(100)
+    .optional(),
   tasks: z
     .array(
       z.object({

@@ -151,3 +151,15 @@
 - 文档更新至 docs/HOUSEHOLD.md；截图保存到 docs/screenshots/resident-wallet-v08/，未覆盖旧截图。
 
 - Final local verification: Chromium 24 passed plus 2 corrected locator checks passed; iOS WebKit 12 passed with 1 existing lifecycle skip; strict TypeScript, formatting and diff checks passed.
+
+# 全局主控、积分兑换与人物纸条（2026-10-20）
+
+- 将成员切换器移至全局顶部，覆盖今天、人物、关系、日记、记忆、人生档案、世界、设置和桌面小窗；主要游戏弹窗内也能切换。账号交接和危险操作确认保持目标稳定。切换调用既有 selectResident，不是只替换显示名字。
+- 新增 ExchangeEngine：已确认的计划/合格专注各 +10 积分；熟识 NPC 在真实愉快相遇中随机赠礼，每个游戏日全家最多一次，生成来源、接收人、事件、记忆与 +5 积分。积分与各自钱包隔离。
+- 衣服、家具、礼盒、点心及两类行动券接入兑换，积分不足或重复常驻物品不扣款，行动队列满不消耗券。公园慢游和午后创作安排真实 60 分钟行动。旧随机奖励、累计门槛和物品保留，没有回放旧任务刷分。
+- 新增 NoteEngine 与顶部小纸条信箱：按人物保存署名、时间、来源与已读；真实事件见闻/当前状态/八类轻松鼓励文本。每天最多两张，至少间隔四个现实小时，遵守通知额度、专注和免打扰。不捏造玩家经历，不要求回应。
+- version 1 增加可选 exchange/npcGifts/notes；积分账本最多 200 条，礼物与纸条各 100 条，保持原存档和云交接结构。
+- 198 项逻辑测试通过；新增积分幂等、兑换失败不扣除、券消费、真实 NPC 赠礼约束、纸条限频/归属/专注和 DND 测试。真实数据库交接追加积分及纸条字段验证。Electron 7 项通过。
+- 浏览器新增遍历八个主页面、弹窗切换、完成计划兑点心和读档验证。修复全局主控标签与头像查看按钮重名，以及新增顶栏后矮屏操作栏与底栏碰触；电脑/手机相关六项复测通过。截图独立保存在 docs/screenshots/exchange-notes-v09/。
+
+- iOS WebKit final verification: 13 passed and 1 existing worker lifecycle skip. Build, strict TypeScript, formatting, cloud persistence checks and screenshot review passed.

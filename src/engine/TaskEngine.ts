@@ -1,3 +1,4 @@
+import { creditPoints } from './ExchangeEngine';
 import { type World, uid, random, transact, clamp } from './model';
 import { focusRewards } from '../content/focusRewards';
 import { gifts } from '../content/living';
@@ -55,6 +56,7 @@ export function completeTask(w: World, id: string, now: number) {
   w.focusRewards.completed++;
   t.completedAt = Math.max(t.createdAt, now);
   t.reward = grantTaskReward(w);
+  creditPoints(w, 10, `完成计划：${t.title.slice(0, 80)}`);
   const recent = w.tasks!.filter((t) => t.completedAt).slice(-100);
   w.tasks = w.tasks!.filter((t) => !t.completedAt || recent.includes(t));
   return t.reward;
