@@ -1,3 +1,4 @@
+import { careerTracks } from '../content/careers';
 import { validateCareerContent } from './CareerValidator';
 import { destinations, discoveries } from '../content/places';
 import { events, chains, type EventDefinition } from '../content/events';
@@ -83,6 +84,15 @@ export function validateContent(definitions: EventDefinition[] = events) {
   const ids = new Set(definitions.map((e) => e.eventId));
   for (const e of definitions) {
     const fail = (s: string) => errors.push(`${e.eventId}: ${s}`);
+    if (e.careerTrack) {
+      const track = careerTracks.find((t) => t.id === e.careerTrack);
+      if (
+        !track ||
+        !e.triggerConditions.activities.includes(track.activity) ||
+        (e.scenes && !e.scenes.includes(track.scene))
+      )
+        fail('职业路线不存在或活动地点不可达');
+    }
     if (!e.title || !e.description || !e.category) fail('缺少文案或类别');
     if (
       !e.triggerConditions.activities.length ||

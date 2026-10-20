@@ -1,3 +1,4 @@
+import { everydayEvents } from './everydayEvents';
 import { outskirtsEvents } from './outskirtsEvents';
 import type { Activity, Scene, World } from '../engine/model';
 export type Gate =
@@ -28,6 +29,7 @@ export interface EventDefinition {
   memoryTags: string[];
   rarity: 'common' | 'uncommon';
   scenes?: Scene[];
+  careerTrack?: string;
   requiredState?: 'gift' | 'habit' | 'npc-change' | 'news' | 'creation';
   season?: '春' | '夏' | '秋' | '冬';
   branch?: {
@@ -742,3 +744,5 @@ export const chains: ChainDefinition[] = [
 
 // Additive IDs preserve every existing event and save reference.
 events.push(...outskirtsEvents);
+
+events.push(...everydayEvents);

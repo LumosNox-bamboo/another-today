@@ -1,8 +1,13 @@
+import { careerTrack, careerActivityLabel } from './CareerEngine';
 import { type World, type Activity, activityNames, sceneNames, clamp, HOUR, record } from './model';
 import { discoveries } from '../content/places';
 import { gifts } from '../content/living';
 import { revealSecret } from './SecretEngine';
 export const lifePrompts = [
+  '你在忙什么？',
+  '你的工作或学业怎么样？',
+  '你现在感觉怎么样？',
+  '你接下来想练什么？',
   '你的新朋友呢？',
   '给我看看收藏',
   '最近有什么作品？',
@@ -17,6 +22,46 @@ export const lifePrompts = [
   '你可以按自己的节奏来',
 ];
 export function lifeReply(w: World, s: string): string | undefined {
+  const turn = w.companion.conversations;
+  if (/你在忙什么|你.*(正在做|现在做)/.test(s)) {
+    const lead = ['我现在在', '这会儿在', '手头正在做的是'][turn % 3];
+    return `${lead}${careerActivityLabel(w)}，地点是${sceneNames[w.activity.scene]}。${
+      w.needs.energy < 30
+        ? '精力有点低，得给休息留点时间。'
+        : w.needs.stress > 65
+          ? '有点紧绷，准备慢一点来。'
+          : '先做眼前这一小段。'
+    }`;
+  }
+  if (/你的?(工作|学业|专业|课程)|你接下来想练什么/.test(s)) {
+    const track = careerTrack(w.character);
+    const progress = w.career?.tracks.find((p) => p.id === track.id);
+    if (/想练/.test(s)) {
+      const direction = track.directions[progress?.focus ?? 0];
+      return `在${track.name}这条路上，想多试试${direction}。这是接下来的想法，还不算已经做到的事。`;
+    }
+    const ids = new Set(track.duties.map((d) => d.id));
+    const recent = w.events.filter((e) => ids.has(e.definition)).slice(-3);
+    const fact = recent.length ? recent[turn % recent.length] : undefined;
+    return `${track.name}的日常里，会接触${track.duties
+      .slice(0, 2)
+      .map((d) => d.title)
+      .join('、')}。${
+      fact ? `最近记下了这件事：${fact.text}` : '这条路线还没有记下实际完成的日常，先慢慢开始。'
+    }`;
+  }
+  if (/你.*(感觉怎么样|累不累|心情如何|心情怎么样)/.test(s)) {
+    if (w.needs.energy < 30)
+      return '这会儿有点没精神，想先歇一歇。不是因为你做了什么，只是需要休息了。';
+    if (w.needs.stress > 65)
+      return '脑子有点绷着，想把事情一件一件做。不用替我担心，我会留时间休息。';
+    if (w.needs.mood < 35)
+      return '心情有点低落，想做点简单的事缓一缓。你不用负责把我逗开心，陪我坐一会儿也好。';
+    return w.needs.mood >= 65
+      ? '现在心情还不错。没有什么非得马上完成的聊天任务，随便说说就好。'
+      : '这会儿比较平静，正在过自己的小日子。你也可以按自己的节奏来。';
+  }
+
   if (/新朋友|你的朋友/.test(s)) {
     const n = w.npcs
       .filter((n) => n.relation.familiarity > 0)
@@ -66,7 +111,8 @@ export function lifeReply(w: World, s: string): string | undefined {
         : '这会儿没有特别想说的烦恼，正在照顾自己的日常。';
   if (/心事|秘密/.test(s)) return revealSecret(w);
   if (/过去的记忆|以前的事/.test(s)) {
-    const m = w.memories.filter((m) => m.subject !== 'player').slice(-5)[0];
+    const memories = w.memories.filter((m) => m.subject !== 'player').slice(-5);
+    const m = memories[turn % Math.max(1, memories.length)];
     return m ? `我还记得：${m.content}` : '刚来到这里，还在积累自己的记忆。';
   }
   if (/城市|街区介绍/.test(s))

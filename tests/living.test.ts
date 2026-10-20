@@ -1,3 +1,5 @@
+import { careerTracks } from '../src/content/careers';
+import type { Character } from '../src/engine/model';
 import { describe, it, expect } from 'vitest';
 import { createWorld } from '../src/content/people';
 import { validateWorld } from '../src/engine/validation';
@@ -279,6 +281,21 @@ describe('content validity and real-world privacy', () => {
       w.activity.kind = e.triggerConditions.activities[0];
       w.activity.scene = e.scenes?.[0] || 'apartment';
       w.character.job = e.triggerConditions.gate === 'student' ? '学生' : '插画师';
+      if (e.careerTrack) {
+        const track = careerTracks.find((t) => t.id === e.careerTrack)!;
+        w.character.job = track.job;
+        w.character.age =
+          track.id === 'retired'
+            ? 70
+            : track.id === 'school-primary'
+              ? 10
+              : track.id === 'school-secondary'
+                ? 16
+                : 25;
+        w.character.major = track.id.startsWith('student-')
+          ? (track.name.replace(/学生$/, '') as Character['major'])
+          : undefined;
+      }
       w.npcs[0].scene = w.activity.scene;
       w.npcs[0].relation.familiarity = 30;
       w.npcs[0].relation.type = e.triggerConditions.gate === 'partner' ? '恋人' : '朋友';

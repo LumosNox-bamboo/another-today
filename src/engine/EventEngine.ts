@@ -1,3 +1,4 @@
+import { careerTrack } from './CareerEngine';
 import { events, type Gate, type EventDefinition } from '../content/events';
 import { type World, clamp, random, record, transact, hour, MINUTE, DAY } from './model';
 import { linkCause } from './EventCausalityGraph';
@@ -35,6 +36,7 @@ export function eligibleEvent(w: World, e: EventDefinition) {
   return (
     e.triggerConditions.activities.includes(w.activity.kind) &&
     passesGate(w, e.triggerConditions.gate) &&
+    (!e.careerTrack || careerTrack(w.character).id === e.careerTrack) &&
     (!e.scenes || e.scenes.includes(w.activity.scene)) &&
     (!e.season || e.season === w.living.calendar.season) &&
     (!e.requiredState ||

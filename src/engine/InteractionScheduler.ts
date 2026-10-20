@@ -51,13 +51,14 @@ export function scheduleInteraction(w: World, now: number) {
   const linked = birthday || (!recent && w.companion.familiarity >= 2 ? candidate : undefined);
   const fact = w.events.filter((e) => e.definition !== 'activity' && !seen(e.id)).at(-1);
   const advice = w.decisions.find((d) => !seen(d.id));
+  const voice = (lines: string[]) => lines[l.interactions.length % lines.length];
   const text = recent
-    ? `有件事想与你分享：${recent.text}`
+    ? `${voice(['有件事想与你分享：', '这件事让我挺想记下来：', '有空时，想和你聊聊这件事：'])}${recent.text}`
     : linked?.text ||
       (advice
         ? `有个想法还在考虑：${advice.text}。你有空时，可以在今天页面给我建议；我会继续自己的生活。`
         : fact
-          ? `今天记下了一件小事：${fact.text}。有空时可以一起聊聊。`
+          ? `${voice(['最近记下了一件小事：', '翻看记录，想起这件事：', '想给你留一句生活见闻：'])}${fact.text} 有空时可以一起聊聊。`
           : `我现在在${sceneNames[w.activity.scene]}${activityNames[w.activity.kind]}。${w.needs.stress > 55 ? '打算留一点时间休息。' : '你有空时，欢迎来看看。'}`);
   const source = recent?.id || linked?.source || advice?.id || fact?.id || `hello-${date}`;
   if (seen(source) && !linked) return;

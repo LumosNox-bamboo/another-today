@@ -20,6 +20,14 @@ test('friends can create, play, export and resume their own browser world', asyn
   await expect.poll(async () => (await saved())?.character.name).toBe('小满');
   await page.getByRole('button', { name: '和小满聊聊天' }).click();
   await expect(page.getByRole('textbox', { name: '聊天内容' })).toBeVisible();
+  await page.getByRole('button', { name: '你的工作或学业怎么样？', exact: true }).click();
+  await expect(page.locator('.message').last()).toContainText('还没有记下实际完成');
+  await page.getByRole('button', { name: '你在忙什么？', exact: true }).click();
+  await expect(page.locator('.message').last()).toContainText('地点是');
+  await page.getByRole('textbox', { name: '聊天内容' }).fill('晚安');
+  await page.getByRole('button', { name: '发送', exact: true }).click();
+  await expect(page.locator('.message').last()).toContainText('晚安');
+  await page.screenshot({ path: test.info().outputPath('everyday-dialogue.png'), fullPage: true });
   await page.getByRole('button', { name: '关闭', exact: true }).click();
   const before = await saved();
   await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();

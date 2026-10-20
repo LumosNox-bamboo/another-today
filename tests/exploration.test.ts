@@ -34,7 +34,7 @@ function visit(w: World, scene: Scene, activity: Activity) {
 }
 describe('outskirts: actual places, time and exploration', () => {
   it('adds unique authored content without changing legacy IDs', () => {
-    expect(events).toHaveLength(340);
+    expect(events.filter((e) => !e.eventId.startsWith('daily-'))).toHaveLength(340);
     expect(outskirtsEvents).toHaveLength(120);
     expect(gifts).toHaveLength(60);
     expect(storyArcs).toHaveLength(25);
