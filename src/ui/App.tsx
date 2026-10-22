@@ -1,3 +1,8 @@
+import { AISettingsPanel } from './AISettings';
+import { AIMoment } from './AIMoment';
+import { aiReady, useAISettings } from '../ai/settings';
+import { aiMessages } from '../ai/context';
+import { requestAI } from '../ai/client';
 import { careerTracks } from '../content/careers';
 import { CareerPanel } from './CareerPanel';
 import { careerActivityLabel } from '../engine/CareerEngine';
@@ -18,7 +23,7 @@ import { InstallApp } from './InstallApp';
 import { CloudSync } from './CloudSync';
 import { lifePrompts } from '../engine/LifeInteractionEngine';
 import { confirmShared } from '../engine/SharedActivityEngine';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   Home,
   BookOpen,
@@ -44,7 +49,16 @@ import {
   X,
   Trash2,
 } from 'lucide-react';
-import { useGame, mutate, persist, notify, dismissReport, compact, replaceWorld } from '../store';
+import {
+  useGame,
+  getSnapshot,
+  mutate,
+  persist,
+  notify,
+  dismissReport,
+  compact,
+  replaceWorld,
+} from '../store';
 import {
   type World,
   type Trait,
@@ -80,7 +94,13 @@ const nav = [
   ['settings', '设置', Settings],
 ] as const;
 type Tab = (typeof nav)[number][0];
-type ChatMessage = { role: 'player' | 'character'; text: string; remembered?: boolean };
+type ChatMessage = {
+  role: 'player' | 'character';
+  text: string;
+  remembered?: boolean;
+  ai?: boolean;
+  status?: string;
+};
 const money = (n: number) => n.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
 function Timeline({
   world,
@@ -122,6 +142,9 @@ function Timeline({
   );
 }
 export function App() {
+  const aiSettings = useAISettings();
+  const chatRequest = useRef<AbortController | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
   const pwa = usePwa();
   const realNow = useRealClock();
   const s = useGame(),
@@ -142,7 +165,14 @@ export function App() {
     setMessages([]);
     setChatText('');
     setConsent(false);
-  }, [w?.household.active]);
+  }, [w, w?.household.active, aiSettings]);
+  useEffect(() => {
+    return () => {
+      chatRequest.current?.abort();
+      chatRequest.current = null;
+      setAiBusy(false);
+    };
+  }, [w, w?.household.active, modal, aiSettings, s.cloudPaused]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [tab, s.compact, Boolean(w)]);
@@ -168,23 +198,52 @@ export function App() {
     window.addEventListener('keydown', escape);
     return () => window.removeEventListener('keydown', escape);
   }, [modal, confirm, s.report]);
-  function send(text = chatText) {
-    if (!w || !text.trim()) return;
+  async function send(text = chatText) {
+    if (!w || !text.trim() || chatRequest.current || s.cloudPaused) return;
+    text = text.trim().slice(0, 2000);
+    const owner = w.household.active;
     let answer = '',
       saved = false;
     mutate((world) => {
       answer = reply(world, text);
       if (consent) saved = rememberPlayer(world, text, Date.now());
     });
-    setMessages((m) =>
-      [
-        ...m,
-        { role: 'player' as const, text, remembered: saved },
-        { role: 'character' as const, text: answer },
-      ].slice(-80),
-    );
+    const nextMessages: ChatMessage[] = [
+      ...messages,
+      { role: 'player', text, remembered: saved },
+      { role: 'character', text: answer },
+    ];
+    setMessages(nextMessages.slice(-80));
     setChatText('');
     setConsent(false);
+    if (!aiReady(aiSettings)) return;
+    const controller = new AbortController();
+    chatRequest.current = controller;
+    setAiBusy(true);
+    try {
+      const result = await requestAI(
+        aiMessages(w, 'chat', text, messages, aiSettings.shareMemories),
+        controller.signal,
+      );
+      if (controller.signal.aborted || getSnapshot().world !== w || w.household.active !== owner)
+        return;
+      nextMessages[nextMessages.length - 1] = { role: 'character', text: result, ai: true };
+      setMessages(nextMessages.slice(-80));
+    } catch (e) {
+      if (!controller.signal.aborted && getSnapshot().world === w && w.household.active === owner) {
+        nextMessages[nextMessages.length - 1] = {
+          role: 'character',
+          text: answer,
+          status: (e as Error).message,
+        };
+        setMessages(nextMessages.slice(-80));
+      }
+    } finally {
+      if (chatRequest.current === controller) {
+        chatRequest.current = null;
+        setAiBusy(false);
+      }
+    }
   }
   async function importGame() {
     if (!window.desktop) {
@@ -764,7 +823,11 @@ export function App() {
             <Avatar world={w} />
             <div>
               <strong>{w.character.name}</strong>
-              <p>离线对话 · 依据真实模拟事件与已授权记忆</p>
+              <p>
+                {aiReady(aiSettings)
+                  ? 'AI 陪伴 · 依据人物状态与真实记录'
+                  : '离线对话 · 依据真实模拟事件与已授权记忆'}
+              </p>
             </div>
           </div>
           <div
@@ -779,6 +842,8 @@ export function App() {
             {messages.map((m, i) => (
               <div className={`message ${m.role}`} key={i}>
                 {m.text}
+                {m.ai && <small>AI 表达 · 不写入人生事实</small>}
+                {m.status && <small role="status">{m.status} 已使用本地回复。</small>}
                 {m.remembered && (
                   <small>
                     <Check size={12} />
@@ -788,9 +853,15 @@ export function App() {
               </div>
             ))}
           </div>
+          {aiBusy && (
+            <div className="soft-note" role="status">
+              TA 正在想怎么说，上面先显示本地回复。
+              <button onClick={() => chatRequest.current?.abort()}>取消等待</button>
+            </div>
+          )}
           <div className="quick-prompts">
             {['你今天做了什么？', '你记得我什么？', '今天有点累', ...lifePrompts].map((text) => (
-              <button key={text} onClick={() => send(text)}>
+              <button key={text} disabled={aiBusy || s.cloudPaused} onClick={() => void send(text)}>
                 {text}
               </button>
             ))}
@@ -819,7 +890,7 @@ export function App() {
                 className="primary"
                 type="submit"
                 aria-label="发送"
-                disabled={!chatText.trim()}
+                disabled={!chatText.trim() || aiBusy || s.cloudPaused}
               >
                 <Send size={18} />
               </button>
@@ -834,7 +905,9 @@ export function App() {
             </label>
           </form>
           <small className="muted">
-            未授权的聊天不写入存档。离线规则对话理解有限；它不会推断你未说明的经历。
+            {aiReady(aiSettings)
+              ? '本次聊天会发送到你设置的 API；未授权的聊天不写入游戏存档。AI 表达可能有误，请以原始记录为准。'
+              : '未授权的聊天不写入存档。离线规则对话理解有限；它不会推断你未说明的经历。'}
           </small>
         </Modal>
       )}
@@ -1343,6 +1416,20 @@ function DiaryView({ world: w }: { world: World }) {
           ) : (
             <Timeline world={w} items={dayEvents} limit={8} />
           )}
+          <AIMoment
+            world={w}
+            kind="diary"
+            source={gameDate}
+            basis={`${gameDate}：${
+              diary?.body ||
+              dayEvents
+                .slice(-6)
+                .map((e) => e.text)
+                .join('；') ||
+              '今天尚无事件记录。'
+            }`}
+            label="听 TA 回顾这一天 · AI"
+          />
           <div className="diary-signature">
             慢慢来，今天也很好。
             <br />
@@ -1377,6 +1464,7 @@ function SettingsView({
         text="没有必须完成的任务，也没有必须赶上的今天。"
       />
       <div className="settings-grid">
+        <AISettingsPanel />
         <CloudSync />
         <InstallApp />
         <LivingSettings world={w} />

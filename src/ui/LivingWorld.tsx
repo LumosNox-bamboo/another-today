@@ -1,3 +1,5 @@
+import { sharedAIContext } from '../ai/context';
+import { AIMoment } from './AIMoment';
 import {
   BookOpen,
   Sprout,
@@ -53,6 +55,14 @@ export function InteractionCard({
     <section className="card interaction-card" aria-label="小人的主动分享">
       <div className="eyebrow">A MOMENT TO SHARE · {message.kind}</div>
       <p>{message.text}</p>
+      <AIMoment
+        world={w}
+        kind="share"
+        source={message.id}
+        basis={message.text}
+        label="听 TA 多说一点 · AI"
+        automatic
+      />
       <div className="button-row">
         <button
           onClick={() => {
@@ -364,6 +374,15 @@ export function LivingWorld({
                       {a.confirmedMinutes === undefined ? '尚未确认' : `${a.confirmedMinutes} 分钟`}
                     </h3>
                     <p>{a.exchange || '等你愿意时，再说说实际做了什么。'}</p>
+                    {sharedAIContext(w, a) && (
+                      <AIMoment
+                        world={w}
+                        kind="shared"
+                        source={a.id}
+                        basis={JSON.stringify(sharedAIContext(w, a))}
+                        label="聊聊这次一起做的事 · AI"
+                      />
+                    )}
                     {a.independent?.length ? (
                       <small>
                         TA 的独立活动：
@@ -383,6 +402,20 @@ export function LivingWorld({
       )}
       {tab === '礼物与作品' && (
         <div className="living-grid">
+          <AIMoment
+            world={w}
+            kind="inspiration"
+            source="next-creation"
+            basis={JSON.stringify({
+              interest: w.character.interest,
+              completed: w.living.creations
+                .filter((c) => c.completed)
+                .slice(-3)
+                .map((c) => ({ title: c.title, kind: c.kind })),
+            })}
+            label="一起找一点创作灵感 · AI"
+          />
+
           <section className="card">
             <h2>送一份小小心意</h2>
             <p className="muted">

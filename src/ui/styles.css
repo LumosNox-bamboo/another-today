@@ -2557,3 +2557,28 @@ svg {
   height: auto;
   image-rendering: pixelated;
 }
+
+.ai-settings input {
+  min-width: 0;
+}
+.ai-moment {
+  margin: 12px 0;
+}
+.ai-prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  border-left: 3px solid var(--sage, #87977a);
+  background: #eff2e9;
+  border-radius: 6px;
+}
+.ai-prose small {
+  display: block;
+  margin-top: 8px;
+  opacity: 0.7;
+  font-size: 11px;
+}
+.ai-settings .check {
+  margin: 12px 0;
+  align-items: flex-start;
+}

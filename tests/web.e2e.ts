@@ -1,3 +1,15 @@
+import { createServer } from 'node:https';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createWorld, defaultCharacter } from '../src/content/people';
+import { advance } from '../src/engine/SimulationEngine';
+import { startShared, returnShared, confirmShared } from '../src/engine/SharedActivityEngine';
+import { scheduleInteraction } from '../src/engine/InteractionScheduler';
+import { scheduleNote } from '../src/engine/NoteEngine';
+import { validateWorld } from '../src/engine/validation';
+import { DAY, MINUTE } from '../src/engine/model';
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -716,4 +728,311 @@ test('student major and professional practice persist with separate household ca
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
     page.viewportSize()!.width,
   );
+});
+
+test.describe('optional AI browser integration', () => {
+  // Exercise real CORS requests in Chromium and WebKit.
+  // Use a local TLS fixture, never a paid provider or a public third-party endpoint.
+  test.use({ ignoreHTTPSErrors: true });
+  let server: ReturnType<typeof createServer>;
+  let certDir = '';
+  let aiOrigin = '';
+  type Payload = { model: string; messages: { role: string; content: string }[] };
+  let respond: (body: Payload) => Promise<{ status: number; body: unknown }>;
+  test.beforeEach(() => {
+    respond = async () => ({ status: 503, body: {} });
+  });
+  test.beforeAll(async () => {
+    certDir = mkdtempSync(join(tmpdir(), 'another-today-ai-test-'));
+    const key = join(certDir, 'key.pem'),
+      cert = join(certDir, 'cert.pem');
+    execFileSync(
+      'openssl',
+      [
+        'req',
+        '-x509',
+        '-newkey',
+        'rsa:2048',
+        '-nodes',
+        '-keyout',
+        key,
+        '-out',
+        cert,
+        '-days',
+        '1',
+        '-subj',
+        '/CN=localhost',
+      ],
+      { stdio: 'ignore' },
+    );
+    server = createServer({ key: readFileSync(key), cert: readFileSync(cert) }, (req, res) => {
+      const headers = {
+        'access-control-allow-origin': req.headers.origin || '*',
+        'access-control-allow-methods': 'POST, OPTIONS',
+        'access-control-allow-headers': 'authorization, content-type, cache-control, pragma',
+        'content-type': 'application/json',
+      };
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, headers);
+        res.end();
+        return;
+      }
+      let raw = '';
+      req.on('data', (chunk) => {
+        raw += chunk;
+      });
+      req.on('end', async () => {
+        try {
+          const result = await respond(JSON.parse(raw));
+          res.writeHead(result.status, headers);
+          res.end(JSON.stringify(result.body));
+        } catch {
+          res.writeHead(500, headers);
+          res.end('{}');
+        }
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('Missing test server address');
+    aiOrigin = `https://127.0.0.1:${address.port}`;
+  });
+  test.afterAll(async () => {
+    if (server) {
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+    if (certDir) rmSync(certDir, { recursive: true, force: true });
+  });
+  test('optional AI settings, live chat, fallback and private-key separation work in browser', async ({
+    page,
+  }) => {
+    const calls: { model: string; messages: { role: string; content: string }[] }[] = [];
+    let failure = false;
+    respond = async (body) => {
+      calls.push(body);
+      return {
+        status: failure ? 429 : 200,
+        body: failure
+          ? { error: 'do-not-display-provider-secret' }
+          : {
+              choices: [
+                { message: { content: '这是测试服务的陪伴回复。<script>不执行</script>' } },
+              ],
+            },
+      };
+    };
+    await page.goto('./');
+    await page.getByRole('button', { name: '继续认识 TA' }).click();
+    await page.getByRole('button', { name: '继续认识 TA' }).click();
+    await page.getByRole('button', { name: '开始另一个今天' }).click();
+    await page.getByRole('button', { name: '暂停', exact: true }).click();
+    await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+    const settings = page.getByRole('region', { name: '可选 AI 陪伴设置' });
+    await settings.getByLabel('API 基础地址').fill(`${aiOrigin}/v1`);
+    await settings.getByLabel('模型名称').fill('test-companion');
+    await settings.getByLabel('API Key', { exact: true }).fill('fake-private-key-for-test');
+    expect(calls).toHaveLength(0);
+    await expect(settings.getByRole('button', { name: '保存并开启 AI' })).toBeDisabled();
+    await settings.getByLabel('我允许将当前聊天', { exact: false }).check();
+    await settings.getByRole('button', { name: '测试连接' }).click();
+    await expect(settings.getByRole('status')).toContainText('连接成功');
+    expect(calls[0].messages).toHaveLength(1);
+    expect(JSON.stringify(calls[0])).not.toContain('小满');
+    await settings.getByRole('button', { name: '保存并开启 AI' }).click();
+    expect(
+      await page.evaluate(() => localStorage.getItem('another-today-ai-settings-v1')),
+    ).not.toContain('fake-private-key-for-test');
+    await page.locator('nav').getByRole('button', { name: '今天', exact: true }).click();
+    await page.getByRole('button', { name: '和小满聊聊天' }).click();
+    await page.getByRole('textbox', { name: '聊天内容' }).fill('我们聊一会儿吧');
+    await page.getByRole('button', { name: '发送', exact: true }).click();
+    await expect(page.locator('.message').last()).toContainText('测试服务的陪伴回复');
+    expect(calls.at(-1)!.model).toBe('test-companion');
+    expect(JSON.stringify(calls.at(-1))).toContain('模拟事实');
+    await expect(page.locator('.message script')).toHaveCount(0);
+    const raw = await page.evaluate(() => localStorage.getItem('another-today')!);
+    expect(raw).not.toContain('fake-private-key-for-test');
+    expect(raw).not.toContain('测试服务的陪伴回复');
+    await page.screenshot({ path: test.info().outputPath('ai-chat.png'), fullPage: true });
+    failure = true;
+    await page.getByRole('textbox', { name: '聊天内容' }).fill('晚安');
+    await page.getByRole('button', { name: '发送', exact: true }).click();
+    await expect(page.locator('.message').last()).toContainText('已使用本地回复');
+    await expect(page.locator('.message').last()).toContainText(/晚安|今晚|明天再见/);
+    await expect(page.locator('body')).not.toContainText('do-not-display-provider-secret');
+    await page.reload();
+    await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+    await expect(settings.getByLabel('API Key', { exact: true })).toHaveValue('');
+    await expect(settings.getByRole('status')).toContainText('当前使用本地陪伴');
+  });
+
+  test('AI companion discards late replies after changing the controlled resident', async ({
+    page,
+  }) => {
+    let release: (() => void) | undefined;
+    let started = false;
+    respond = async () => {
+      started = true;
+      await new Promise<void>((r) => {
+        release = r;
+      });
+      return { status: 200, body: { choices: [{ message: { content: '只属于小满的迟到回复' } }] } };
+    };
+    await page.goto('./');
+    await page.getByRole('button', { name: '继续认识 TA' }).click();
+    await page.getByRole('button', { name: '继续认识 TA' }).click();
+    await page.getByRole('button', { name: '开始另一个今天' }).click();
+    await page.getByRole('button', { name: '暂停', exact: true }).click();
+    await page.getByRole('button', { name: '家庭与行动' }).click();
+    const household = page.getByRole('dialog', { name: '我们的家' });
+    await household.getByLabel('成员名字').fill('小禾');
+    await household.getByLabel('成员年龄').fill('24');
+    await household.getByRole('button', { name: '加入这个家' }).click();
+    await household.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.locator('nav').getByRole('button', { name: '设置', exact: true }).click();
+    const settings = page.getByRole('region', { name: '可选 AI 陪伴设置' });
+    await settings.getByLabel('API 基础地址').fill(`${aiOrigin}/v1`);
+    await settings.getByLabel('模型名称').fill('test-companion');
+    await settings.getByLabel('API Key', { exact: true }).fill('fake-private-key-for-test');
+    await settings.getByLabel('我允许将当前聊天', { exact: false }).check();
+    await settings.getByRole('button', { name: '保存并开启 AI' }).click();
+    await page.locator('nav').getByRole('button', { name: '今天', exact: true }).click();
+    await page.getByRole('button', { name: '和小满聊聊天' }).click();
+    await page.getByRole('textbox', { name: '聊天内容' }).fill('慢慢说');
+    await page.getByRole('button', { name: '发送', exact: true }).click();
+    await expect.poll(() => started).toBe(true);
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.getByRole('button', { name: '主控：小禾', exact: true }).click();
+    release!();
+    await page.getByRole('button', { name: '和小禾聊聊天' }).click();
+    await expect(page.locator('.messages')).not.toContainText('只属于小满的迟到回复');
+    await expect(page.getByRole('textbox', { name: '聊天内容' })).toHaveValue('');
+  });
+
+  test('AI reflections cover real shares, notes, diary, confirmed activities and creative ideas', async ({
+    page,
+  }) => {
+    const now = Date.now();
+    const world = createWorld(structuredClone(defaultCharacter), now, 72);
+    startShared(world, '阅读', 25, now - 30 * MINUTE);
+    advance(world, DAY);
+    returnShared(world, now);
+    confirmShared(world, world.playerActivities[0].id, 20, '我读了二十分钟');
+    world.settings.speed = 0;
+    const noon = new Date();
+    noon.setHours(12, 0, 0, 0);
+    scheduleInteraction(world, noon.getTime());
+    scheduleNote(world, noon.getTime());
+    validateWorld(world);
+    const calls: { messages: { content: string }[] }[] = [];
+    respond = async (body) => {
+      calls.push(body);
+      return {
+        status: 200,
+        body: { choices: [{ message: { content: '测试服务：根据本次真实记录说说感受。' } }] },
+      };
+    };
+    await page.addInitScript(
+      ({ world, aiOrigin }) => {
+        localStorage.setItem('another-today', JSON.stringify(world));
+        localStorage.setItem(
+          'another-today-ai-settings-v1',
+          JSON.stringify({
+            enabled: true,
+            baseUrl: `${aiOrigin}/v1`,
+            model: 'test-companion',
+            key: 'fake-fixture-key',
+            rememberKey: true,
+            shareMemories: false,
+            automatic: false,
+            dailyLimit: 30,
+          }),
+        );
+      },
+      { world, aiOrigin },
+    );
+    await page.goto('./');
+    await page.getByRole('button', { name: /^小镇来信/ }).click();
+    const share = page.getByRole('region', { name: '小人的主动分享' });
+    await share.getByRole('button', { name: '听 TA 多说一点 · AI' }).click();
+    await expect(share.locator('.ai-prose')).toContainText('根据本次真实记录');
+    await page
+      .getByRole('dialog', { name: '小镇来信与最近经历' })
+      .getByRole('button', { name: '关闭', exact: true })
+      .click();
+    await page.getByRole('button', { name: /^小纸条/ }).click();
+    const note = page.getByRole('dialog', { name: '小纸条' });
+    await note.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first().click();
+    await expect(note.locator('.ai-prose')).toContainText('根据本次真实记录');
+    await note.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.locator('nav').getByRole('button', { name: '双人日记', exact: true }).click();
+    await page.getByLabel('小人日记日期').selectOption(world.diaries[0].date);
+    await page.getByRole('button', { name: '听 TA 回顾这一天 · AI' }).click();
+    await expect(page.locator('.ai-prose')).toContainText('根据本次真实记录');
+    await page.locator('nav').getByRole('button', { name: '世界', exact: true }).click();
+    await page.getByRole('button', { name: '聊聊这次一起做的事 · AI' }).click();
+    await expect(page.locator('.ai-prose')).toContainText('根据本次真实记录');
+    expect(calls.at(-1)!.messages.at(-1)!.content).toContain('我读了二十分钟');
+    await page.getByRole('tab', { name: '礼物与作品' }).click();
+    await page.getByRole('button', { name: '一起找一点创作灵感 · AI' }).click();
+    await expect(page.locator('.ai-prose')).toContainText('根据本次真实记录');
+    expect(calls).toHaveLength(5);
+    expect(calls.every((c) => !JSON.stringify(c).includes('fake-fixture-key'))).toBe(true);
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('another-today')!));
+    expect(saved.money).toBe(world.money);
+    expect(JSON.stringify(saved)).not.toContain('测试服务：');
+    await page.screenshot({ path: test.info().outputPath('ai-inspiration.png'), fullPage: true });
+  });
+
+  for (const quietMode of ['dnd', 'focus'] as const) {
+    test(`automatic AI stays quiet during ${quietMode}`, async ({ page }) => {
+      const now = Date.now();
+      const world = createWorld(structuredClone(defaultCharacter), now, 72);
+      const noon = new Date();
+      noon.setHours(12, 0, 0, 0);
+      scheduleNote(world, noon.getTime());
+      expect(world.notes?.length).toBeGreaterThan(0);
+      world.settings.speed = 0;
+      if (quietMode === 'dnd') world.living.notifications.dnd = true;
+      else startShared(world, '学习', 25, now);
+      let calls = 0;
+      respond = async () => {
+        calls++;
+        return {
+          status: 200,
+          body: { choices: [{ message: { content: '只在手动请求后出现的回复' } }] },
+        };
+      };
+      await page.addInitScript(
+        ({ world, aiOrigin }) => {
+          localStorage.setItem('another-today', JSON.stringify(world));
+          localStorage.setItem(
+            'another-today-ai-settings-v1',
+            JSON.stringify({
+              enabled: true,
+              baseUrl: `${aiOrigin}/v1`,
+              model: 'test-companion',
+              key: 'fake-fixture-key',
+              rememberKey: true,
+              automatic: true,
+              dailyLimit: 30,
+            }),
+          );
+        },
+        { world, aiOrigin },
+      );
+      await page.goto('./');
+      await page.getByRole('button', { name: /^小纸条/ }).click();
+      const dialog = page.getByRole('dialog', { name: '小纸条' });
+      await expect(
+        dialog.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first(),
+      ).toBeVisible();
+      await expect(dialog.locator('.ai-prose')).toHaveCount(0);
+      expect(calls).toBe(0);
+      await dialog.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first().click();
+      await expect(dialog.locator('.ai-prose')).toContainText('只在手动请求后');
+      expect(calls).toBe(1);
+    });
+  }
 });
