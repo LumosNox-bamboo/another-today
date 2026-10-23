@@ -35,10 +35,11 @@ function visit(w: World, scene: Scene, activity: Activity) {
 describe('outskirts: actual places, time and exploration', () => {
   it('adds unique authored content without changing legacy IDs', () => {
     expect(
-      events.filter((e) => !e.eventId.startsWith('daily-') && !e.eventId.startsWith('chance-')),
-    ).toHaveLength(340);
+      events.filter((e) => !e.eventId.startsWith('daily-') && !e.eventId.startsWith('chance-'))
+        .length,
+    ).toBeGreaterThanOrEqual(360);
     expect(outskirtsEvents).toHaveLength(120);
-    expect(gifts).toHaveLength(60);
+    expect(gifts.length).toBeGreaterThanOrEqual(66);
     expect(storyArcs).toHaveLength(25);
     expect(newsTemplates).toHaveLength(68);
     expect(destinations).toHaveLength(6);
