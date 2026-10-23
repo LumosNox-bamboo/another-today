@@ -31,7 +31,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-      - run: npx playwright install chromium webkit
+      - run: npx playwright install --with-deps chromium webkit
       - run: npx playwright test --config playwright.web.config.ts
       - run: npx playwright test --config playwright.ios.config.ts
       - run: npx playwright test --config playwright.cloud.config.ts
