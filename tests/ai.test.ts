@@ -1,3 +1,4 @@
+import { transact } from '../src/engine/model';
 import { addResident, selectResident } from '../src/engine/HouseholdEngine';
 import { startShared, inviteShared } from '../src/engine/SharedActivityEngine';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -8,7 +9,7 @@ import {
   getAISettings,
   AI_STORAGE,
 } from '../src/ai/settings';
-import { sharedAIContext, aiMessages } from '../src/ai/context';
+import { sharedAIContext, aiMessages, aiContext } from '../src/ai/context';
 import { requestAI, AI_TIMEOUT, aiUsage, canAutoAI } from '../src/ai/client';
 import { createWorld, defaultCharacter } from '../src/content/people';
 import { rememberPlayer } from '../src/engine/MemoryEngine';
@@ -199,4 +200,22 @@ it('automatic generation has a separate three-call ceiling even with a larger da
   expect(canAutoAI()).toBe(false);
   await expect(requestAI(message, new AbortController().signal, true)).rejects.toThrow('保持安静');
   expect(aiUsage().calls).toBe(3);
+});
+
+it('gives AI the selected resident actual finances without leaking roommate bills', () => {
+  const w = createWorld();
+  const id = addResident(w, '室友', 25, '室友', 800);
+  transact(w, -37, '主控专属消费');
+  selectResident(w, id);
+  transact(w, -19, '室友专属消费');
+  const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+  const finances = aiContext(loaded, false).finances;
+  expect(finances.balance).toBe(781);
+  expect(finances.recentPersonalTransactions).toEqual([
+    { date: expect.any(String), amount: -19, reason: '室友专属消费' },
+  ]);
+  expect(JSON.stringify(finances)).not.toContain('主控专属消费');
+  selectResident(loaded, 'resident-0');
+  expect(aiContext(loaded, false).finances.balance).toBe(2963);
+  expect(JSON.stringify(aiContext(loaded, false).finances)).not.toContain('室友专属消费');
 });

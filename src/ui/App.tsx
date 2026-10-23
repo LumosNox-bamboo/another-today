@@ -770,7 +770,12 @@ export function App() {
                     <h2>
                       {w.character.name}的{walletLabel(w)} · 收支小本
                     </h2>
+                    <p className="muted">当前余额（不是累计收入或支出）</p>
                     <div className="ledger-total">¥ {money(w.money)}</div>
+                    <p className="muted">以下显示当前账户最近 15 笔收支。</p>
+                    {!w.ledger.some((l) => l.payerId && walletMembers(w).includes(l.payerId)) && (
+                      <p>当前账户暂无可显示的账单；这不表示历史支出为零。</p>
+                    )}
                     {w.ledger
                       .filter((l) => !!l.payerId && walletMembers(w).includes(l.payerId))
                       .slice(-15)

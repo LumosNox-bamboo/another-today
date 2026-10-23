@@ -146,3 +146,28 @@ it('completed activities charge once and seeded progression survives saving and 
   advance(saved, DAY);
   expect(saved).toEqual(w);
 });
+
+it('keeps second-resident spending in the ledger and dialogue after autonomous days and reload', () => {
+  const w = fresh();
+  const id = addResident(w, '室友', 25, '室友', 1800);
+  advance(w, 10 * DAY);
+  const loaded = validateWorld(JSON.parse(JSON.stringify(w)));
+  selectResident(loaded, id);
+  const purchases = loaded.events.filter((e) =>
+    ['spending-eat', 'spending-coffee', 'spending-shop'].includes(e.definition),
+  );
+  expect(purchases.length).toBeGreaterThan(0);
+  for (const event of purchases) {
+    const cost = Number(event.text.match(/本次花了 ¥(\d+)/)![1]);
+    expect(
+      loaded.ledger.some((l) => l.payerId === id && l.time === event.time && l.amount === -cost),
+    ).toBe(true);
+  }
+  const latest = loaded.ledger
+    .filter((l) => l.payerId === id && l.reason.startsWith('日常消费 · '))
+    .at(-1)!;
+  expect(reply(loaded, '最近花了什么钱？')).toContain((-latest.amount).toFixed(2));
+  expect(loaded.money).toBe(
+    1800 + loaded.ledger.filter((l) => l.payerId === id).reduce((sum, l) => sum + l.amount, 0),
+  );
+});

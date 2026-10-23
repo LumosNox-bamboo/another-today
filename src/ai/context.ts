@@ -1,3 +1,4 @@
+import { walletLabel, walletMembers } from '../engine/WalletEngine';
 import { type World, sceneNames, traitNames, dayKey, gameTime, realDate } from '../engine/model';
 import { careerActivityLabel } from '../engine/CareerEngine';
 export type AIKind = 'chat' | 'share' | 'note' | 'diary' | 'shared' | 'inspiration';
@@ -41,6 +42,25 @@ export function aiContext(w: World, shareMemories: boolean) {
       mood: w.needs.mood,
       energy: w.needs.energy,
       stress: w.needs.stress,
+    },
+    finances: {
+      account: walletLabel(w),
+      balance: w.money,
+      recentPersonalTransactions: w.ledger
+        .filter((l) => l.payerId === w.household.active)
+        .slice(-10)
+        .map((l) => ({ date: dayKey(l.time), amount: l.amount, reason: l.reason })),
+      recentAccountTransactions: w.ledger
+        .filter((l) => l.payerId && walletMembers(w).includes(l.payerId))
+        .slice(-10)
+        .map((l) => ({
+          date: dayKey(l.time),
+          amount: l.amount,
+          reason: l.reason,
+          byCurrentResident: l.payerId === w.household.active,
+        })),
+      scope:
+        '仅最近保存的账单，不是全部历史。余额不是累计收支；没有记录不代表消费为零。个人交易与核心家庭账户交易需要区分。',
     },
     recentEvents: w.events
       .filter((e) => e.definition !== 'activity')
