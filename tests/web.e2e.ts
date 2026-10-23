@@ -902,6 +902,8 @@ test.describe('optional AI browser integration', () => {
     await page.getByRole('textbox', { name: '聊天内容' }).fill('慢慢说');
     await page.getByRole('button', { name: '发送', exact: true }).click();
     await expect.poll(() => started).toBe(true);
+    await expect(page.getByRole('status').filter({ hasText: '正在输入' })).toBeVisible();
+    await expect(page.locator('.message.character')).toHaveCount(0);
     await page.getByRole('button', { name: '关闭', exact: true }).click();
     await page.getByRole('button', { name: '主控：小禾', exact: true }).click();
     release!();
@@ -963,7 +965,8 @@ test.describe('optional AI browser integration', () => {
       .click();
     await page.getByRole('button', { name: /^小纸条/ }).click();
     const note = page.getByRole('dialog', { name: '小纸条' });
-    await note.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first().click();
+    await expect(note).not.toContainText(world.notes![0].text);
+    await note.getByRole('button', { name: '拆开 AI 纸条' }).first().click();
     await expect(note.locator('.ai-prose')).toContainText('根据本次真实记录');
     await note.getByRole('button', { name: '关闭', exact: true }).click();
     await page.locator('nav').getByRole('button', { name: '双人日记', exact: true }).click();
@@ -1025,12 +1028,10 @@ test.describe('optional AI browser integration', () => {
       await page.goto('./');
       await page.getByRole('button', { name: /^小纸条/ }).click();
       const dialog = page.getByRole('dialog', { name: '小纸条' });
-      await expect(
-        dialog.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first(),
-      ).toBeVisible();
+      await expect(dialog.getByRole('button', { name: '拆开 AI 纸条' }).first()).toBeVisible();
       await expect(dialog.locator('.ai-prose')).toHaveCount(0);
       expect(calls).toBe(0);
-      await dialog.getByRole('button', { name: '读一张新表达的纸条 · AI' }).first().click();
+      await dialog.getByRole('button', { name: '拆开 AI 纸条' }).first().click();
       await expect(dialog.locator('.ai-prose')).toContainText('只在手动请求后');
       expect(calls).toBe(1);
     });

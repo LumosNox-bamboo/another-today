@@ -1,7 +1,9 @@
+import { aiReady, useAISettings } from '../ai/settings';
 import { AIMoment } from './AIMoment';
 import type { World } from '../engine/model';
 import { mutate } from '../store';
 export function Notes({ world: w }: { world: World }) {
+  const ai = aiReady(useAISettings());
   const notes = (w.notes || [])
     .filter((n) => n.residentId === w.household.active)
     .slice()
@@ -14,13 +16,14 @@ export function Notes({ world: w }: { world: World }) {
         <article className="little-note" key={n.id}>
           <strong>{n.author}写给你</strong>
           <small>{new Date(n.time).toLocaleString()}</small>
-          <p>{n.text}</p>
+          {!ai && <p>{n.text}</p>}
           <AIMoment
             world={w}
             kind="note"
             source={n.id}
             basis={n.text}
-            label="读一张新表达的纸条 · AI"
+            label="拆开 AI 纸条"
+            directNote
             automatic={n.id === notes[0]?.id}
           />
           <button

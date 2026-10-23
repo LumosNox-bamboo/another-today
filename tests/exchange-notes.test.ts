@@ -150,3 +150,40 @@ it('expanded rewards deliver gifts, clothes, furniture, consumables and queued a
     'record-corner',
   );
 });
+
+it('rotates notes through inactive residents without changing the controlled person or wallets', () => {
+  const w = createWorld();
+  const a = addResident(w, '青禾', 25, '室友');
+  const b = addResident(w, '晚星', 28, '室友');
+  const active = w.household.active;
+  const wallets = structuredClone(w.household.wallets);
+  w.living.notifications.dailyLimit = 5;
+  const now = new Date(2026, 9, 20, 10).getTime();
+  scheduleNote(w, now);
+  scheduleNote(w, now + 4 * HOUR);
+  scheduleNote(w, now + 24 * HOUR);
+  expect(w.notes!.map((n) => n.residentId)).toEqual([active, a, b]);
+  expect(w.notes!.map((n) => n.author)).toEqual([w.character.name, '青禾', '晚星']);
+  expect(w.household.active).toBe(active);
+  expect(w.household.wallets).toEqual(wallets);
+  expect(validateWorld(JSON.parse(JSON.stringify(w))).notes).toEqual(w.notes);
+});
+
+it('personality changes note wording under identical seeds and circumstances', () => {
+  let different = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const a = createWorld(undefined, Date.now(), seed * 7919);
+    const b = structuredClone(a);
+    for (const key of Object.keys(a.character.traits) as (keyof typeof a.character.traits)[]) {
+      a.character.traits[key] = 0;
+      b.character.traits[key] = 0;
+    }
+    a.character.traits.discipline = 100;
+    b.character.traits.extraversion = 100;
+    const now = new Date(2026, 9, 20, 10).getTime();
+    scheduleNote(a, now);
+    scheduleNote(b, now);
+    if (a.notes![0].text !== b.notes![0].text) different++;
+  }
+  expect(different).toBeGreaterThan(20);
+});

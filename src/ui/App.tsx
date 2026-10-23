@@ -211,7 +211,7 @@ export function App() {
     const nextMessages: ChatMessage[] = [
       ...messages,
       { role: 'player', text, remembered: saved },
-      { role: 'character', text: answer },
+      ...(!aiReady(aiSettings) ? [{ role: 'character' as const, text: answer }] : []),
     ];
     setMessages(nextMessages.slice(-80));
     setChatText('');
@@ -227,15 +227,15 @@ export function App() {
       );
       if (controller.signal.aborted || getSnapshot().world !== w || w.household.active !== owner)
         return;
-      nextMessages[nextMessages.length - 1] = { role: 'character', text: result, ai: true };
+      nextMessages.push({ role: 'character', text: result, ai: true });
       setMessages(nextMessages.slice(-80));
     } catch (e) {
       if (!controller.signal.aborted && getSnapshot().world === w && w.household.active === owner) {
-        nextMessages[nextMessages.length - 1] = {
+        nextMessages.push({
           role: 'character',
           text: answer,
           status: (e as Error).message,
-        };
+        });
         setMessages(nextMessages.slice(-80));
       }
     } finally {
@@ -836,9 +836,11 @@ export function App() {
               if (el) el.scrollTop = el.scrollHeight;
             }}
           >
-            <div className="message character">
-              你回来啦。我正在{careerActivityLabel(w)}，今天也有自己的小小进度。你想聊什么？
-            </div>
+            {!aiReady(aiSettings) && (
+              <div className="message character">
+                你回来啦。我正在{careerActivityLabel(w)}，今天也有自己的小小进度。你想聊什么？
+              </div>
+            )}
             {messages.map((m, i) => (
               <div className={`message ${m.role}`} key={i}>
                 {m.text}
@@ -855,7 +857,7 @@ export function App() {
           </div>
           {aiBusy && (
             <div className="soft-note" role="status">
-              TA 正在想怎么说，上面先显示本地回复。
+              {w.character.name}正在输入…
               <button onClick={() => chatRequest.current?.abort()}>取消等待</button>
             </div>
           )}

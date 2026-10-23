@@ -13,6 +13,7 @@ export function AIMoment({
   basis,
   label,
   automatic = false,
+  directNote = false,
 }: {
   world: World;
   kind: Exclude<AIKind, 'chat'>;
@@ -20,6 +21,7 @@ export function AIMoment({
   basis: string;
   label: string;
   automatic?: boolean;
+  directNote?: boolean;
 }) {
   const settings = useAISettings();
   const paused = useGame().cloudPaused;
@@ -85,7 +87,13 @@ export function AIMoment({
   return (
     <div className="ai-moment">
       <button disabled={busy || paused} onClick={() => void generate()}>
-        {busy ? '正在想怎么说…' : text ? '换一种说法 · AI' : label}
+        {busy
+          ? directNote
+            ? `${w.character.name}正在写纸条…`
+            : '正在想怎么说…'
+          : text
+            ? '换一种说法 · AI'
+            : label}
       </button>
       {busy && (
         <button className="quiet-button" onClick={() => pending.current?.abort()}>
@@ -100,7 +108,7 @@ export function AIMoment({
       )}
       {error && (
         <p role="status" className="muted">
-          {error} 原有内容仍可使用。
+          {directNote ? '纸条暂时没写好，可以稍后再拆开。' : '原有内容仍可使用。'} {error}
         </p>
       )}
     </div>
