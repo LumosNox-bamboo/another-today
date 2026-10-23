@@ -26,11 +26,11 @@ export function lifeReply(w: World, s: string): string | undefined {
   const turn = w.companion.conversations;
   if (/最近花了什么钱|你的消费|你.*花钱/.test(s)) {
     const recent = w.ledger
-      .filter((l) => l.payerId === w.household.active && l.reason.startsWith('日常消费 · '))
+      .filter((l) => l.payerId === w.household.active && l.amount < 0)
       .slice(-3);
     return recent.length
       ? `最近实际花在这些地方：${recent.map((l) => `${l.reason.replace('日常消费 · ', '')}，¥${(-l.amount).toFixed(2)}`).join('；')}。`
-      : '还没有记下新的日常消费。买什么会看心情和喜好，也得看看手头预算。';
+      : '最近保存的个人账本里暂时没有可核对的支出记录，这不代表以前没有花过钱。';
   }
   if (/你在忙什么|你.*(正在做|现在做)/.test(s)) {
     const lead = ['我现在在', '这会儿在', '手头正在做的是'][turn % 3];

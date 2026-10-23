@@ -2,6 +2,8 @@ import { syncRealCalendar } from './SeasonEngine';
 import { type World, MINUTE, DAY } from './model';
 import { advance } from './SimulationEngine';
 export interface CatchUpReport {
+  residentId: string;
+  recentTransactions: World['ledger'];
   realElapsed: number;
   gameElapsed: number;
   skipped: number;
@@ -32,6 +34,11 @@ export function catchUp(w: World, now = Date.now()): CatchUpReport {
   // Retain the high-water mark when the OS clock moves backwards; elapsed time cannot be replayed.
   w.lastReal = Math.max(w.lastReal, now);
   return {
+    residentId: w.household.active,
+    recentTransactions: w.ledger
+      .filter((l) => l.payerId === w.household.active && Number(l.id.split('-').at(-1)) > seq)
+      .slice(-5)
+      .map((l) => ({ ...l })),
     realElapsed: elapsed,
     gameElapsed,
     skipped: requested - gameElapsed,

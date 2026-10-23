@@ -76,7 +76,7 @@ it('shares limits only within core-family wallets and reports the selected perso
   const budget = optionalSpendingBudget(w);
   selectResident(w, spouse);
   expect(optionalSpendingBudget(w)).toBe(budget);
-  expect(reply(w, '最近花了什么钱？')).toContain('还没有');
+  expect(reply(w, '最近花了什么钱？')).toContain('暂时没有');
   selectResident(w, roommate);
   expect(w.money).toBe(800);
   expect(optionalSpendingBudget(w)).toBe(45);
@@ -170,4 +170,39 @@ it('keeps second-resident spending in the ledger and dialogue after autonomous d
   expect(loaded.money).toBe(
     1800 + loaded.ledger.filter((l) => l.payerId === id).reduce((sum, l) => sum + l.amount, 0),
   );
+});
+
+it('offline report retains the second resident identity and actual transactions after switching', async () => {
+  const { catchUp } = await import('../src/engine/SimulationClock');
+  const w = fresh();
+  const id = addResident(w, '晚晚', 25, '室友', 1800);
+  selectResident(w, id);
+  w.settings.speed = 1;
+  w.activity = { kind: 'eat', scene: 'apartment', start: w.time, end: w.time + 5 * MINUTE };
+  const report = catchUp(w, w.lastReal + 10 * MINUTE);
+  const paid = report.recentTransactions.find((l) => l.reason.startsWith('日常消费 · 吃饭'))!;
+  expect(paid.amount).toBeLessThan(0);
+  expect(report.moneyDelta).toBe(paid.amount);
+  expect(report.recentTransactions.every((l) => l.payerId === id)).toBe(true);
+  selectResident(w, 'resident-0');
+  expect(report.residentId).toBe(id);
+  expect(report.recentTransactions).toContainEqual(paid);
+  const again = catchUp(w, w.lastReal);
+  expect(again.recentTransactions).toEqual([]);
+  expect(again.moneyDelta).toBe(0);
+});
+
+it('spending dialogue includes old reason labels and non-daily expenses without claiming zero', async () => {
+  const { transact } = await import('../src/engine/model');
+  const w = fresh();
+  const id = addResident(w, '晚晚', 25, '室友');
+  selectResident(w, id);
+  expect(reply(w, '最近花了什么钱？')).toContain('不代表以前没有花过钱');
+  transact(w, -12, '餐费');
+  transact(w, -30, '每日住房与公共开支');
+  transact(w, 100, '当日职业收入');
+  const answer = reply(w, '最近花了什么钱？');
+  expect(answer).toContain('餐费，¥12.00');
+  expect(answer).toContain('每日住房与公共开支，¥30.00');
+  expect(answer).not.toContain('职业收入');
 });

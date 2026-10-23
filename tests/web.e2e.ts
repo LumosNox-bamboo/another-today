@@ -1037,3 +1037,31 @@ test.describe('optional AI browser integration', () => {
     });
   }
 });
+
+test('second resident welcome shows actual offline purchases and net balance distinctly', async ({
+  page,
+}) => {
+  const { addResident, selectResident } = await import('../src/engine/HouseholdEngine');
+  const world = createWorld(structuredClone(defaultCharacter), Date.now() - 10 * MINUTE, 72);
+  const id = addResident(world, '晚晚', 25, '室友', 1800);
+  selectResident(world, id);
+  world.settings.speed = 1;
+  world.activity = {
+    kind: 'eat',
+    scene: 'apartment',
+    start: world.time,
+    end: world.time + 5 * MINUTE,
+  };
+  await page.addInitScript((w) => localStorage.setItem('another-today', JSON.stringify(w)), world);
+  await page.goto('./');
+  const welcome = page.getByRole('dialog', { name: '你不在的这段时间' });
+  await expect(welcome).toContainText('晚晚：你回来啦');
+  await expect(welcome).toContainText('余额净变化');
+  await expect(welcome.getByRole('region', { name: '离线期间本人最近收支' })).toContainText(
+    '日常消费 · 吃饭',
+  );
+  await welcome.getByRole('button', { name: '聊聊这段时间' }).click();
+  await page.getByRole('button', { name: '最近花了什么钱？', exact: true }).click();
+  await expect(page.locator('.message').last()).toContainText('吃饭');
+  await expect(page.locator('.message').last()).not.toContainText('暂时没有');
+});

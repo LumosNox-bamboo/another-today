@@ -16,7 +16,7 @@ import { useRealClock } from './RealClock';
 import { FocusRewards } from './FocusRewards';
 import { clockText, focusRemaining } from '../engine/FocusRewardEngine';
 import { walletMembers, walletLabel } from '../engine/WalletEngine';
-import { lifeRole } from '../engine/HouseholdEngine';
+import { lifeRole, resident, selectResident } from '../engine/HouseholdEngine';
 import { GameStage } from './GameStage';
 import { LivingWorld, LivingSettings, CausalityView } from './LivingWorld';
 import { InstallApp } from './InstallApp';
@@ -980,6 +980,7 @@ export function App() {
           report={s.report}
           onClose={dismissReport}
           onChat={() => {
+            mutate((world) => selectResident(world, s.report!.residentId));
             dismissReport();
             openChat();
           }}
@@ -1017,7 +1018,7 @@ function PageTitle({ eyebrow, title, text }: { eyebrow: string; title: string; t
   );
 }
 function Welcome({
-  world: w,
+  world,
   report: r,
   onClose,
   onChat,
@@ -1027,6 +1028,8 @@ function Welcome({
   onClose: () => void;
   onChat: () => void;
 }) {
+  const person = resident(world, r.residentId);
+  const w = { ...world, ...person, living: { ...world.living, ...person?.living } };
   const [detail, setDetail] = useState(false),
     [important, setImportant] = useState(false);
   const list = w.events.filter((e) => r.events.includes(e.id) && (!important || e.important));
@@ -1036,7 +1039,7 @@ function Welcome({
         <Avatar world={w} size="large" />
         <div>
           <span className="eyebrow">WELCOME BACK</span>
-          <h2>你回来啦，今天也有自己的故事。</h2>
+          <h2>{w.character.name}：你回来啦，今天也有自己的故事。</h2>
           <p>
             现实经过 {Math.round(r.realElapsed / MINUTE)} 分钟 · 游戏推进{' '}
             {(r.gameElapsed / HOUR).toFixed(1)} 小时
@@ -1054,10 +1057,25 @@ function Welcome({
         {r.skipped > 0 &&
           ` 离线补算上限之外的 ${(r.skipped / DAY).toFixed(1)} 个游戏日视作休整，没有推进游戏日期，也未产生收入或事件。`}
       </p>
+      <p className="muted">
+        余额净变化是账户收入减去支出，不是消费总额；净变化为 0
+        也可能有消费。核心家庭显示共享账户的变化。
+      </p>
+      {r.recentTransactions.length > 0 && (
+        <section aria-label="离线期间本人最近收支">
+          <strong>{w.character.name}在这段时间最近的收支</strong>
+          {r.recentTransactions.map((l) => (
+            <p key={l.id}>
+              {l.reason} · {l.amount >= 0 ? '+' : ''}¥{l.amount.toFixed(2)}
+            </p>
+          ))}
+          <small>最多列出最近 5 笔本人账单，不是全部历史收支。</small>
+        </section>
+      )}
       <div className="return-stats">
         {[
           ['心情', `${r.moodDelta >= 0 ? '+' : ''}${r.moodDelta.toFixed(0)}`],
-          ['积蓄', `${r.moneyDelta >= 0 ? '+' : ''}¥${money(r.moneyDelta)}`],
+          ['余额净变化', `${r.moneyDelta >= 0 ? '+' : ''}¥${money(r.moneyDelta)}`],
           ['新记忆', r.newMemories],
           ['关系熟悉度', `+${r.relationshipDelta}`],
           ['新物品', r.newItems],
